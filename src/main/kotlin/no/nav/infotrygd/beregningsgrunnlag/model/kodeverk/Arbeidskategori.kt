@@ -1,0 +1,33 @@
+package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
+
+enum class Arbeidskategori(val uri: String) {
+    FISKER(""),
+    ARBEIDSTAKER(""),
+    SELVSTENDIG(""),
+    ARBTAKER_SELVSTENDIG(""),
+    SJOMENN(""),
+    JORDBRUKER(""),
+    ARBEIDSLEDIG(""),
+    INAKTIV(""),
+    BEFAL(""),
+    MENING_KORPORAL(""),
+    ARBTAKER_M_SJOEM(""),
+    TURNUSKANDIDATER(""),
+    SVALBARDARBEIDER(""),
+    ARBTAKER_JORDBRUKER(""),
+    YRKESSKADE(""),
+    AMBASSADEPERSONELL(""),
+    REINDRIFT(""),
+    ARBTAKER_FISKER(""),
+    IKKE_I_BRUK(""),
+    OPPDRAGSTAKER(""),
+    ARBTAKER_OPPDRAGSTAKER(""),
+    FFU_21(""),
+    FFU_22(""),
+    ARBTAKER_A_LOYSE(""),
+    OPPDRAGSTAKER_U_FORS(""),
+    ARB_OPPDRAGSTAKER_U_FORS(""),
+    SELVSTENDIG_DAGMAMMA_DAGPAPPA(""),
+    FISKER_MED_HYRE(""),
+    INNTEKTSOPPLYSNINGER_MANGLER("")
+}
