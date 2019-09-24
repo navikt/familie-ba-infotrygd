@@ -2,7 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.repository
 
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Behandlingstema
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
 import org.assertj.core.api.Assertions.assertThat
@@ -29,7 +29,22 @@ class PeriodeRepositoryTest {
     }
 
     private val fnr = FodselNr("10000000001")
-    private val tema = Behandlingstema.RISIKOFYLT_ARBMILJOE
+    private val tema = Stoenadstype.RISIKOFYLT_ARBMILJOE
+
+    @Test
+    fun findByFnrAndStoenadstypeAndDates() {
+        val dato = LocalDate.now()
+        val relevant = periode(tema, arbufoer = dato)
+        val feilTema = periode(Stoenadstype.ADOPSJON, arbufoer = dato)
+        val forTidlig = periode(tema, arbufoer = dato.minusYears(1))
+        val forSen = periode(tema, arbufoer = dato.plusYears(1))
+
+        repository.saveAll(listOf(relevant, feilTema, forTidlig, forSen))
+
+        val result = repository.findByFnrAndStoenadstypeAndDates(fnr, listOf(tema), dato.minusDays(1), dato.plusDays(1))
+
+        assertThat(listOf(relevant)).isEqualTo(result) // relevant hibernate bug: https://hibernate.atlassian.net/browse/HHH-5409
+    }
 
     @Test
     fun findAvsluttedeSakerByFnr() {
@@ -38,7 +53,7 @@ class PeriodeRepositoryTest {
 
         val utgatt = periode(tema, "F", LocalDate.now().minusYears(2))
         val ikkeFrisk = periode(tema, "X")
-        val ikkeSv = periode(Behandlingstema.FOEDSEL, "F")
+        val ikkeSv = periode(Stoenadstype.FOEDSEL, "F")
 
         repository.saveAll(listOf(relevant, utgatt, ikkeFrisk, ikkeSv))
 
@@ -58,7 +73,7 @@ class PeriodeRepositoryTest {
         val relevant = periode(tema, " ")
 
         val frisk = periode(tema, "F")
-        val ikkeSv = periode(Behandlingstema.SYKEPENGER, " ")
+        val ikkeSv = periode(Stoenadstype.SYKEPENGER, " ")
 
         repository.saveAll(listOf(relevant, frisk, ikkeSv))
 
@@ -75,7 +90,8 @@ class PeriodeRepositoryTest {
                 personKey = p.personKey,
                 arbufoerSeq = p.arbufoerSeq,
                 utbetaltFom = LocalDate.now().minusYears(1),
-                utbetaltTom = LocalDate.now()
+                utbetaltTom = LocalDate.now(),
+                grad = null
             )
         ))
 
@@ -102,8 +118,8 @@ class PeriodeRepositoryTest {
     }
 
     private fun periode(
-        behandlingstema: Behandlingstema,
-        frisk: String,
+        stoenadstype: Stoenadstype,
+        frisk: String = " ",
         arbufoer: LocalDate = LocalDate.now()
     ): Periode {
         return Periode(
@@ -111,11 +127,18 @@ class PeriodeRepositoryTest {
             personKey = 1,
             arbufoerSeq = 1,
             fnr = fnr,
-            behandlingstema = behandlingstema,
+            stoenadstype = stoenadstype,
             frisk = frisk,
             arbufoer = arbufoer,
             stoppdato = null,
-            utbetalinger = listOf()
+            utbetalinger = listOf(),
+            inntekter = listOf(),
+            utbetaltFom = null,
+            utbetaltTom = null,
+            arbufoerOpprinnelig = LocalDate.now(),
+            dekningsgrad = null,
+            foedselsdatoBarn = null,
+            arbeidskategori = null
         )
     }
 }

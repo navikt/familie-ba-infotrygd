@@ -2,7 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
 
 import no.nav.infotrygd.beregningsgrunnlag.rest.dto.Kodeverdi
 
-enum class Behandlingstema(override val kode: String, override val tekst: String) : Kode { // todo: termnavn
+enum class Stoenadstype(override val kode: String, override val tekst: String) : Kode { // todo: termnavn
     // Sykepenger
     SYKEPENGER("", "Sykepenger"),
 
@@ -20,7 +20,7 @@ enum class Behandlingstema(override val kode: String, override val tekst: String
     PLEIEPENGER_INSTOPPH("PI", "Pleiepenger (identdato før 1.10.2017)"),
     PLEIEPENGER_NY_ORDNING("PN", "Pleiepenger, ny ordning (identdato etter 1.10.2017)"); // ???
 
-    fun toDto(): Kodeverdi {
+    fun toBehandlingstema(): Kodeverdi {
         return when(this) {
             SYKEPENGER -> Kodeverdi("SP", tekst)
             FOEDSEL -> Kodeverdi("FØ", tekst)

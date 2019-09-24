@@ -75,6 +75,7 @@ dependencies {
     implementation("com.oracle:ojdbc8:12.2.0.1")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:oracle-xe:1.12.1")
     compile("com.h2database:h2")
 }
 

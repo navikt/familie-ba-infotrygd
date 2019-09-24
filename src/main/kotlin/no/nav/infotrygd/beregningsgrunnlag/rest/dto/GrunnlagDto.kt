@@ -1,20 +1,20 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.dto
 
+import io.swagger.annotations.ApiModelProperty
+import java.math.BigDecimal
 import java.time.LocalDate
 
-data class Grunnlag(
-    val behandlingstema: Kodeverdi, // todo: kodeverk
-    val identdato: LocalDate,
-    val periode: Periode,
-    val arbeidskategori: Kodeverdi, // todo: kodeverk
-    val arbeidsforhold: List<Arbeidsforhold>,
-
-    val detaljer: Grunnlagsdetaljer
-)
-
+interface Grunnlag {
+    val behandlingstema: Kodeverdi
+    val identdato: LocalDate
+    val periode: Periode?
+    val arbeidskategori: Kodeverdi?
+    val arbeidsforhold: List<Arbeidsforhold>
+    val vedtak: List<Vedtak>
+}
 
 data class Vedtak(
-    val utbetalingsgrad: Int,
+    val utbetalingsgrad: Int?,
     val periode: Periode
 )
 
@@ -24,14 +24,14 @@ data class Periode(
 )
 
 data class Arbeidsforhold(
-    val inntektForPerioden: Long,
+    val inntektForPerioden: BigDecimal?,
     val inntektsperiode: Kodeverdi,
-    val orgNr: String
+    val arbeidsgiverOrgnr: String
 )
 
-interface Grunnlagsdetaljer
+data class Kodeverdi(val kode: String, val termnavn: String)
 
-data class Foreldrepenger(
+/*data class Foreldrepenger(
     val opprinneligIdentdato: LocalDate,
     val dekningsgrad: Int,
     val gradering: Int,
@@ -45,6 +45,25 @@ data class Sykepenger(
 
 data class PaarorendeSykdom(
     val foedselsdatoPleietrengende: LocalDate
-) : Grunnlagsdetaljer
+) : Grunnlagsdetaljer*/
 
-data class Kodeverdi(val kode: String, val termnavn: String)
+// testing -----------
+
+
+
+data class GrunnlagGenerelt(
+    override val behandlingstema: Kodeverdi,
+    override val identdato: LocalDate,
+    override val periode: Periode?,
+    override val arbeidskategori: Kodeverdi?,
+    override val arbeidsforhold: List<Arbeidsforhold>,
+    override val vedtak: List<Vedtak>
+) : Grunnlag
+
+data class Foreldrepenger(
+    private val generelt: GrunnlagGenerelt,
+    val opprinneligIdentdato: LocalDate,
+    val dekningsgrad: Int?,
+    val gradering: Int?,
+    val foedselsdatoBarn: LocalDate
+) : Grunnlag by generelt

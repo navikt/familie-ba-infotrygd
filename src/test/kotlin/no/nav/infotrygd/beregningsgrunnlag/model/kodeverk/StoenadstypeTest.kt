@@ -3,7 +3,7 @@ package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class BehandlingstemaTest {
+class StoenadstypeTest {
 
     @Test
     fun toDto() {
@@ -14,8 +14,8 @@ class BehandlingstemaTest {
 
         val mapKeys: MutableSet<String> = HashSet()
 
-        for(v in Behandlingstema.values()) {
-            val dto = v.toDto()
+        for(v in Stoenadstype.values()) {
+            val dto = v.toBehandlingstema()
             if(v.kode in map) {
                 assertThat(dto.kode).isEqualTo(map[v.kode])
                 mapKeys.add(v.kode)

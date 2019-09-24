@@ -1,7 +1,9 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.converters
 
 import no.nav.infotrygd.beregningsgrunnlag.exception.UkjentDatabaseverdiException
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Behandlingstema
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Kode
 import javax.persistence.AttributeConverter
 import javax.persistence.Converter
@@ -29,4 +31,10 @@ abstract class KodeConverter<T : Kode>(private val koder: List<T>, val fieldSize
 }
 
 @Converter(autoApply = true)
-class BehandlingstemaConverter : KodeConverter<Behandlingstema>(Behandlingstema.values().toList(), fieldSize = 2)
+class BehandlingstemaConverter : KodeConverter<Stoenadstype>(Stoenadstype.values().toList(), fieldSize = 2)
+
+@Converter(autoApply = true)
+class ArbeidskategoriConverter : KodeConverter<Arbeidskategori>(Arbeidskategori.values().toList(), fieldSize = 2)
+
+@Converter(autoApply = true)
+class InntektsperiodeConverter : KodeConverter<Inntektsperiode>(Inntektsperiode.values().toList(), fieldSize = 2)

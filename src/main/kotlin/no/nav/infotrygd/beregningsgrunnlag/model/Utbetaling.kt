@@ -1,6 +1,7 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
 import no.nav.infotrygd.beregningsgrunnlag.model.converters.NavLocalDateConverter
+import no.nav.infotrygd.beregningsgrunnlag.model.converters.UtbetalingsgradConverter
 import java.time.LocalDate
 import javax.persistence.*
 
@@ -23,5 +24,9 @@ data class Utbetaling(
 
     @Column(name = "IS15_UTBETTOM", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
-    val utbetaltTom: LocalDate
+    val utbetaltTom: LocalDate,
+
+    @Column(name = "IS15_GRAD", columnDefinition = "CHAR")
+    @Convert(converter = UtbetalingsgradConverter::class)
+    val grad: Int?
 )
