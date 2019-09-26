@@ -15,7 +15,7 @@ abstract class KodeConverter<T : Kode>(private val koder: List<T>, val fieldSize
     }
 
     override fun convertToEntityAttribute(dbData: String?): T? {
-        if(dbData == null) {
+        if(dbData.isNullOrBlank()) {
             return null
         }
 

@@ -20,6 +20,8 @@ class KodeConverterTest {
     fun convertToEntityAttribute() {
         assertThat(converter.convertToEntityAttribute("b")).isEqualTo(E.B)
         assertThat(converter.convertToEntityAttribute("b ")).isEqualTo(E.B)
+        assertThat(converter.convertToEntityAttribute(null)).isNull()
+        assertThat(converter.convertToEntityAttribute("  ")).isNull()
     }
 
     @Test(expected = UkjentDatabaseverdiException::class)
