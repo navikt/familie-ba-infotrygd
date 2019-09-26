@@ -2,23 +2,24 @@ package no.nav.infotrygd.beregningsgrunnlag.testutil
 
 import org.springframework.web.reactive.function.client.WebClient
 
-fun svangerskapspengerClient(port: Int): WebClient {
-    val token = authToken(port)
+fun restClient(port: Int, subject: String? = null): WebClient {
+    val token = authToken(port, subject)
     return WebClient.builder()
         .baseUrl(baseUrl(port))
         .defaultHeader("Authorization", "Bearer $token")
         .build()
 }
 
-fun svangerskapspengerNoAuthClient(port: Int): WebClient {
+fun restClientNoAuth(port: Int): WebClient {
     return WebClient.builder()
         .baseUrl("http://localhost:$port")
         .build()
 }
 
-fun authToken(port: Int): String {
+fun authToken(port: Int, subject: String? = null): String {
     val url = baseUrl(port)
-    return WebClient.create("$url/local/jwt").get()
+    val subjectQuery = subject?.let { "?subject=$it" } ?: ""
+    return WebClient.create("$url/local/jwt$subjectQuery").get()
         .retrieve()
         .bodyToMono(String::class.java)
         .block() !!

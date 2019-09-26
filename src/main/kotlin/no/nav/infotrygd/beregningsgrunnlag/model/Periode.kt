@@ -5,6 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.converters.ReversedFodselNrConv
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.io.Serializable
@@ -57,6 +58,12 @@ data class Periode(
     @Convert(converter = NavLocalDateConverter::class)
     val foedselsdatoBarn: LocalDate?,
 
+    @Column(name = "IS10_TIDSK_BARNFNR", columnDefinition = "CHAR")
+    val tidskontoBarnFnr: String?,
+
+    @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")
+    val stebarnsadopsjon: String?,
+
     @Column(name = "IS10_ARBKAT_99", columnDefinition = "CHAR")
     val arbeidskategori: Arbeidskategori?,
 
@@ -65,6 +72,9 @@ data class Periode(
     @Column(name = "IS10_STOPPDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val stoppdato: LocalDate?,
+
+    @Column(name = "TK_NR", columnDefinition = "CHAR")
+    val tkNr: String,
 
     @OneToMany
     @JoinColumns(value = [
@@ -110,5 +120,32 @@ data class Periode(
             }
 
             return Ytelse.UKJENT
+        }
+
+    val barnPersonKey: Long?
+        get() {
+            if(tidskontoBarnFnr == null) {
+                return null
+            }
+
+            return "$tkNr$tidskontoBarnFnr".toLong()
+        }
+
+    val barnKode: String
+        get() {
+            val sammeKjoennMor = stebarnsadopsjon in setOf("A", "D")
+            if (sammeKjoennMor) {
+                return "1"
+            }
+
+            val sammeKjoennFar = stebarnsadopsjon in setOf("B", "C", "E")
+            if (sammeKjoennFar) {
+                return "2"
+            }
+
+            return when (fnr.kjoenn) {
+                Kjoenn.KVINNE -> "1"
+                Kjoenn.MANN -> "2"
+            }
         }
 }

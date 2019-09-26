@@ -1,6 +1,5 @@
-package no.nav.infotrygd.beregningsgrunnlag.rest.dto
+package no.nav.infotrygd.beregningsgrunnlag.dto
 
-import io.swagger.annotations.ApiModelProperty
 import java.math.BigDecimal
 import java.time.LocalDate
 

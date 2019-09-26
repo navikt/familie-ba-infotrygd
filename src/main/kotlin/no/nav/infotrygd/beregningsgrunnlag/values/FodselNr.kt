@@ -9,4 +9,10 @@ data class FodselNr(@JsonValue val asString: String) {
             throw IllegalArgumentException("Ikke et gyldig fødselsnummer: $asString")
         }
     }
+
+    val kjoenn: Kjoenn
+        get() {
+            val kjoenn = asString.slice(8 until 9).toInt()
+            return if(kjoenn % 2 == 0) Kjoenn.KVINNE else Kjoenn.MANN
+        }
 }

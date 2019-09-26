@@ -1,7 +1,9 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
+import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
@@ -42,25 +44,57 @@ class PeriodeTest {
         //'BR' - Barn Sykdom m/refusjon
     }
 
-    private fun periode(type: Stoenadstype): Periode {
-        val p = Periode(
-            id = 0,
-            personKey = 0,
-            arbufoerSeq = 0,
-            stoenadstype = type,
-            fnr = FodselNr("12345678900"),
-            frisk = null,
-            arbufoer = LocalDate.now(),
-            stoppdato = LocalDate.now(),
-            utbetalinger = listOf(),
-            inntekter = listOf(),
-            utbetaltFom = null,
-            utbetaltTom = null,
-            arbufoerOpprinnelig = LocalDate.now(),
-            dekningsgrad = null,
-            foedselsdatoBarn = null,
-            arbeidskategori = null
+    @Test
+    fun barnPersonKey() {
+
+        val tkNr = "1000"
+        val barnFnr = "10101012345"
+
+        val periode = TestData.periode().copy(
+            tkNr = tkNr,
+            tidskontoBarnFnr = barnFnr
+            // todo: tknr, barnfnr, adopsjon
         )
-        return p
+
+        assertThat(periode.barnPersonKey).isEqualTo("$tkNr$barnFnr".toLong())
+    }
+
+    @Test
+    fun barnKode() {
+        for(adopsjon in listOf("A", "D")) {
+            for(kjoenn in Kjoenn.values()) {
+                val kode = beregnKode(adopsjon, kjoenn)
+                assertThat(kode).isEqualTo("1")
+            }
+        }
+
+        for(adopsjon in listOf("B", "C", "E")) {
+            for(kjoenn in Kjoenn.values()) {
+                val kode = beregnKode(adopsjon, kjoenn)
+                assertThat(kode).isEqualTo("2")
+            }
+        }
+
+        assertThat(beregnKode("x", Kjoenn.KVINNE)).isEqualTo("1")
+        assertThat(beregnKode("x", Kjoenn.MANN)).isEqualTo("2")
+    }
+
+    private fun beregnKode(adopsjon: String, kjoenn: Kjoenn): String? {
+        val mannFnr = FodselNr("00000000100")
+        assertThat(mannFnr.kjoenn).isEqualTo(Kjoenn.MANN)
+
+        val kvinneFnr = FodselNr("00000000200")
+        assertThat(kvinneFnr.kjoenn).isEqualTo(Kjoenn.KVINNE)
+
+        return TestData.periode().copy(
+            stebarnsadopsjon = adopsjon,
+            fnr = if (kjoenn == Kjoenn.MANN) mannFnr else kvinneFnr
+        ).barnKode
+    }
+
+    private fun periode(type: Stoenadstype): Periode {
+        return TestData.periode().copy(
+            stoenadstype = type
+        )
     }
 }

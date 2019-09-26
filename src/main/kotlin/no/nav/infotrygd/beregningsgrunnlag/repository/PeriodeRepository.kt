@@ -27,45 +27,4 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
            AND p.arbufoer >= :fom
     """)
     fun findByFnrAndStoenadstypeAndDates(fnr: FodselNr, stoenadstyper: List<Stoenadstype>, fom: LocalDate): List<Periode>
-
-
-    // todo: ubrukelig? -------------------------------------------------------
-    @Query("""
-        SELECT p FROM Periode p
-         WHERE p.fnr = :fnr
-           AND p.stoenadstype = 'SV'
-           AND p.frisk = 'F'
-           AND p.arbufoer >= :fom
-    """)
-    fun findAvsluttedeSakerByFnr(fnr: FodselNr, fom: LocalDate): List<Periode>
-
-    @Query("""
-        SELECT COUNT(p) FROM Periode p
-         WHERE p.stoenadstype = 'SV'
-           AND p.frisk = 'F'
-           AND p.arbufoer >= :fom
-    """)
-    fun countAvsluttedeSaker(fom: LocalDate): Long
-
-    @Query("""
-        SELECT p FROM Periode p
-         WHERE p.fnr = :fnr
-           AND p.stoenadstype = 'SV'
-           AND p.frisk = ' '
-    """)
-    fun findOpneSakerMedLopendeUtbetalingByFnr(fnr: FodselNr): List<Periode>
-
-    @Query("""
-        SELECT COUNT(p) FROM Periode p
-         WHERE p.stoenadstype = 'SV'
-           AND p.frisk = ' '
-    """)
-    fun countOpneSakerMedLopendeUtbetaling(): Long
-
-    @Query("""
-        SELECT p FROM Periode p
-         WHERE p.stoenadstype = 'SV'
-           AND p.frisk = ' '
-    """)
-    fun findOpneSakerMedLopendeUtbetaling(): List<Periode>
 }
