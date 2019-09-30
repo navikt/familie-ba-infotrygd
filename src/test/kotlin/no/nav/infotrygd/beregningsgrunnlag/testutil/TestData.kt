@@ -34,7 +34,8 @@ object TestData {
             tidskontoBarnFnr = "12345678911",
             stebarnsadopsjon = null,
             regdato = LocalDate.now(),
-            brukerId = "br.id"
+            brukerId = "br.id",
+            inntektsgrunnlagProsent = null
         )
     }
 

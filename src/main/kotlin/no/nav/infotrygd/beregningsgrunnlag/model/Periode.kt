@@ -77,6 +77,10 @@ data class Periode(
     @Convert(converter = BrukerIdConverter::class)
     val brukerId: String?,
 
+    @Column(name = "IS10_PROS_INNTEKT_GR", columnDefinition = "CHAR")
+    @Convert(converter = UtbetalingsgradConverter::class)
+    val inntektsgrunnlagProsent: Int?,
+
     @Column(name = "IS10_STOPPDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val stoppdato: LocalDate?,
