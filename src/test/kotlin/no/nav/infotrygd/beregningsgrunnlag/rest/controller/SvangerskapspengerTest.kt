@@ -20,7 +20,7 @@ import java.time.LocalDate
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class ForeldrepengerTest {
+class SvangerskapspengerTest {
 
     @LocalServerPort
     private var port: Int = 0
@@ -28,10 +28,13 @@ class ForeldrepengerTest {
     @Autowired
     private lateinit var periodeRepository: PeriodeRepository
 
-    @Test
-    fun foreldrepenger() {
+    private val fnr = FodselNr("12345678900")
+    private val queryString = "fodselNr=${fnr.asString}&fom=2018-01-01"
+    val uri = "/foreldrepenger/svangerskap?$queryString"
 
-        val fnr = FodselNr("12345678900")
+    @Test
+    fun svangerskapspenger() {
+
         val pf = TestData.PeriodeFactory(fnr = fnr)
 
         val periode = pf.periode().copy(
@@ -40,10 +43,9 @@ class ForeldrepengerTest {
         )
         periodeRepository.save(periode)
 
-        // todo: auth
         val client = restClient(port)
         val result = client.get()
-            .uri("/foreldrepenger/svangerskap?fodselNr=${fnr.asString}&fom=2018-01-01")
+            .uri(uri)
             .exchange()
             .block() !!
             .bodyToMono(Array<Any>::class.java)
@@ -53,20 +55,20 @@ class ForeldrepengerTest {
     }
 
     @Test
-    fun foreldrepengerNoAuth() {
+    fun svangerskapspengerNoAuth() {
         val client = restClientNoAuth(port)
         val result = client.get()
-            .uri("/foreldrepenger/svangerskap?fodselNr=12345678900&fom=2018-01-01")
+            .uri(uri)
             .exchange()
             .block() !!
         assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
-    fun foreldrepengerClientAuth() {
+    fun svangerskapspengerClientAuth() {
         val client = restClient(port, subject = "wrong")
         val result = client.get()
-            .uri("/foreldrepenger/svangerskap?fodselNr=12345678900&fom=2018-01-01")
+            .uri(uri)
             .exchange()
             .block() !!
         assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
