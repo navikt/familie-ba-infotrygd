@@ -31,7 +31,7 @@ object TestData {
             foedselsdatoBarn = null,
             arbeidskategori = null,
             tkNr = "1000",
-            tidskontoBarnFnr = null,
+            tidskontoBarnFnr = "12345678911",
             stebarnsadopsjon = null,
             regdato = LocalDate.now(),
             brukerId = "br.id"
@@ -81,13 +81,15 @@ object TestData {
             arbufoerSeq = arbufoerSeq
         )
 
-        fun vedtakBarn(): VedtakBarn =
-            VedtakBarn(
+        fun vedtakBarn(): VedtakBarn {
+            val periode = periode()
+            return VedtakBarn(
                 id = nextId(),
-                personKey = personKey,
+                personKey = periode.barnPersonKey!!,
                 arbufoerSeq = arbufoerSeq.toString(),
                 kode = periode().barnKode,
                 dekningsgrad = 100
             )
+        }
     }
 }

@@ -5,7 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.dto.Grunnlag
 import org.springframework.stereotype.Service
 
 @Service
-class SykepengerService(val periodeRepository: PeriodeRepository) {
+class SykepengerService(private val periodeRepository: PeriodeRepository) {
     fun hentSykepenger(): List<Grunnlag> {
         return listOf()
     }

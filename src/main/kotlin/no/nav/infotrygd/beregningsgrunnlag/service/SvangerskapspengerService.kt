@@ -29,11 +29,9 @@ class SvangerskapspengerService(
         }
 
         return result.map { periode ->
-            val vedtak = vedtakBarnRepository.findByPersonKeyAndArbufoerSeqAndKode(periode.personKey,
-                periode.arbufoerSeq.toString(), periode.barnKode)
             Svangerskapspenger(
                 generelt = periodeToGrunnlag(periode),
-                foreldrepengerDetaljer = periodeToForeldrepengerDetaljer(periode, vedtak),
+                foreldrepengerDetaljer = periodeToForeldrepengerDetaljer(periode, null),
                 svangerskapspengerDetaljer = periodeToSvangerskapspengerDetaljer(periode)
             )
         }

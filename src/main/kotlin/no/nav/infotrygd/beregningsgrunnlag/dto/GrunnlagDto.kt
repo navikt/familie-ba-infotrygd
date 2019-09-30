@@ -31,18 +31,7 @@ data class Arbeidsforhold(
 
 data class Kodeverdi(val kode: String, val termnavn: String)
 
-/*data class Foreldrepenger(
-    val opprinneligIdentdato: LocalDate,
-    val dekningsgrad: Int,
-    val gradering: Int,
-    val foedselsdatoBarn: LocalDate
-) : Grunnlagsdetaljer
-
-data class Sykepenger(
-    val inntektsgrunnlagProsent: Int
-) : Grunnlagsdetaljer
-
-
+/*
 data class PaarorendeSykdom(
     val foedselsdatoPleietrengende: LocalDate
 ) : Grunnlagsdetaljer*/
@@ -58,6 +47,7 @@ data class GrunnlagGenerelt(
 
 
 // ======================================== Ytelser ========================================
+
 
 // --- Foreldrepenger ---
 
@@ -80,6 +70,7 @@ data class Foreldrepenger(
     private val foreldrepengerDetaljer: ForeldrepengerDetaljer
 ) : Grunnlag by generelt,
     Foreldrepengerfelt by foreldrepengerDetaljer
+
 
 // --- Svangerskapspenger ---
 
@@ -110,5 +101,9 @@ data class Svangerskapspenger(
     Svangerskapspengerfelt by svangerskapspengerDetaljer
 
 
+// --- Sykepenger ---
 
-
+data class Sykepenger(
+    private val generelt: GrunnlagGenerelt,
+    val inntektsgrunnlagProsent: Int?
+) : Grunnlag by generelt

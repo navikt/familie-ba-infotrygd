@@ -26,8 +26,11 @@ class ForeldrepengerService(
         }
 
         return result.map { periode ->
-            val vedtak = vedtakBarnRepository.findByPersonKeyAndArbufoerSeqAndKode(periode.personKey,
-                periode.arbufoerSeq.toString(), periode.barnKode)
+            val vedtak = vedtakBarnRepository.findByPersonKeyAndArbufoerSeqAndKode(
+                personKey = periode.barnPersonKey!!,
+                arbufoerSeq = periode.arbufoerSeq.toString(),
+                kode = periode.barnKode
+            )
             Foreldrepenger(
                 generelt = periodeToGrunnlag(periode),
                 foreldrepengerDetaljer = periodeToForeldrepengerDetaljer(periode, vedtak)
