@@ -70,7 +70,7 @@ class ConvertersKtTest {
     }
 
     @Test
-    fun periodeToForeldrepenger() {
+    fun periodeToForeldrepengerDetaljer() {
         val stoenadstype = Stoenadstype.FOEDSEL // ytelse = foreldrepenger
         val opprinneligIdentdato = LocalDate.now()
         val dekningsgrad = 75
@@ -90,11 +90,15 @@ class ConvertersKtTest {
             foedselsdatoBarn = foedselsdatoBarn
         )
 
-        val dto = periodeToForeldrepenger(periode, vedtak)
+        val dto = periodeToForeldrepengerDetaljer(periode, vedtak)
 
-        assertThat(dto.opprinneligIdentdato).isEqualTo(opprinneligIdentdato)
-        assertThat(dto.dekningsgrad).isEqualTo(dekningsgrad)
-        assertThat(dto.gradering).isEqualTo(gradering)
-        assertThat(dto.foedselsdatoBarn).isEqualTo(foedselsdatoBarn)
+        val expected = ForeldrepengerDetaljer(
+            opprinneligIdentdato = opprinneligIdentdato,
+            dekningsgrad = dekningsgrad,
+            gradering = gradering,
+            foedselsdatoBarn = foedselsdatoBarn
+        )
+
+        assertThat(dto).isEqualTo(expected)
     }
 }

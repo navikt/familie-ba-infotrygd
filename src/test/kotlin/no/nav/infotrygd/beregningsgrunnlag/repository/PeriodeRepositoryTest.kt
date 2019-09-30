@@ -2,6 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.repository
 
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
@@ -49,7 +50,7 @@ class PeriodeRepositoryTest {
 
     private fun periode(
         stoenadstype: Stoenadstype,
-        frisk: String = " ",
+        frisk: Frisk = Frisk.LOPENDE,
         arbufoer: LocalDate = LocalDate.now()
     ): Periode {
         return TestData.periode().copy(

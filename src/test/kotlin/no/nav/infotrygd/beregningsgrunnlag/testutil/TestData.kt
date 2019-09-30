@@ -4,6 +4,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.Inntekt
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
 import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.nextId
@@ -18,7 +19,7 @@ object TestData {
             arbufoerSeq = 1,
             fnr = FodselNr("12345678901"),
             stoenadstype = Stoenadstype.SVANGERSKAP,
-            frisk = null,
+            frisk = Frisk.LOPENDE,
             arbufoer = LocalDate.now(),
             stoppdato = null,
             utbetalinger = listOf(),
@@ -31,7 +32,9 @@ object TestData {
             arbeidskategori = null,
             tkNr = "1000",
             tidskontoBarnFnr = null,
-            stebarnsadopsjon = null
+            stebarnsadopsjon = null,
+            regdato = LocalDate.now(),
+            brukerId = "br.id"
         )
     }
 

@@ -51,7 +51,7 @@ class ForeldrepengerServiceTest {
         vedtakBarnRepository.save(vedtak)
 
         val resultat =
-            foreldrepengerService.hentForeldrepenger(factory.fnr, LocalDate.now().minusYears(1), null)
+            foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.SVANGERSKAP), factory.fnr, LocalDate.now().minusYears(1), null)
 
         println(resultat)
 

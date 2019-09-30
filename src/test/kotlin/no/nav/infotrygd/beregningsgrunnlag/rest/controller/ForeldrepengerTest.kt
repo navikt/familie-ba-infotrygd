@@ -43,7 +43,7 @@ class ForeldrepengerTest {
         // todo: auth
         val client = restClient(port)
         val result = client.get()
-            .uri("/foreldrepenger?fodselNr=${fnr.asString}&fom=2018-01-01")
+            .uri("/foreldrepenger/svangerskap?fodselNr=${fnr.asString}&fom=2018-01-01")
             .exchange()
             .block() !!
             .bodyToMono(Array<Any>::class.java)
@@ -56,7 +56,7 @@ class ForeldrepengerTest {
     fun foreldrepengerNoAuth() {
         val client = restClientNoAuth(port)
         val result = client.get()
-            .uri("/foreldrepenger?fodselNr=12345678900&fom=2018-01-01")
+            .uri("/foreldrepenger/svangerskap?fodselNr=12345678900&fom=2018-01-01")
             .exchange()
             .block() !!
         assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -66,7 +66,7 @@ class ForeldrepengerTest {
     fun foreldrepengerClientAuth() {
         val client = restClient(port, subject = "wrong")
         val result = client.get()
-            .uri("/foreldrepenger?fodselNr=12345678900&fom=2018-01-01")
+            .uri("/foreldrepenger/svangerskap?fodselNr=12345678900&fom=2018-01-01")
             .exchange()
             .block() !!
         assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)

@@ -1,9 +1,10 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
-import no.nav.infotrygd.beregningsgrunnlag.model.converters.NavLocalDateConverter
-import no.nav.infotrygd.beregningsgrunnlag.model.converters.ReversedFodselNrConverter
+import no.nav.infotrygd.beregningsgrunnlag.model.converters.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
 import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import org.hibernate.annotations.Cascade
@@ -33,7 +34,8 @@ data class Periode(
     val fnr: FodselNr,
 
     @Column(name = "IS10_FRISK", columnDefinition = "CHAR")
-    val frisk: String?,
+    @Convert(converter = FriskConverter::class)
+    val frisk: Frisk,
 
     @Column(name = "IS10_UTBET_FOM", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
@@ -67,7 +69,13 @@ data class Periode(
     @Column(name = "IS10_ARBKAT_99", columnDefinition = "CHAR")
     val arbeidskategori: Arbeidskategori?,
 
-    // todo: gradering
+    @Column(name = "IS10_REG_DATO", columnDefinition = "CHAR")
+    @Convert(converter = NavCharDateConverter::class)
+    val regdato: LocalDate?,
+
+    @Column(name = "IS10_BRUKERID", columnDefinition = "CHAR")
+    @Convert(converter = BrukerIdConverter::class)
+    val brukerId: String?,
 
     @Column(name = "IS10_STOPPDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
@@ -92,34 +100,15 @@ data class Periode(
     @Cascade(value = [CascadeType.ALL])
     val inntekter: List<Inntekt>
 ) : Serializable {
-    val ytelse: Ytelse
+    val tema: Tema
         get() {
-            val ytelse: Ytelse? = when(stoenadstype) {
-                Stoenadstype.SYKEPENGER
-                    -> Ytelse.SYKEPENGER
+            val tema: Tema? = stoenadstype?.tema
 
-                Stoenadstype.FOEDSEL,
-                Stoenadstype.ADOPSJON,
-                Stoenadstype.RISIKOFYLT_ARBMILJOE,
-                Stoenadstype.SVANGERSKAP
-                    -> Ytelse.FORELDREPENGER
-
-                Stoenadstype.BARNS_SYKDOM,
-                Stoenadstype.ALV_SYKT_BARN,
-                Stoenadstype.KURS_KAP_3_23,
-                Stoenadstype.PAS_DOEDSSYK,
-                Stoenadstype.PLEIEPENGER_INSTOPPH,
-                Stoenadstype.PLEIEPENGER_NY_ORDNING
-                    -> Ytelse.PAAROERENDE_SYKDOM
-
-                else -> null
+            if(tema != null) {
+                return tema
             }
 
-            if(ytelse != null) {
-                return ytelse
-            }
-
-            return Ytelse.UKJENT
+            return Tema.UKJENT
         }
 
     val barnPersonKey: Long?

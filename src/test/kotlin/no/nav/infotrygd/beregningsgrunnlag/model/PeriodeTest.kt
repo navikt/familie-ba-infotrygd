@@ -1,18 +1,18 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
 import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import java.time.LocalDate
 
 
 class PeriodeTest {
     @Test
     fun getYtelse() {
-        assertThat(periode(Stoenadstype.SYKEPENGER).ytelse).isEqualTo(Ytelse.SYKEPENGER)
+        assertThat(periode(Stoenadstype.SYKEPENGER).tema).isEqualTo(Tema.SYKEPENGER)
 
         val foreldrepenger = listOf(
             Stoenadstype.FOEDSEL,
@@ -21,7 +21,7 @@ class PeriodeTest {
             Stoenadstype.SVANGERSKAP)
 
         for(type in foreldrepenger) {
-            assertThat(periode(type).ytelse).isEqualTo(Ytelse.FORELDREPENGER)
+            assertThat(periode(type).tema).isEqualTo(Tema.FORELDREPENGER)
         }
 
         val paaroerendeSykdom = listOf(
@@ -34,7 +34,7 @@ class PeriodeTest {
         )
 
         for(type in paaroerendeSykdom) {
-            assertThat(periode(type).ytelse).isEqualTo(Ytelse.PAAROERENDE_SYKDOM)
+            assertThat(periode(type).tema).isEqualTo(Tema.PAAROERENDE_SYKDOM)
         }
 
         // TODO:

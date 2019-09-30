@@ -2,6 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 interface Grunnlag {
     val behandlingstema: Kodeverdi
@@ -46,10 +47,6 @@ data class PaarorendeSykdom(
     val foedselsdatoPleietrengende: LocalDate
 ) : Grunnlagsdetaljer*/
 
-// testing -----------
-
-
-
 data class GrunnlagGenerelt(
     override val behandlingstema: Kodeverdi,
     override val identdato: LocalDate,
@@ -59,10 +56,59 @@ data class GrunnlagGenerelt(
     override val vedtak: List<Vedtak>
 ) : Grunnlag
 
+
+// ======================================== Ytelser ========================================
+
+// --- Foreldrepenger ---
+
+interface Foreldrepengerfelt {
+    val opprinneligIdentdato: LocalDate
+    val dekningsgrad: Int?
+    val gradering: Int?
+    val foedselsdatoBarn: LocalDate
+}
+
+data class ForeldrepengerDetaljer(
+    override val opprinneligIdentdato: LocalDate,
+    override val dekningsgrad: Int?,
+    override val gradering: Int?,
+    override val foedselsdatoBarn: LocalDate
+) : Foreldrepengerfelt
+
 data class Foreldrepenger(
     private val generelt: GrunnlagGenerelt,
-    val opprinneligIdentdato: LocalDate,
-    val dekningsgrad: Int?,
-    val gradering: Int?,
-    val foedselsdatoBarn: LocalDate
-) : Grunnlag by generelt
+    private val foreldrepengerDetaljer: ForeldrepengerDetaljer
+) : Grunnlag by generelt,
+    Foreldrepengerfelt by foreldrepengerDetaljer
+
+// --- Svangerskapspenger ---
+
+interface Svangerskapspengerfelt {
+    val tema: Kodeverdi?
+    val registrert: LocalDate?
+    val status: Kodeverdi?
+    val saksbehandlerId: String?
+    val iverksatt: LocalDate?
+    val opphoerFom: LocalDate?
+}
+
+data class SvangerskapspengerDetaljer(
+    override val tema: Kodeverdi?,
+    override val registrert: LocalDate?,
+    override val status: Kodeverdi?,
+    override val saksbehandlerId: String?,
+    override val iverksatt: LocalDate?,
+    override val opphoerFom: LocalDate?
+) : Svangerskapspengerfelt
+
+data class Svangerskapspenger(
+    private val generelt: GrunnlagGenerelt,
+    private val foreldrepengerDetaljer: ForeldrepengerDetaljer,
+    private val svangerskapspengerDetaljer: SvangerskapspengerDetaljer
+) : Grunnlag by generelt,
+    Foreldrepengerfelt by foreldrepengerDetaljer,
+    Svangerskapspengerfelt by svangerskapspengerDetaljer
+
+
+
+

@@ -1,18 +1,30 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
-import no.nav.infotrygd.beregningsgrunnlag.model.Ytelse
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 
-fun periodeToForeldrepenger(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode, vedtak: VedtakBarn?): Foreldrepenger {
-    check(p.ytelse == Ytelse.FORELDREPENGER) { "Forventet ytelse == FORELDREPENGER" }
+fun periodeToForeldrepengerDetaljer(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode, vedtak: VedtakBarn?): ForeldrepengerDetaljer {
+    check(p.tema == Tema.FORELDREPENGER) { "Forventet ytelse == FORELDREPENGER" }
     checkNotNull(p.foedselsdatoBarn) { "foedselsdatoBarn kan ikke være null for foreldrepenger" }
 
-    return Foreldrepenger(
-        generelt = periodeToGrunnlag(p),
+    return ForeldrepengerDetaljer(
         opprinneligIdentdato = p.arbufoerOpprinnelig,
         dekningsgrad = p.dekningsgrad,
         gradering = vedtak?.dekningsgrad,
         foedselsdatoBarn = p.foedselsdatoBarn!!
+    )
+}
+
+fun periodeToSvangerskapspengerDetaljer(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): SvangerskapspengerDetaljer {
+    val tema = p.tema
+    val status = p.frisk.status?.let { Kodeverdi(it.kode, it.tekst) }
+    return SvangerskapspengerDetaljer(
+        tema = Kodeverdi(tema.kode, tema.tekst),
+        registrert = p.regdato,
+        status = status,
+        saksbehandlerId = p.brukerId,
+        iverksatt = p.arbufoer,
+        opphoerFom = p.stoppdato
     )
 }
 
