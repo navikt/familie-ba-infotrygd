@@ -38,13 +38,6 @@ configurations {
 
 repositories {
     mavenCentral()
-	maven {
-		setUrl( "https://maven.pkg.github.com/navikt/infotrygd-oracle")
-		credentials {
-			username = System.getenv("GITUSER")
-			password = System.getenv("GITTOKEN")
-		}
-	}
 }
 
 allOpen {
