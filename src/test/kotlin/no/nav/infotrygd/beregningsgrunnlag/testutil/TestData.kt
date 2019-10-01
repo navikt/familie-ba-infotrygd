@@ -8,7 +8,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.nextId
-import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import java.time.LocalDate
 
 object TestData {
@@ -17,7 +17,7 @@ object TestData {
             id = nextId(),
             personKey = 1,
             arbufoerSeq = 1,
-            fnr = FodselNr("12345678901"),
+            fnr = FoedselNr("01015912345"),
             stoenadstype = Stoenadstype.SVANGERSKAP,
             frisk = Frisk.LOPENDE,
             arbufoer = LocalDate.now(),
@@ -31,7 +31,7 @@ object TestData {
             foedselsdatoBarn = null,
             arbeidskategori = null,
             tkNr = "1000",
-            tidskontoBarnFnr = "12345678911",
+            barnFnr = FoedselNr("01019912345"),
             stebarnsadopsjon = null,
             regdato = LocalDate.now(),
             brukerId = "br.id",
@@ -62,7 +62,7 @@ object TestData {
     data class PeriodeFactory(
         val personKey: Long = nextId(),
         val arbufoerSeq: Long = nextId(),
-        val fnr: FodselNr = FodselNr((10000000000 + nextId()).toString()),
+        val fnr: FoedselNr = FoedselNr((10000000000 + nextId()).toString()),
         val stebarnsadopsjon: String? = null) {
 
         fun periode(): Periode = TestData.periode().copy(

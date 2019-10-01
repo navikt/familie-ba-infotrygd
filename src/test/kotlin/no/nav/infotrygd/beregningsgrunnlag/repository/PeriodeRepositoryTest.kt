@@ -1,12 +1,10 @@
 package no.nav.infotrygd.beregningsgrunnlag.repository
 
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
-import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
-import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
-import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -30,7 +28,7 @@ class PeriodeRepositoryTest {
         repository.deleteAll()
     }
 
-    private val fnr = FodselNr("10000000001")
+    private val fnr = FoedselNr("10000000001")
     private val tema = Stoenadstype.RISIKOFYLT_ARBMILJOE
 
     @Test

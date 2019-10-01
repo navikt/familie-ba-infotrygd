@@ -2,7 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.repository
 
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
-import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -18,7 +18,7 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
            AND p.arbufoer >= :fom
            AND p.arbufoer <= :tom
     """)
-    fun findByFnrAndStoenadstypeAndDates(fnr: FodselNr, stoenadstyper: List<Stoenadstype>, fom: LocalDate, tom: LocalDate): List<Periode>
+    fun findByFnrAndStoenadstypeAndDates(fnr: FoedselNr, stoenadstyper: List<Stoenadstype>, fom: LocalDate, tom: LocalDate): List<Periode>
 
     @Query("""
         SELECT p FROM Periode p
@@ -26,5 +26,5 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
            AND p.stoenadstype IN :stoenadstyper
            AND p.arbufoer >= :fom
     """)
-    fun findByFnrAndStoenadstypeAndDates(fnr: FodselNr, stoenadstyper: List<Stoenadstype>, fom: LocalDate): List<Periode>
+    fun findByFnrAndStoenadstypeAndDates(fnr: FoedselNr, stoenadstyper: List<Stoenadstype>, fom: LocalDate): List<Periode>
 }

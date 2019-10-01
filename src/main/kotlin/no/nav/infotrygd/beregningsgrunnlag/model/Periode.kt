@@ -5,7 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
-import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
@@ -31,7 +31,7 @@ data class Periode(
 
     @Column(name = "F_NR", columnDefinition = "CHAR")
     @Convert(converter = ReversedFodselNrConverter::class)
-    val fnr: FodselNr,
+    val fnr: FoedselNr,
 
     @Column(name = "IS10_FRISK", columnDefinition = "CHAR")
     @Convert(converter = FriskConverter::class)
@@ -61,7 +61,8 @@ data class Periode(
     val foedselsdatoBarn: LocalDate?,
 
     @Column(name = "IS10_TIDSK_BARNFNR", columnDefinition = "CHAR")
-    val tidskontoBarnFnr: String?,
+    @Convert(converter = ReversedFodselNrConverter::class)
+    val barnFnr: FoedselNr?,
 
     @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")
     val stebarnsadopsjon: String?,
@@ -117,11 +118,8 @@ data class Periode(
 
     val barnPersonKey: Long?
         get() {
-            if(tidskontoBarnFnr == null) {
-                return null
-            }
-
-            return "$tkNr$tidskontoBarnFnr".toLong()
+            val fnr = barnFnr ?: return null
+            return "$tkNr${fnr.reversert}".toLong()
         }
 
     val barnKode: String

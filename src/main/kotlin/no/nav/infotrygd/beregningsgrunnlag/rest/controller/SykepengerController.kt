@@ -3,7 +3,7 @@ package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 import no.nav.infotrygd.beregningsgrunnlag.dto.Sykepenger
 import no.nav.infotrygd.beregningsgrunnlag.service.ClientValidator
 import no.nav.infotrygd.beregningsgrunnlag.service.SykepengerService
-import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import no.nav.security.oidc.api.Protected
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.GetMapping
@@ -30,6 +30,6 @@ class SykepengerController(
                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                    tom: LocalDate?): List<Sykepenger> {
         clientValidator.authorizeClient()
-        return sykepengerService.hentSykepenger(FodselNr(fodselNr), fom, tom)
+        return sykepengerService.hentSykepenger(FoedselNr(fodselNr), fom, tom)
     }
 }

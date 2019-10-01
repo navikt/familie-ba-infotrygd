@@ -1,6 +1,9 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test

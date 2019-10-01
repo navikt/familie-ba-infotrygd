@@ -11,7 +11,7 @@ fun periodeToForeldrepengerDetaljer(p: no.nav.infotrygd.beregningsgrunnlag.model
         opprinneligIdentdato = p.arbufoerOpprinnelig,
         dekningsgrad = p.dekningsgrad,
         gradering = vedtak?.dekningsgrad,
-        foedselsdatoBarn = p.foedselsdatoBarn!! // todo: Hvis gradering: IS10-BARNFNR
+        foedselsdatoBarn = p.foedselsdatoBarn!!
     )
 }
 
