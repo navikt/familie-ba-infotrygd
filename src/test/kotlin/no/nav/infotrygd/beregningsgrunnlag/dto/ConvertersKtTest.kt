@@ -1,8 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -12,14 +10,22 @@ class ConvertersKtTest {
 
     @Test
     fun periodeToGrunnlag() {
+        val registrert = LocalDate.now().minusMonths(6)
+        val saksbehandlerId = "XX123"
+        val opphoerFom = registrert.plusDays(50)
+
         val utbetaltTom = LocalDate.now()
         val utbetaltFom = utbetaltTom.minusMonths(1)
         val stoenadstype = Stoenadstype.FOEDSEL
+        val tema = stoenadstype.tema
         val inntektsperiode = Inntektsperiode.MAANEDLIG
         val arbeidsgiverOrgnr = "12345678900"
         val inntektForPerioden = 1000.toBigDecimal()
         val arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
         val utbetalingsgrad = 100
+
+        val frisk = Frisk.BARN
+        val status = frisk.status!!
 
         val pf = TestData.PeriodeFactory()
 
@@ -36,7 +42,11 @@ class ConvertersKtTest {
         )
 
         val periode = pf.periode().copy(
+            regdato = registrert,
+            frisk = frisk,
+            brukerId = saksbehandlerId,
             arbufoer = utbetaltFom,
+            stoppdato = opphoerFom,
             stoenadstype = stoenadstype,
             utbetaltFom = utbetaltFom,
             utbetaltTom = utbetaltTom,
@@ -47,6 +57,12 @@ class ConvertersKtTest {
 
         val dto = periodeToGrunnlag(periode)
         val forventet = GrunnlagGenerelt(
+            tema = Kodeverdi(tema.kode, tema.tekst),
+            registrert = registrert,
+            status = Kodeverdi(status.kode, status.tekst),
+            saksbehandlerId = saksbehandlerId,
+            iverksatt = utbetaltFom,
+            opphoerFom = opphoerFom,
             behandlingstema = stoenadstype.toBehandlingstema(),
             identdato = utbetaltFom,
             periode = Periode(utbetaltFom, utbetaltTom),

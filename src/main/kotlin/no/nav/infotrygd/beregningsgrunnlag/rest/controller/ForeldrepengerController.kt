@@ -1,11 +1,9 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 
 import no.nav.infotrygd.beregningsgrunnlag.dto.Foreldrepenger
-import no.nav.infotrygd.beregningsgrunnlag.dto.Svangerskapspenger
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.service.ClientValidator
 import no.nav.infotrygd.beregningsgrunnlag.service.ForeldrepengerService
-import no.nav.infotrygd.beregningsgrunnlag.service.SvangerskapspengerService
 import no.nav.infotrygd.beregningsgrunnlag.values.FodselNr
 import no.nav.security.oidc.api.Protected
 import org.springframework.format.annotation.DateTimeFormat
@@ -20,7 +18,6 @@ import java.time.LocalDate
 @RequestMapping("/foreldrepenger")
 class ForeldrepengerController(
     private val foreldrepengerService: ForeldrepengerService,
-    private val svangerskapspengerService: SvangerskapspengerService,
     private val clientValidator: ClientValidator
 ) {
     @GetMapping(path = ["/adopsjon"])
@@ -65,9 +62,9 @@ class ForeldrepengerController(
 
                 @RequestParam(required = false)
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                tom: LocalDate?) : List<Svangerskapspenger> {
+                tom: LocalDate?) : List<Foreldrepenger> {
 
         clientValidator.authorizeClient()
-        return svangerskapspengerService.hentSvangerskapspenger(FodselNr(fodselNr), fom, tom)
+        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.SVANGERSKAP, Stoenadstype.RISIKOFYLT_ARBMILJOE), FodselNr(fodselNr), fom, tom)
     }
 }
