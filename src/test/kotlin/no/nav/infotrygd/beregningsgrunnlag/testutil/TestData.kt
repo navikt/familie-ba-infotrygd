@@ -5,10 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
 import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import java.time.LocalDate
@@ -112,7 +109,7 @@ object TestData {
     fun stonad(): Stonad {
         return Stonad(
             id = nextId(),
-            kodeRutine = Tema.PAAROERENDE_SYKDOM,
+            kodeRutine = KodeRutine.BS,
             datoStart = LocalDate.now(),
             datoOpphoer = LocalDate.now(),
             stonadBs = stonadBs()
@@ -140,9 +137,10 @@ object TestData {
     }
 
     fun vedtak(
-            datoStart: LocalDate = LocalDate.now(),
-            fnr: FoedselNr = foedselNr(),
-            delytelserEksermpler: List<Delytelse> = listOf()): Vedtak {
+        datoStart: LocalDate = LocalDate.now(),
+        fnr: FoedselNr = foedselNr(),
+        kodeRutine: KodeRutine = KodeRutine.BS,
+        delytelserEksermpler: List<Delytelse> = listOf()): Vedtak {
         val vedtakId = nextId()
         val delytelser = delytelserEksermpler.map { it.copy(
             vedtakId = vedtakId,
@@ -155,9 +153,11 @@ object TestData {
 
         return Vedtak(
             id = vedtakId,
-            stonad = stonad(),
+            stonad = stonad().copy(
+                kodeRutine = kodeRutine
+            ),
             person = LopenrFnr(id = nextId(), fnr = fnr),
-            kodeRutine = Tema.PAAROERENDE_SYKDOM,
+            kodeRutine = kodeRutine,
             datoStart = datoStart,
             delytelser = delytelser
         )

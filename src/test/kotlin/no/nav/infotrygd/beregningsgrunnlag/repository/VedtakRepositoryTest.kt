@@ -1,5 +1,7 @@
 package no.nav.infotrygd.beregningsgrunnlag.repository
 
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.KodeRutine
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -43,9 +45,11 @@ class VedtakRepositoryTest {
 
         val relevant = TestData.vedtak(fnr = fnr, datoStart = dato)
         val forGammel = TestData.vedtak(fnr = fnr, datoStart = dato.minusYears(1))
+        val feilKodeRutine = TestData.vedtak(fnr = fnr, datoStart = dato, kodeRutine = KodeRutine.TEST)
 
-        repository.saveAll(listOf(relevant, forGammel))
+        repository.saveAll(listOf(relevant, forGammel, feilKodeRutine))
 
+        val all = repository.findAll()
         val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1))
         assertThat(res).hasSize(1)
 
@@ -60,8 +64,9 @@ class VedtakRepositoryTest {
         val relevant = TestData.vedtak(fnr = fnr, datoStart = dato)
         val forGammel = TestData.vedtak(fnr = fnr, datoStart = dato.minusYears(1))
         val forNy = TestData.vedtak(fnr = fnr, datoStart = dato.plusYears(1))
+        val feilKodeRutine = TestData.vedtak(fnr = fnr, datoStart = dato, kodeRutine = KodeRutine.TEST)
 
-        repository.saveAll(listOf(relevant, forGammel, forNy))
+        repository.saveAll(listOf(relevant, forGammel, forNy, feilKodeRutine))
 
         val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1), dato.plusDays(1))
         assertThat(res).hasSize(1)

@@ -1,6 +1,7 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.KodeRutine
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.nextId
@@ -28,7 +29,7 @@ class VedtakToPaaroerendeSykdomKtTest {
             id = -1,
             stonad = Stonad(
                 id = nextId(),
-                kodeRutine = Tema.PAAROERENDE_SYKDOM,
+                kodeRutine = KodeRutine.BS,
                 datoStart = iverksatt,
                 datoOpphoer = opphoerFom,
                 stonadBs = StonadBs(
@@ -69,7 +70,7 @@ class VedtakToPaaroerendeSykdomKtTest {
                     )
                 )
             ),
-            kodeRutine = Tema.PAAROERENDE_SYKDOM
+            kodeRutine = KodeRutine.BS
         )
 
         val forventet = PaaroerendeSykdom(
