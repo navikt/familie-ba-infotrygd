@@ -1,6 +1,5 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.KodeRutine
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.time.LocalDate
@@ -24,7 +23,7 @@ data class Vedtak(
     val person: LopenrFnr,
 
     @Column(name = "KODE_RUTINE", columnDefinition = "CHAR")
-    val kodeRutine: KodeRutine,
+    val kodeRutine: String,
 
     @Column(name = "DATO_START", columnDefinition = "DATE")
     val datoStart: LocalDate,

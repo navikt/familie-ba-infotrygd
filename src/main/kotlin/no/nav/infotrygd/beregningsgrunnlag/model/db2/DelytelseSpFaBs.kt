@@ -1,7 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
+import no.nav.infotrygd.beregningsgrunnlag.model.converters.Char2Converter
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -15,7 +14,8 @@ data class DelytelseSpFaBs(
 
     @Id
     @Column(name = "TYPE_DELYTELSE", columnDefinition = "CHAR")
-    val type: Stoenadstype,
+    @Convert(converter = Char2Converter::class)
+    val type: String,
 
     @Id
     @Column(name = "TIDSPUNKT_REG", columnDefinition = "TIMESTAMP")

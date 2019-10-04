@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
+import no.nav.infotrygd.beregningsgrunnlag.model.converters.Char2Converter
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
@@ -17,7 +18,8 @@ data class Delytelse(
 
     @Id
     @Column(name = "TYPE_DELYTELSE", nullable = false, columnDefinition = "CHAR")
-    val type: Stoenadstype,
+    @Convert(converter = Char2Converter::class)
+    val type: String,
 
     @Id
     @Column(name = "TIDSPUNKT_REG", nullable = false, columnDefinition = "TIMESTAMP")

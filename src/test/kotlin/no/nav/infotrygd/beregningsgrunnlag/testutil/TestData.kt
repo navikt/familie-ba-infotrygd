@@ -109,7 +109,7 @@ object TestData {
     fun stonad(): Stonad {
         return Stonad(
             id = nextId(),
-            kodeRutine = KodeRutine.BS,
+            kodeRutine = "BS",
             datoStart = LocalDate.now(),
             datoOpphoer = LocalDate.now(),
             stonadBs = stonadBs()
@@ -119,7 +119,7 @@ object TestData {
     fun delytelse(): Delytelse {
         return Delytelse(
             vedtakId = -1,
-            type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+            type = "PN",
             tidspunktRegistrert = LocalDateTime.now(),
             fom = LocalDate.now(),
             tom = LocalDate.now(),
@@ -130,7 +130,7 @@ object TestData {
     fun delytelserSpFaBs(): DelytelseSpFaBs {
         return DelytelseSpFaBs(
             vedtakId = -1,
-            type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+            type = "PN",
             tidspunktRegistrert = LocalDateTime.now(),
             grad = -1
         )
@@ -139,7 +139,7 @@ object TestData {
     fun vedtak(
         datoStart: LocalDate = LocalDate.now(),
         fnr: FoedselNr = foedselNr(),
-        kodeRutine: KodeRutine = KodeRutine.BS,
+        kodeRutine: String = "BS",
         delytelserEksermpler: List<Delytelse> = listOf()): Vedtak {
         val vedtakId = nextId()
         val delytelser = delytelserEksermpler.map { it.copy(

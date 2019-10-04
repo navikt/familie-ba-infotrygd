@@ -45,6 +45,3 @@ class ArbeidskategoriConverter : KodeConverter<Arbeidskategori>(Arbeidskategori.
 
 @Converter(autoApply = true)
 class InntektsperiodeConverter : KodeConverter<Inntektsperiode>(Inntektsperiode.values().toList(), fieldSize = 2)
-
-@Converter(autoApply = true)
-class KodeRutineConverter : KodeConverter<KodeRutine>(KodeRutine.values().toList(), fieldSize = 2)

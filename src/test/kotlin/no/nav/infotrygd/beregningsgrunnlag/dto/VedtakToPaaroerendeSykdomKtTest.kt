@@ -1,9 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.KodeRutine
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
@@ -29,7 +26,7 @@ class VedtakToPaaroerendeSykdomKtTest {
             id = -1,
             stonad = Stonad(
                 id = nextId(),
-                kodeRutine = KodeRutine.BS,
+                kodeRutine = "BS",
                 datoStart = iverksatt,
                 datoOpphoer = opphoerFom,
                 stonadBs = StonadBs(
@@ -45,32 +42,32 @@ class VedtakToPaaroerendeSykdomKtTest {
             delytelser = listOf(
                 Delytelse(
                     vedtakId = -1,
-                    type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+                    type = "PN",
                     tidspunktRegistrert = LocalDateTime.now(),
                     fom = fom1,
                     tom = tom1,
                     delytelseSpFaBs = DelytelseSpFaBs(
                         vedtakId = -1,
-                        type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+                        type = "PN",
                         tidspunktRegistrert = LocalDateTime.now(),
                         grad = 75
                     )
                 ),
                 Delytelse(
                     vedtakId = -1,
-                    type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+                    type = "PN",
                     tidspunktRegistrert = LocalDateTime.now(),
                     fom = fom2,
                     tom = tom2,
                     delytelseSpFaBs = DelytelseSpFaBs(
                         vedtakId = -1,
-                        type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+                        type = "PN",
                         tidspunktRegistrert = LocalDateTime.now(),
                         grad = 65
                     )
                 )
             ),
-            kodeRutine = KodeRutine.BS
+            kodeRutine = "BS"
         )
 
         val forventet = PaaroerendeSykdom(
