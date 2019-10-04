@@ -15,7 +15,7 @@ class StoenadstypeTest {
         val mapKeys: MutableSet<String> = HashSet()
 
         for(v in Stoenadstype.values()) {
-            val dto = v.toBehandlingstema()
+            val dto = v.toDto()
             if(v.kode in map) {
                 assertThat(dto.kode).isEqualTo(map[v.kode])
                 mapKeys.add(v.kode)

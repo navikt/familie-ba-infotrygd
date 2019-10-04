@@ -236,49 +236,6 @@ Create table INFOTRYGD_Q0.IS_INNTEKT_13 (
     REGION                         CHAR(1)             DEFAULT ' '  , -- NOT NULL,
     ID_INNT                        NUMBER              DEFAULT NOT NULL);
 
---------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_STONAD
---------------------------------------------------
-Create table INFOTRYGD_Q0.T_STONAD (
-    STONAD_ID                      NUMBER              NOT NULL,
-    PERSON_LOPENR                  NUMBER              NOT NULL,
-    KODE_RUTINE                    CHAR(2)             NOT NULL,
-    DATO_START                     DATE                NOT NULL,
-    KODE_OPPHOR                    CHAR(2) ,
-    DATO_OPPHOR                    DATE ,
-    OPPDRAG_ID                     NUMBER ,
-    TIDSPUNKT_OPPHORT              TIMESTAMP(6) ,
-    TIDSPUNKT_REG                  TIMESTAMP(6) ,
-    BRUKERID                       CHAR(8) ,
-    OPPRETTET                      TIMESTAMP(6)        DEFAULT NOT NULL);
-
---------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_VEDTAK
---------------------------------------------------
-Create table INFOTRYGD_Q0.T_VEDTAK (
-    VEDTAK_ID                      NUMBER              NOT NULL,
-    PERSON_LOPENR                  NUMBER              NOT NULL,
-    KODE_RUTINE                    CHAR(2)             NOT NULL,
-    DATO_START                     DATE                NOT NULL,
-    TKNR                           CHAR(4)             NOT NULL,
-    SAKSBLOKK                      CHAR(1)             NOT NULL,
-    SAKSNR                         NUMBER              NOT NULL,
-    TYPE_SAK                       CHAR(2)             NOT NULL,
-    KODE_RESULTAT                  CHAR(2)             NOT NULL,
-    DATO_INNV_FOM                  DATE                NOT NULL,
-    DATO_INNV_TOM                  DATE ,
-    DATO_MOTTATT_SAK               DATE                NOT NULL,
-    KODE_VEDTAKSNIVAA              CHAR(3)             NOT NULL,
-    TYPE_BEREGNING                 CHAR(3)             NOT NULL,
-    TKNR_BEH                       CHAR(4)             NOT NULL,
-    TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL,
-    BRUKERID                       CHAR(8)             NOT NULL,
-    NOKKEL_DL1                     CHAR(30) ,
-    ALTERNATIV_MOTTAKER            NUMBER(11) ,
-    STONAD_ID                      NUMBER              NOT NULL,
-    KIDNR                          VARCHAR2(25) ,
-    FAKTNR                         VARCHAR2(33) ,
-    OPPRETTET                      TIMESTAMP(6)        DEFAULT  NOT NULL);
 
 --------------------------------------------------
 -- Create Table INFOTRYGD_Q0.IS_VEDTAK_BARN_18
@@ -319,4 +276,111 @@ Create table INFOTRYGD_Q0.IS_VEDTAK_BARN_18 (
     ENDRET_I_KILDE                 TIMESTAMP(6) ,
     KILDE_IS                       VARCHAR2(12)        DEFAULT ' ' ,
     REGION                         CHAR(1)             DEFAULT ' ' ,
-    ID_VEDBA                       NUMBER              DEFAULT NOT NULL)
+    ID_VEDBA                       NUMBER              DEFAULT NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_LOPENR_FNR
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_LOPENR_FNR (
+    PERSON_LOPENR                  NUMBER              NOT NULL,
+    PERSONNR                       CHAR(11)            NOT NULL,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_STONAD
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_STONAD (
+    STONAD_ID                      NUMBER              NOT NULL,
+    PERSON_LOPENR                  NUMBER              , -- NOT NULL,
+    KODE_RUTINE                    CHAR(2)             , -- NOT NULL,
+    DATO_START                     DATE                , -- NOT NULL,
+    KODE_OPPHOR                    CHAR(2) ,
+    DATO_OPPHOR                    DATE ,
+    OPPDRAG_ID                     NUMBER ,
+    TIDSPUNKT_OPPHORT              TIMESTAMP(6) ,
+    TIDSPUNKT_REG                  TIMESTAMP(6) ,
+    BRUKERID                       CHAR(8) ,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_VEDTAK
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_VEDTAK (
+    VEDTAK_ID                      NUMBER              NOT NULL,
+    PERSON_LOPENR                  NUMBER              NOT NULL,
+    KODE_RUTINE                    CHAR(2)             , -- NOT NULL,
+    DATO_START                     DATE                , -- NOT NULL,
+    TKNR                           CHAR(4)             , -- NOT NULL,
+    SAKSBLOKK                      CHAR(1)             , -- NOT NULL,
+    SAKSNR                         NUMBER              , -- NOT NULL,
+    TYPE_SAK                       CHAR(2)             , -- NOT NULL,
+    KODE_RESULTAT                  CHAR(2)             , -- NOT NULL,
+    DATO_INNV_FOM                  DATE                , -- NOT NULL,
+    DATO_INNV_TOM                  DATE ,
+    DATO_MOTTATT_SAK               DATE                , -- NOT NULL,
+    KODE_VEDTAKSNIVAA              CHAR(3)             , -- NOT NULL,
+    TYPE_BEREGNING                 CHAR(3)             , -- NOT NULL,
+    TKNR_BEH                       CHAR(4)             , -- NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        , -- NOT NULL,
+    BRUKERID                       CHAR(8)             , -- NOT NULL,
+    NOKKEL_DL1                     CHAR(30) ,
+    ALTERNATIV_MOTTAKER            NUMBER(11) ,
+    STONAD_ID                      NUMBER              , -- NOT NULL,
+    KIDNR                          VARCHAR2(25) ,
+    FAKTNR                         VARCHAR2(33) ,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_DELYTELSE
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_DELYTELSE (
+    VEDTAK_ID                      NUMBER              NOT NULL,
+    TYPE_DELYTELSE                 CHAR(2)             NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL,
+    FOM                            DATE                , -- NOT NULL,
+    TOM                            DATE ,
+    BELOP                          NUMBER(11, 2)       , -- NOT NULL,
+    OPPGJORSORDNING                CHAR(1) ,
+    MOTTAKER_LOPENR                NUMBER ,
+    BRUKERID                       CHAR(8)             , -- NOT NULL,
+    TYPE_SATS                      CHAR(1)             , -- NOT NULL,
+    TYPE_UTBETALING                CHAR(1)             , -- NOT NULL,
+    LINJE_ID                       NUMBER ,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_DELYTELSE_SP_FA_BS
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_DELYTELSE_SP_FA_BS (
+    VEDTAK_ID                      NUMBER              NOT NULL,
+    TYPE_DELYTELSE                 CHAR(2)             NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL,
+    TYPE_INNTEKT                   CHAR(2)             , -- NOT NULL,
+    TYPE_TILTAK                    CHAR(2)             , -- NOT NULL,
+    TYPE_FORSIKRING                CHAR(1)             , -- NOT NULL,
+    PERIODE_KARENS                 CHAR(1)             , -- NOT NULL,
+    PROSENT_INNT_GRL               NUMBER              , -- NOT NULL,
+    ORGNR                          CHAR(9)             , -- NOT NULL,
+    REFUSJON                       CHAR(1)             , -- NOT NULL,
+    GRAD                           NUMBER              , -- NOT NULL,
+    DATO_MAX                       DATE ,
+    KODE_KLASSE                    CHAR(20)            , -- NOT NULL,
+    SATSENDRING                    CHAR(1)             , -- NOT NULL,
+    DATO_ANNULLERT                 DATE ,
+    SJOMANN                        CHAR(1)             , -- NOT NULL,
+    TYPE_SATS                      CHAR(4)             , -- NOT NULL,
+    SATS_DAGER                     NUMBER(7, 2)        , -- NOT NULL,
+    BRUKERID                       CHAR(8)             , -- NOT NULL,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_STONAD_BS
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_STONAD_BS (
+    STONAD_ID                      NUMBER              NOT NULL,
+    UNNTAK                         CHAR(2)             , -- NOT NULL,
+    PLEIEPENGEGRAD                 NUMBER ,
+    LOPENR_BARN                    NUMBER ,
+    BRUKERID                       CHAR(8)             , -- NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        , -- NOT NULL,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp  NOT NULL);

@@ -30,7 +30,7 @@ data class Periode(
     val stoenadstype: Stoenadstype?,
 
     @Column(name = "F_NR", columnDefinition = "CHAR")
-    @Convert(converter = ReversedFodselNrConverter::class)
+    @Convert(converter = ReversedFoedselNrConverter::class)
     val fnr: FoedselNr,
 
     @Column(name = "IS10_FRISK", columnDefinition = "CHAR")
@@ -61,7 +61,7 @@ data class Periode(
     val foedselsdatoBarn: LocalDate?,
 
     @Column(name = "IS10_TIDSK_BARNFNR", columnDefinition = "CHAR")
-    @Convert(converter = ReversedFodselNrConverter::class)
+    @Convert(converter = ReversedFoedselNrConverter::class)
     val barnFnr: FoedselNr?,
 
     @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")

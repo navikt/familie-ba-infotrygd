@@ -36,11 +36,6 @@ data class Arbeidsforhold(
 
 data class Kodeverdi(val kode: String, val termnavn: String)
 
-/*
-data class PaarorendeSykdom(
-    val foedselsdatoPleietrengende: LocalDate
-) : Grunnlagsdetaljer*/
-
 data class GrunnlagGenerelt(
     override val tema: Kodeverdi?,
     override val registrert: LocalDate?,
@@ -89,4 +84,13 @@ data class Foreldrepenger(
 data class Sykepenger(
     private val generelt: GrunnlagGenerelt,
     val inntektsgrunnlagProsent: Int?
+) : Grunnlag by generelt
+
+
+
+// --- Pårørende sykdom ---
+
+data class PaaroerendeSykdom(
+    val generelt: GrunnlagGenerelt,
+    val foedselsdatoPleietrengende: LocalDate?
 ) : Grunnlag by generelt

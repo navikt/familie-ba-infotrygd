@@ -41,7 +41,7 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
         saksbehandlerId = p.brukerId,
         iverksatt = p.arbufoer,
         opphoerFom = p.stoppdato,
-        behandlingstema = p.stoenadstype!!.toBehandlingstema(),
+        behandlingstema = p.stoenadstype!!.toDto(),
         identdato = p.arbufoer, // todo: pårørende sykdom
         periode = periode, // todo: pårørende sykdom
         arbeidskategori = arbeidskategori,

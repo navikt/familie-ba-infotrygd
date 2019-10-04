@@ -66,7 +66,7 @@ class ConvertersKtTest {
             saksbehandlerId = saksbehandlerId,
             iverksatt = utbetaltFom,
             opphoerFom = opphoerFom,
-            behandlingstema = stoenadstype.toBehandlingstema(),
+            behandlingstema = stoenadstype.toDto(),
             identdato = utbetaltFom,
             periode = Periode(utbetaltFom, utbetaltTom),
             arbeidskategori = Kodeverdi(arbeidskategori.kode, arbeidskategori.tekst),

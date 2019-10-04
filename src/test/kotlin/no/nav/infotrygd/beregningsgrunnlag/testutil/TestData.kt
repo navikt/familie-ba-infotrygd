@@ -4,14 +4,22 @@ import no.nav.infotrygd.beregningsgrunnlag.model.Inntekt
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
 import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
+import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 object TestData {
+    fun foedselNr(): FoedselNr {
+        val fnr: String = (11010100000 + nextId()).toString()
+        return FoedselNr(fnr)
+    }
+
     fun periode(): Periode {
         return Periode(
             id = nextId(),
@@ -92,5 +100,66 @@ object TestData {
                 dekningsgrad = 100
             )
         }
+    }
+
+    fun stonadBs(): StonadBs {
+        return StonadBs(
+            id = nextId(),
+            brukerId = "bruker"
+        )
+    }
+
+    fun stonad(): Stonad {
+        return Stonad(
+            id = nextId(),
+            kodeRutine = Tema.PAAROERENDE_SYKDOM,
+            datoStart = LocalDate.now(),
+            datoOpphoer = LocalDate.now(),
+            stonadBs = stonadBs()
+        )
+    }
+
+    fun delytelse(): Delytelse {
+        return Delytelse(
+            vedtakId = -1,
+            type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+            tidspunktRegistrert = LocalDateTime.now(),
+            fom = LocalDate.now(),
+            tom = LocalDate.now(),
+            delytelseSpFaBs = delytelserSpFaBs()
+        )
+    }
+
+    fun delytelserSpFaBs(): DelytelseSpFaBs {
+        return DelytelseSpFaBs(
+            vedtakId = -1,
+            type = Stoenadstype.PLEIEPENGER_NY_ORDNING,
+            tidspunktRegistrert = LocalDateTime.now(),
+            grad = -1
+        )
+    }
+
+    fun vedtak(
+            datoStart: LocalDate = LocalDate.now(),
+            fnr: FoedselNr = foedselNr(),
+            delytelserEksermpler: List<Delytelse> = listOf()): Vedtak {
+        val vedtakId = nextId()
+        val delytelser = delytelserEksermpler.map { it.copy(
+            vedtakId = vedtakId,
+            delytelseSpFaBs = it.delytelseSpFaBs?.copy(
+                vedtakId = vedtakId,
+                type = it.type,
+                tidspunktRegistrert = it.tidspunktRegistrert
+            )
+        ) }
+
+        return Vedtak(
+            id = vedtakId,
+            stonad = stonad(),
+            person = LopenrFnr(id = nextId(), fnr = fnr),
+            kodeRutine = Tema.PAAROERENDE_SYKDOM,
+            datoStart = datoStart,
+            delytelser = delytelser
+        )
     }
 }

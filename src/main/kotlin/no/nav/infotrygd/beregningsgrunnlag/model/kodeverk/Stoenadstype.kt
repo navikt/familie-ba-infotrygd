@@ -20,7 +20,7 @@ enum class Stoenadstype(val tema: Tema, override val kode: String, override val 
     PLEIEPENGER_INSTOPPH(Tema.PAAROERENDE_SYKDOM,"PI", "Pleiepenger (identdato før 1.10.2017)"),
     PLEIEPENGER_NY_ORDNING(Tema.PAAROERENDE_SYKDOM,"PN", "Pleiepenger, ny ordning (identdato etter 1.10.2017)"); // ???
 
-    fun toBehandlingstema(): Kodeverdi {
+    override fun toDto(): Kodeverdi {
         return when(this) {
             SYKEPENGER -> Kodeverdi("SP", tekst)
             FOEDSEL -> Kodeverdi("FØ", tekst)
