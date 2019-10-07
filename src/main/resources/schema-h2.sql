@@ -331,6 +331,24 @@ Create table INFOTRYGD_Q0.T_VEDTAK (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_VEDTAK_SP_FA_BS
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_VEDTAK_SP_FA_BS (
+    VEDTAK_ID                      NUMBER              NOT NULL,
+    ARBKAT                         CHAR(2)             NOT NULL,
+    KODE_FORELDREKVOTE             CHAR(1)             , -- NOT NULL,
+    DEKNINGSGRAD                   NUMBER              , -- NOT NULL,
+    DATO_FODSEL                    DATE ,
+    DATO_ADOPSJON                  DATE ,
+    ANT_BARN                       NUMBER ,
+    ORGNR_JURIDISK                 CHAR(9) ,
+    DATO_OPPHOR_FOM                DATE ,
+    PLEIEPENGEGRAD                 NUMBER ,
+    BRUKERID                       CHAR(8)             , --NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        , -- NOT NULL,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp  NOT NULL);
+
+--------------------------------------------------
 -- Create Table INFOTRYGD_Q0.T_DELYTELSE
 --------------------------------------------------
 Create table INFOTRYGD_Q0.T_DELYTELSE (
@@ -384,3 +402,21 @@ Create table INFOTRYGD_Q0.T_STONAD_BS (
     BRUKERID                       CHAR(8)             , -- NOT NULL,
     TIDSPUNKT_REG                  TIMESTAMP(6)        , -- NOT NULL,
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp  NOT NULL);
+
+--------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_INNTEKT
+--------------------------------------------------
+Create table INFOTRYGD_Q0.T_INNTEKT (
+    STONAD_ID                      NUMBER              NOT NULL,
+    ORGNR                          NUMBER              NOT NULL,
+    INNTEKT_FOM                    DATE                NOT NULL,
+    LOPENR                         NUMBER              NOT NULL,
+    INNTEKT_TOM                    DATE ,
+    TYPE_INNTEKT                   CHAR(1)             NOT NULL,
+    INNTEKT                        NUMBER(13, 2)       NOT NULL,
+    PERIODE                        CHAR(1)             NOT NULL,
+    REFUSJON                       CHAR(1)             NOT NULL,
+    REFUSJON_TOM                   DATE ,
+    STATUS                         CHAR(1)             NOT NULL,
+    BRUKERID                       CHAR(8)             NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL);

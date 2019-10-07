@@ -21,7 +21,7 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
             behandlingstema = Stoenadstype.PLEIEPENGER_NY_ORDNING.toDto(),
             identdato = vedtak.stonad.datoStart,
             periode = periode,
-            arbeidskategori = null, // todo: finn ut
+            arbeidskategori = vedtak.vedtakSpFaBs?.arbeidskategori?.toDto(),
             arbeidsforhold = listOf(), // todo: finn ut
             vedtak = delytelser.map {
                 Vedtak(

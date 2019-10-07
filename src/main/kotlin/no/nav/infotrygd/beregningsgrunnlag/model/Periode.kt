@@ -67,7 +67,7 @@ data class Periode(
     @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")
     val stebarnsadopsjon: String?,
 
-    @Column(name = "IS10_ARBKAT_99", columnDefinition = "CHAR")
+    @Column(name = "IS10_ARBKAT", columnDefinition = "CHAR")
     val arbeidskategori: Arbeidskategori?,
 
     @Column(name = "IS10_REG_DATO", columnDefinition = "CHAR")

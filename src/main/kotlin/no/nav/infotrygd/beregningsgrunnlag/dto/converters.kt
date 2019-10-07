@@ -5,13 +5,12 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 
 fun periodeToForeldrepengerDetaljer(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode, vedtak: VedtakBarn?): ForeldrepengerDetaljer {
     check(p.tema == Tema.FORELDREPENGER) { "Forventet ytelse == FORELDREPENGER" }
-    checkNotNull(p.foedselsdatoBarn) { "foedselsdatoBarn kan ikke være null for foreldrepenger" }
 
     return ForeldrepengerDetaljer(
         opprinneligIdentdato = p.arbufoerOpprinnelig,
         dekningsgrad = p.dekningsgrad,
         gradering = vedtak?.dekningsgrad,
-        foedselsdatoBarn = p.foedselsdatoBarn!!
+        foedselsdatoBarn = p.foedselsdatoBarn
     )
 }
 

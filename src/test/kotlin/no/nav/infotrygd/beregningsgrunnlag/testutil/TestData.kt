@@ -140,7 +140,9 @@ object TestData {
         datoStart: LocalDate = LocalDate.now(),
         fnr: FoedselNr = foedselNr(),
         kodeRutine: String = "BS",
-        delytelserEksermpler: List<Delytelse> = listOf()): Vedtak {
+        delytelserEksermpler: List<Delytelse> = listOf(),
+        arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
+    ): Vedtak {
         val vedtakId = nextId()
         val delytelser = delytelserEksermpler.map { it.copy(
             vedtakId = vedtakId,
@@ -159,6 +161,10 @@ object TestData {
             person = LopenrFnr(id = nextId(), fnr = fnr),
             kodeRutine = kodeRutine,
             datoStart = datoStart,
+            vedtakSpFaBs = VedtakSpFaBs(
+                vedtakId = vedtakId,
+                arbeidskategori = arbeidskategori
+            ),
             delytelser = delytelser
         )
     }

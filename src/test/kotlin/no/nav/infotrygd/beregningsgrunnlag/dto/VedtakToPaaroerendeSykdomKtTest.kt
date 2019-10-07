@@ -1,6 +1,7 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
@@ -22,6 +23,7 @@ class VedtakToPaaroerendeSykdomKtTest {
         val fom2 = fom1.plusWeeks(1)
         val tom2 = periodeTom
 
+        val arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
         val vedtak = TVedtak(
             id = -1,
             stonad = Stonad(
@@ -39,6 +41,10 @@ class VedtakToPaaroerendeSykdomKtTest {
                 fnr = TestData.foedselNr()
             ),
             datoStart = LocalDate.now(),
+            vedtakSpFaBs = VedtakSpFaBs(
+                vedtakId = -1,
+                arbeidskategori = arbeidskategori
+            ),
             delytelser = listOf(
                 Delytelse(
                     vedtakId = -1,
@@ -81,7 +87,7 @@ class VedtakToPaaroerendeSykdomKtTest {
                 behandlingstema = Kodeverdi("PN", "Pleiepenger, ny ordning (identdato etter 1.10.2017)"),
                 identdato = iverksatt,
                 periode = Periode(iverksatt, periodeTom),
-                arbeidskategori = null, // todo- finn ut
+                arbeidskategori = arbeidskategori.toDto(),
                 arbeidsforhold = listOf(), // todo- finn ut
                 vedtak = listOf(
                     Vedtak(

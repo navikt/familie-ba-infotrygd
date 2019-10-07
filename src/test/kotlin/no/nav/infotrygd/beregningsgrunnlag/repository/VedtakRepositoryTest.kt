@@ -34,6 +34,7 @@ class VedtakRepositoryTest {
         val v = res[0]
         assertThat(v.delytelser).hasSize(1)
         assertThat(v.delytelser[0].delytelseSpFaBs).isNotNull
+        assertThat(v.vedtakSpFaBs).isNotNull
     }
 
     @Test
@@ -41,9 +42,19 @@ class VedtakRepositoryTest {
         val fnr = TestData.foedselNr()
         val dato = LocalDate.now()
 
-        val relevant = TestData.vedtak(fnr = fnr, datoStart = dato)
-        val forGammel = TestData.vedtak(fnr = fnr, datoStart = dato.minusYears(1))
-        val feilKodeRutine = TestData.vedtak(fnr = fnr, datoStart = dato, kodeRutine = "XX")
+        val relevant = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr
+        )
+        val forGammel = TestData.vedtak(
+            datoStart = dato.minusYears(1),
+            fnr = fnr
+        )
+        val feilKodeRutine = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "XX"
+        )
 
         repository.saveAll(listOf(relevant, forGammel, feilKodeRutine))
 
@@ -58,10 +69,23 @@ class VedtakRepositoryTest {
         val fnr = TestData.foedselNr()
         val dato = LocalDate.now()
 
-        val relevant = TestData.vedtak(fnr = fnr, datoStart = dato)
-        val forGammel = TestData.vedtak(fnr = fnr, datoStart = dato.minusYears(1))
-        val forNy = TestData.vedtak(fnr = fnr, datoStart = dato.plusYears(1))
-        val feilKodeRutine = TestData.vedtak(fnr = fnr, datoStart = dato, kodeRutine = "XX")
+        val relevant = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr
+        )
+        val forGammel = TestData.vedtak(
+            datoStart = dato.minusYears(1),
+            fnr = fnr
+        )
+        val forNy = TestData.vedtak(
+            datoStart = dato.plusYears(1),
+            fnr = fnr
+        )
+        val feilKodeRutine = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "XX"
+        )
 
         repository.saveAll(listOf(relevant, forGammel, forNy, feilKodeRutine))
 

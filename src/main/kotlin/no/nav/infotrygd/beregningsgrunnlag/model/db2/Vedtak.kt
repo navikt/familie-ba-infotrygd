@@ -28,6 +28,11 @@ data class Vedtak(
     @Column(name = "DATO_START", columnDefinition = "DATE")
     val datoStart: LocalDate,
 
+    @OneToOne
+    @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
+    @Cascade(CascadeType.ALL)
+    val vedtakSpFaBs: VedtakSpFaBs?,
+
     @OneToMany
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
     @Cascade(CascadeType.ALL)
