@@ -40,7 +40,8 @@ object TestData {
             stebarnsadopsjon = null,
             regdato = LocalDate.now(),
             brukerId = "br.id",
-            inntektsgrunnlagProsent = null
+            inntektsgrunnlagProsent = null,
+            morFnr = TestData.foedselNr()
         )
     }
 

@@ -15,7 +15,7 @@ internal class ReversedFoedselNrConverterTest {
     fun convertToDatabaseColumn() {
         val result = converter.convertToDatabaseColumn(entity)
         assertThat(result).isEqualTo(dbValue)
-        assertThat(converter.convertToDatabaseColumn(null)).isNull()
+        assertThat(converter.convertToDatabaseColumn(null)).isEqualTo("00000000000")
     }
 
     @Test

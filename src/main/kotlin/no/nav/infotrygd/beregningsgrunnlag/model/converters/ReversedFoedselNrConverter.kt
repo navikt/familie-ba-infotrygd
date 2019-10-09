@@ -5,7 +5,7 @@ import javax.persistence.AttributeConverter
 
 class ReversedFoedselNrConverter : AttributeConverter<FoedselNr?, String?> {
     override fun convertToDatabaseColumn(attribute: FoedselNr?): String? {
-        return attribute?.let { attribute.reversert }
+        return attribute?.reversert ?: "00000000000"
     }
 
     override fun convertToEntityAttribute(dbData: String?): FoedselNr? {

@@ -64,6 +64,10 @@ data class Periode(
     @Convert(converter = ReversedFoedselNrConverter::class)
     val barnFnr: FoedselNr?,
 
+    @Column(name = "IS10_MORFNR", columnDefinition = "DECIMAL")
+    @Convert(converter = ReversedLongFoedselNrConverter::class)
+    val morFnr: FoedselNr?,
+
     @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")
     val stebarnsadopsjon: String?,
 
