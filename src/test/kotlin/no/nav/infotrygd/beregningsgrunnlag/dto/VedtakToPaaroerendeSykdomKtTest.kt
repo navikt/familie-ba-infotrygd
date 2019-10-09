@@ -2,6 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
@@ -24,6 +25,9 @@ class VedtakToPaaroerendeSykdomKtTest {
         val tom2 = periodeTom
 
         val arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
+        val inntektForPerioden = 1000.toBigDecimal()
+        val inntektsperiode = Inntektsperiode.MAANEDLIG
+        val arbeidsgiverOrgNr = 12345678900
         val vedtak = TVedtak(
             id = -1,
             stonad = Stonad(
@@ -34,6 +38,16 @@ class VedtakToPaaroerendeSykdomKtTest {
                 stonadBs = StonadBs(
                     id = -1,
                     brukerId = "bruker"
+                ),
+                inntektshistorikk = listOf(
+                    Inntekt(
+                        stonadId = -1,
+                        orgNr = arbeidsgiverOrgNr,
+                        inntektFom = LocalDate.now(),
+                        lopeNr = 1,
+                        inntekt = inntektForPerioden,
+                        periode = inntektsperiode
+                    )
                 )
             ),
             person = LopenrFnr(
@@ -88,7 +102,13 @@ class VedtakToPaaroerendeSykdomKtTest {
                 identdato = iverksatt,
                 periode = Periode(iverksatt, periodeTom),
                 arbeidskategori = arbeidskategori.toDto(),
-                arbeidsforhold = listOf(), // todo- finn ut
+                arbeidsforhold = listOf(
+                    Arbeidsforhold(
+                        inntektForPerioden = inntektForPerioden,
+                        inntektsperiode = inntektsperiode.toDto(),
+                        arbeidsgiverOrgnr = arbeidsgiverOrgNr.toString()
+                    )
+                ),
                 vedtak = listOf(
                     Vedtak(
                         utbetalingsgrad = 75,

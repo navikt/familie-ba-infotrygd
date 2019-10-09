@@ -33,6 +33,7 @@ data class Inntekt(
     val periode: Inntektsperiode
 )
 
+@Embeddable
 private data class InntektId(
     val stonadId: Long,
     val orgNr: Long,

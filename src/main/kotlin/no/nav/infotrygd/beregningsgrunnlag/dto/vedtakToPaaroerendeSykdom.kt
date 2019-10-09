@@ -22,7 +22,13 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
             identdato = vedtak.stonad.datoStart,
             periode = periode,
             arbeidskategori = vedtak.vedtakSpFaBs?.arbeidskategori?.toDto(),
-            arbeidsforhold = listOf(), // todo: finn ut
+            arbeidsforhold = vedtak.stonad.inntekter.map {
+                Arbeidsforhold(
+                    inntektForPerioden = it.inntekt,
+                    inntektsperiode = it.periode.toDto(),
+                    arbeidsgiverOrgnr = it.orgNr.toString()
+                )
+            },
             vedtak = delytelser.map {
                 Vedtak(
                     utbetalingsgrad = it.delytelseSpFaBs?.grad,

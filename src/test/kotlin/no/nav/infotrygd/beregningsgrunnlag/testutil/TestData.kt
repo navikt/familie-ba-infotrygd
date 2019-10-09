@@ -112,7 +112,8 @@ object TestData {
             kodeRutine = "BS",
             datoStart = LocalDate.now(),
             datoOpphoer = LocalDate.now(),
-            stonadBs = stonadBs()
+            stonadBs = stonadBs(),
+            inntektshistorikk = listOf()
         )
     }
 

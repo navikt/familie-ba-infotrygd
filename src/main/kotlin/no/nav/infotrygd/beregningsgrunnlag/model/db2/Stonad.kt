@@ -26,5 +26,17 @@ data class Stonad(
     @OneToOne
     @JoinColumn(name = "STONAD_ID", referencedColumnName = "STONAD_ID")
     @Cascade(CascadeType.ALL)
-    val stonadBs: StonadBs?
-)
+    val stonadBs: StonadBs?,
+
+    @OneToMany
+    @JoinColumn(name = "STONAD_ID", referencedColumnName = "STONAD_ID")
+    @Cascade(CascadeType.ALL)
+    val inntektshistorikk: List<Inntekt>
+) {
+    val inntekter: List<Inntekt>
+        get() {
+            return inntektshistorikk
+                .groupBy { Triple(it.stonadId, it.orgNr, it.inntektFom) }.values
+                .map { it.maxBy { it.lopeNr }!! }
+        }
+}
