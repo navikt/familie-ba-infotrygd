@@ -23,7 +23,4 @@ data class DelytelseSpFaBs(
 
     @Column(name = "GRAD", columnDefinition = "DECIMAL")
     val grad: Int
-
-//    @Column(name = "")
-//    val arbeidskategori: Arbeidskategori // TODO
 )
