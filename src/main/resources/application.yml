@@ -1,6 +1,9 @@
 server.port: 8080
 
 spring:
+  jackson:
+    serialization:
+      indent_output: true
   datasource:
     url: ${APP_DATASOURCE_URL}
     username: ${APP_DATASOURCE_USERNAME}
