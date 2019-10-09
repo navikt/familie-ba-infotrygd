@@ -2,7 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
 
 import no.nav.infotrygd.beregningsgrunnlag.dto.Kodeverdi
 
-enum class Stoenadstype(val tema: Tema, override val kode: String, override val tekst: String) : Kode { // todo: termnavn
+enum class Stoenadstype(val tema: Tema, override val kode: String, override val tekst: String) : Kode {
     // Sykepenger
     SYKEPENGER(Tema.SYKEPENGER,"", "Sykepenger"),
 

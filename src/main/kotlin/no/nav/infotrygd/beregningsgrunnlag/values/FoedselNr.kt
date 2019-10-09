@@ -22,7 +22,7 @@ data class FoedselNr(@JsonValue val asString: String) {
             return asString[0].toString().toInt() >= 4
         }
 
-    fun finnSisteMuligeFoedselsdatoFoer(dato: LocalDate): LocalDate { // todo: FEIL, FEIL, FEIL!! Gå i register!
+    fun finnSisteMuligeFoedselsdatoFoer(dato: LocalDate): LocalDate {
         val fnrYear = asString.slice(4 until 6).toInt()
         val fnrMonth = asString.slice(2 until 4).toInt()
 

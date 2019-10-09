@@ -9,6 +9,14 @@ class ReversedFoedselNrConverter : AttributeConverter<FoedselNr?, String?> {
     }
 
     override fun convertToEntityAttribute(dbData: String?): FoedselNr? {
-        return dbData?.let { FoedselNr.fraReversert(dbData) }
+        if(dbData == null) {
+            return null
+        }
+
+        if(dbData.toLong() == 0L) {
+            return null
+        }
+
+        return FoedselNr.fraReversert(dbData)
     }
 }

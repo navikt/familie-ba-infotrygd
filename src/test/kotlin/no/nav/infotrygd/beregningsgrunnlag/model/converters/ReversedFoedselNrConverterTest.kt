@@ -23,5 +23,6 @@ internal class ReversedFoedselNrConverterTest {
         val result = converter.convertToEntityAttribute(dbValue)
         assertThat(result).isEqualTo(entity)
         assertThat(converter.convertToEntityAttribute(null)).isNull()
+        assertThat(converter.convertToEntityAttribute("00000000000")).isNull()
     }
 }
