@@ -91,6 +91,6 @@ data class Sykepenger(
 // --- Pårørende sykdom ---
 
 data class PaaroerendeSykdom(
-    val generelt: GrunnlagGenerelt,
+    private val generelt: GrunnlagGenerelt,
     val foedselsdatoPleietrengende: LocalDate?
 ) : Grunnlag by generelt
