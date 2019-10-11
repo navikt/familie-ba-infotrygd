@@ -1,7 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
 import no.nav.infotrygd.beregningsgrunnlag.model.converters.Char2Converter
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.time.LocalDate

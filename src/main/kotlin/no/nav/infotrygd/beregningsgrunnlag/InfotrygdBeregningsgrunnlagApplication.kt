@@ -9,5 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class InfotrygdBeregningsgrunnlagApplication
 
 fun main(args: Array<String>) {
+    System.setProperty("oracle.jdbc.fanEnabled", "false")
     runApplication<InfotrygdBeregningsgrunnlagApplication>(*args)
 }
