@@ -103,7 +103,12 @@ object TestData {
     fun stonadBs(): StonadBs {
         return StonadBs(
             id = nextId(),
-            brukerId = "bruker"
+            brukerId = "bruker",
+            tidspunktRegistrert = LocalDateTime.now(),
+            barn = LopenrFnr(
+                id = nextId(),
+                fnr = foedselNr()
+            )
         )
     }
 

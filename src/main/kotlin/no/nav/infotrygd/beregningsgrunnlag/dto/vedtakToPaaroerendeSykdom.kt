@@ -8,18 +8,19 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
     vedtak.delytelser.forEach { require(it.type == "PN") { "Ugyldig databaseverdi, forventet type = PN" } }
 
     val delytelser = vedtak.delytelser.sortedBy { it.fom }
-    val periode = Periode(vedtak.stonad.datoStart, delytelser.last().tom)
+    val datoStart = vedtak.stonad.datoStart
+    val periode = Periode(datoStart, delytelser.last().tom)
 
     return PaaroerendeSykdom(
         generelt = GrunnlagGenerelt(
             tema = Tema.PAAROERENDE_SYKDOM.toDto(),
-            registrert = null,
+            registrert = vedtak.stonad.stonadBs?.tidspunktRegistrert?.toLocalDate(),
             status = null,
             saksbehandlerId = vedtak.stonad.stonadBs?.brukerId,
-            iverksatt = vedtak.stonad.datoStart,
+            iverksatt = datoStart,
             opphoerFom = vedtak.stonad.datoOpphoer,
             behandlingstema = Stoenadstype.PLEIEPENGER_NY_ORDNING.toDto(),
-            identdato = vedtak.stonad.datoStart,
+            identdato = datoStart,
             periode = periode,
             arbeidskategori = vedtak.vedtakSpFaBs?.arbeidskategori?.toDto(),
             arbeidsforhold = vedtak.stonad.inntekter.map {
@@ -36,6 +37,6 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
                 )
             }
         ),
-        foedselsdatoPleietrengende = null
+        foedselsdatoPleietrengende = vedtak.stonad.stonadBs?.barn?.fnr?.finnSisteMuligeFoedselsdatoFoer(datoStart)
     )
 }

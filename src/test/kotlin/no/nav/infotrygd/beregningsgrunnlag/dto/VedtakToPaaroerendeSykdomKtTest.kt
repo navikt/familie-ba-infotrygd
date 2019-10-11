@@ -5,6 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
+import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
@@ -28,6 +29,10 @@ class VedtakToPaaroerendeSykdomKtTest {
         val inntektForPerioden = 1000.toBigDecimal()
         val inntektsperiode = Inntektsperiode.MAANEDLIG
         val arbeidsgiverOrgNr = 12345678900
+        val tidspunktRegistrert = iverksatt.minusDays(12).atStartOfDay()
+
+        val barnFnr = FoedselNr("01020312345")
+
         val vedtak = TVedtak(
             id = -1,
             stonad = Stonad(
@@ -37,7 +42,12 @@ class VedtakToPaaroerendeSykdomKtTest {
                 datoOpphoer = opphoerFom,
                 stonadBs = StonadBs(
                     id = -1,
-                    brukerId = "bruker"
+                    brukerId = "bruker",
+                    tidspunktRegistrert = tidspunktRegistrert,
+                    barn = LopenrFnr(
+                        id = nextId(),
+                        fnr = barnFnr
+                    )
                 ),
                 inntektshistorikk = listOf(
                     Inntekt(
@@ -93,7 +103,7 @@ class VedtakToPaaroerendeSykdomKtTest {
         val forventet = PaaroerendeSykdom(
             generelt = GrunnlagGenerelt(
                 tema = Kodeverdi("BS", "Barns sykdom"),
-                registrert = null,
+                registrert = tidspunktRegistrert.toLocalDate(),
                 status = null,
                 saksbehandlerId = "bruker",
                 iverksatt = iverksatt,
@@ -120,7 +130,7 @@ class VedtakToPaaroerendeSykdomKtTest {
                     )
                 )
             ),
-            foedselsdatoPleietrengende = null
+            foedselsdatoPleietrengende = LocalDate.of(2003, 2, 1)
         )
 
         val resultat = vedtakToPaaroerendeSykdom(vedtak)

@@ -1,6 +1,10 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
 import no.nav.infotrygd.beregningsgrunnlag.model.converters.BrukerIdConverter
+import org.hibernate.annotations.Cascade
+import org.hibernate.annotations.CascadeType
+import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -12,5 +16,13 @@ data class StonadBs(
 
     @Column(name = "BRUKERID", columnDefinition = "CHAR")
     @Convert(converter = BrukerIdConverter::class)
-    val brukerId: String
+    val brukerId: String,
+
+    @ManyToOne
+    @JoinColumn(name = "LOPENR_BARN", referencedColumnName = "PERSON_LOPENR")
+    @Cascade(CascadeType.ALL)
+    val barn: LopenrFnr,
+
+    @Column(name = "TIDSPUNKT_REG", columnDefinition = "TIMESTAMP")
+    val tidspunktRegistrert: LocalDateTime
 )
