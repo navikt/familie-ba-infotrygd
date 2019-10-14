@@ -8,13 +8,35 @@ import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
+import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 object TestData {
-    fun foedselNr(): FoedselNr {
-        val fnr: String = (11010100000 + nextId()).toString()
+    fun foedselNr(
+        foedselsdato: LocalDate = LocalDate.now(),
+        kjoenn: Kjoenn = Kjoenn.MANN): FoedselNr {
+
+        val individnummer = individnummer(foedselsdato, kjoenn)
+
+        val fnr = String.format("%02d%02d%s%03d99",
+            foedselsdato.dayOfMonth, foedselsdato.monthValue, foedselsdato.year.toString().takeLast(2), individnummer)
+
         return FoedselNr(fnr)
+    }
+
+    private fun individnummer(foedselsdato: LocalDate, kjoenn: Kjoenn): Int {
+        for ((individSerie, aarSerie) in FoedselNr.serier) {
+            if (aarSerie.contains(foedselsdato.year)) {
+                var res = individSerie.start + nextId().toInt()
+                when(kjoenn) {
+                    Kjoenn.MANN -> if (res % 2 == 0) res++
+                    Kjoenn.KVINNE -> if(res % 2 != 0) res++
+                }
+                return res
+            }
+        }
+        throw IllegalArgumentException("Fødselsdato må være mellom år 1854 og 2039")
     }
 
     fun periode(): Periode {
@@ -65,6 +87,17 @@ object TestData {
             periode = Inntektsperiode.MAANEDLIG
         )
 
+    fun inntektStonad(): no.nav.infotrygd.beregningsgrunnlag.model.db2.Inntekt =
+        no.nav.infotrygd.beregningsgrunnlag.model.db2.Inntekt(
+            stonadId = -1,
+            orgNr = 12345678900,
+            inntekt = 100.toBigDecimal(),
+            inntektFom = LocalDate.now(),
+            lopeNr = 1,
+            status = "L",
+            periode = Inntektsperiode.MAANEDLIG
+        )
+
     data class PeriodeFactory(
         val personKey: Long = nextId(),
         val arbufoerSeq: Long = nextId(),
@@ -95,7 +128,7 @@ object TestData {
                 personKey = periode.barnPersonKey!!,
                 arbufoerSeq = arbufoerSeq.toString(),
                 kode = periode().barnKode,
-                dekningsgrad = 100
+                dekningsgrad = 100.toBigDecimal()
             )
         }
     }

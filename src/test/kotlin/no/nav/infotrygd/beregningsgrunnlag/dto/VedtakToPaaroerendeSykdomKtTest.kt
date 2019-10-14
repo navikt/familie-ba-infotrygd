@@ -5,7 +5,6 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
@@ -31,7 +30,7 @@ class VedtakToPaaroerendeSykdomKtTest {
         val arbeidsgiverOrgNr = 12345678900
         val tidspunktRegistrert = iverksatt.minusDays(12).atStartOfDay()
 
-        val barnFnr = FoedselNr("01020312345")
+        val barnFnr = TestData.foedselNr(foedselsdato = LocalDate.of(2003, 2, 1))
 
         val vedtak = TVedtak(
             id = -1,
@@ -56,7 +55,8 @@ class VedtakToPaaroerendeSykdomKtTest {
                         inntektFom = LocalDate.now(),
                         lopeNr = 1,
                         inntekt = inntektForPerioden,
-                        periode = inntektsperiode
+                        periode = inntektsperiode,
+                        status = "L"
                     )
                 )
             ),

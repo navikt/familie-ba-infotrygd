@@ -26,6 +26,9 @@ data class Inntekt(
     @Column(name = "LOPENR", nullable = false, columnDefinition = "DECIMAL")
     val lopeNr: Long,
 
+    @Column(name = "STATUS", columnDefinition = "CHAR")
+    val status: String,
+
     @Column(name = "INNTEKT", columnDefinition = "DECIMAL")
     val inntekt: BigDecimal,
 

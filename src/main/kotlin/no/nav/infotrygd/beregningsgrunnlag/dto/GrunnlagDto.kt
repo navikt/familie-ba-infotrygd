@@ -60,14 +60,14 @@ data class GrunnlagGenerelt(
 interface Foreldrepengerfelt {
     val opprinneligIdentdato: LocalDate?
     val dekningsgrad: Int?
-    val gradering: Int?
+    val gradering: BigDecimal?
     val foedselsdatoBarn: LocalDate?
 }
 
 data class ForeldrepengerDetaljer(
     override val opprinneligIdentdato: LocalDate?,
     override val dekningsgrad: Int?,
-    override val gradering: Int?,
+    override val gradering: BigDecimal?,
     override val foedselsdatoBarn: LocalDate?
 ) : Foreldrepengerfelt
 

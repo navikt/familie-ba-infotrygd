@@ -41,7 +41,8 @@ class StonadRepositoryTest {
             inntektFom = LocalDate.now().minusYears(1),
             lopeNr = lopeNr,
             inntekt = 123.toBigDecimal(),
-            periode = Inntektsperiode.MAANEDLIG
+            periode = Inntektsperiode.MAANEDLIG,
+            status = "L"
         )
         return inntekt
     }

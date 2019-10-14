@@ -1,7 +1,10 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
-import no.nav.infotrygd.beregningsgrunnlag.model.converters.UtbetalingsgradConverter
-import javax.persistence.*
+import java.math.BigDecimal
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
 @Table(name = "IS_VEDTAK_BARN_18")
@@ -19,7 +22,6 @@ data class VedtakBarn(
     @Column(name = "IS18_KODE", columnDefinition = "CHAR")
     val kode: String,
 
-    @Column(name = "IS18_DEKNINGSGRAD", columnDefinition = "CHAR")
-    @Convert(converter = UtbetalingsgradConverter::class)
-    val dekningsgrad: Int
+    @Column(name = "IS18_TIDSK_PROS", columnDefinition = "DECIMAL")
+    val dekningsgrad: BigDecimal
 )

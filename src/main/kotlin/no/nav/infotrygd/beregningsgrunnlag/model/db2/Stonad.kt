@@ -38,5 +38,6 @@ data class Stonad(
             return inntektshistorikk
                 .groupBy { Triple(it.stonadId, it.orgNr, it.inntektFom) }.values
                 .map { it.maxBy { it.lopeNr }!! }
+                .filter { it.status == "L" }
         }
 }

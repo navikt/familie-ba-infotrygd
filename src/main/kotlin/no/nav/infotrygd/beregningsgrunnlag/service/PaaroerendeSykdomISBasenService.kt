@@ -37,7 +37,7 @@ class PaaroerendeSykdomISBasenService(private val periodeRepository: PeriodeRepo
 fun foedselsdatoPleietrengende(periode: Periode): LocalDate? {
     val stoenadstype = periode.stoenadstype
     return when(stoenadstype) {
-        KURS_KAP_3_23, ALV_SYKT_BARN,PLEIEPENGER_INSTOPPH -> periode.morFnr?.finnSisteMuligeFoedselsdatoFoer(periode.arbufoer)
+        KURS_KAP_3_23, ALV_SYKT_BARN,PLEIEPENGER_INSTOPPH -> periode.morFnr?.foedselsdato
         BARNS_SYKDOM, PAS_DOEDSSYK -> periode.foedselsdatoBarn
         else -> throw IllegalStateException("Uventet stønadstype i IS-basen: ${stoenadstype?.kode}")
     }
