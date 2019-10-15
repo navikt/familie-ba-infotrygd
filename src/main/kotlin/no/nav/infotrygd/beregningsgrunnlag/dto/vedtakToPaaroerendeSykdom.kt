@@ -5,7 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 
 fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
-    vedtak.delytelser.forEach { require(it.type == "PN") { "Ugyldig databaseverdi, forventet type = PN" } }
+    vedtak.delytelser.forEach { require(it.type == "PN") { "Ugyldig databaseverdi (delytelse.type = '${it.type}'), forventet type = PN" } }
 
     val delytelser = vedtak.delytelser.sortedBy { it.fom }
     val datoStart = vedtak.stonad.datoStart
