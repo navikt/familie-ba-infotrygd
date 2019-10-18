@@ -1,12 +1,13 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
+import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.infotrygd.beregningsgrunnlag.model.converters.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
-import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
+import no.nav.infotrygd.beregningsgrunnlag.utils.reversert
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.io.Serializable
@@ -31,7 +32,7 @@ data class Periode(
 
     @Column(name = "F_NR", columnDefinition = "CHAR")
     @Convert(converter = ReversedFoedselNrConverter::class)
-    val fnr: FoedselNr,
+    val fnr: FoedselsNr,
 
     @Column(name = "IS10_FRISK", columnDefinition = "CHAR")
     @Convert(converter = FriskConverter::class)
@@ -62,11 +63,11 @@ data class Periode(
 
     @Column(name = "IS10_TIDSK_BARNFNR", columnDefinition = "CHAR")
     @Convert(converter = ReversedFoedselNrConverter::class)
-    val barnFnr: FoedselNr?,
+    val barnFnr: FoedselsNr?,
 
     @Column(name = "IS10_MORFNR", columnDefinition = "DECIMAL")
     @Convert(converter = ReversedLongFoedselNrConverter::class)
-    val morFnr: FoedselNr?,
+    val morFnr: FoedselsNr?,
 
     @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")
     val stebarnsadopsjon: String?,
@@ -122,8 +123,7 @@ data class Periode(
 
     val barnPersonKey: Long?
         get() {
-            val fnr = barnFnr ?: return null
-            return "$tkNr${fnr.reversert}".toLong()
+            return barnFnr?.let { "$tkNr${it.reversert}".toLong() }
         }
 
     val barnKode: String

@@ -1,13 +1,13 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.converters
 
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
+import no.nav.commons.foedselsnummer.FoedselsNr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-internal class ReversedFoedselNrConverterTest {
+internal class ReversedFoedselsNrConverterTest {
 
-    private val dbValue = "87020112345"
-    private val entity = FoedselNr("01028712345")
+    private val dbValue = "54010150572"
+    private val entity = FoedselsNr("01015450572") // TestData.foedselsNr(foedselsdato = LocalDate.of(1854, 1, 1))
 
     private val converter = ReversedFoedselNrConverter()
 

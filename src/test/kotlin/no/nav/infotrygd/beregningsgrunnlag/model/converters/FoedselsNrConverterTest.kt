@@ -1,15 +1,15 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.converters
 
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
+import no.nav.commons.foedselsnummer.FoedselsNr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class FoedselNrConverterTest {
+class FoedselsNrConverterTest {
 
     private val converter = FoedselNrConverter()
 
-    private val str = "12345678900"
-    private val fnr = FoedselNr(str)
+    private val str = "01015450572" // TestData.foedselsNr(foedselsdato = LocalDate.of(1854, 1, 1))
+    private val fnr = FoedselsNr(str)
 
     @Test
     fun convertToDatabaseColumn() {

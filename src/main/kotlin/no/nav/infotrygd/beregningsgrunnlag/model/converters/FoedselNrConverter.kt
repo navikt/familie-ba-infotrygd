@@ -1,14 +1,14 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.converters
 
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
+import no.nav.commons.foedselsnummer.FoedselsNr
 import javax.persistence.AttributeConverter
 
-class FoedselNrConverter  : AttributeConverter<FoedselNr?, String?> {
-    override fun convertToDatabaseColumn(attribute: FoedselNr?): String? {
+class FoedselNrConverter  : AttributeConverter<FoedselsNr?, String?> {
+    override fun convertToDatabaseColumn(attribute: FoedselsNr?): String? {
         return attribute?.asString
     }
 
-    override fun convertToEntityAttribute(dbData: String?): FoedselNr? {
-        return dbData?.let { FoedselNr(it) }
+    override fun convertToEntityAttribute(dbData: String?): FoedselsNr? {
+        return dbData?.let { FoedselsNr(it) }
     }
 }

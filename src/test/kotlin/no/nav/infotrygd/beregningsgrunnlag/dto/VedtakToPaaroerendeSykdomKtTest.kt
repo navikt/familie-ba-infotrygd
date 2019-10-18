@@ -30,7 +30,7 @@ class VedtakToPaaroerendeSykdomKtTest {
         val arbeidsgiverOrgNr = 12345678900
         val tidspunktRegistrert = iverksatt.minusDays(12).atStartOfDay()
 
-        val barnFnr = TestData.foedselNr(foedselsdato = LocalDate.of(2003, 2, 1))
+        val barnFnr = TestData.foedselsNr(foedselsdato = LocalDate.of(2003, 2, 1))
 
         val vedtak = TVedtak(
             id = -1,
@@ -62,7 +62,7 @@ class VedtakToPaaroerendeSykdomKtTest {
             ),
             person = LopenrFnr(
                 id = -1,
-                fnr = TestData.foedselNr()
+                fnr = TestData.foedselsNr()
             ),
             datoStart = LocalDate.now(),
             vedtakSpFaBs = VedtakSpFaBs(

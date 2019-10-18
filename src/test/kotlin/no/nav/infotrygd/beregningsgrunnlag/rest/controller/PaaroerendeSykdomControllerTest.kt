@@ -26,7 +26,7 @@ class PaaroerendeSykdomControllerTest {
     @Autowired
     lateinit var vedtakRepository: VedtakRepository
 
-    private val fnr = TestData.foedselNr()
+    private val fnr = TestData.foedselsNr()
     private val queryString = "fodselNr=${fnr.asString}&fom=2018-01-01"
     private val uri = "/paaroerendeSykdom?$queryString"
 

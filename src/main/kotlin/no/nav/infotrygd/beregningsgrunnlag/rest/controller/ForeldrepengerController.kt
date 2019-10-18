@@ -1,10 +1,10 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.dto.Foreldrepenger
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.service.ClientValidator
 import no.nav.infotrygd.beregningsgrunnlag.service.ForeldrepengerService
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import no.nav.security.oidc.api.Protected
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,7 +33,7 @@ class ForeldrepengerController(
                        tom: LocalDate?) : List<Foreldrepenger> {
 
         clientValidator.authorizeClient()
-        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.ADOPSJON), FoedselNr(fodselNr), fom, tom)
+        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.ADOPSJON), FoedselsNr(fodselNr), fom, tom)
     }
 
     @GetMapping(path = ["/foedsel"])
@@ -49,7 +49,7 @@ class ForeldrepengerController(
                        tom: LocalDate?) : List<Foreldrepenger> {
 
         clientValidator.authorizeClient()
-        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.FOEDSEL), FoedselNr(fodselNr), fom, tom)
+        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.FOEDSEL), FoedselsNr(fodselNr), fom, tom)
     }
 
     @GetMapping(path = ["/svangerskap"])
@@ -65,6 +65,6 @@ class ForeldrepengerController(
                 tom: LocalDate?) : List<Foreldrepenger> {
 
         clientValidator.authorizeClient()
-        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.SVANGERSKAP, Stoenadstype.RISIKOFYLT_ARBMILJOE), FoedselNr(fodselNr), fom, tom)
+        return foreldrepengerService.hentForeldrepenger(listOf(Stoenadstype.SVANGERSKAP, Stoenadstype.RISIKOFYLT_ARBMILJOE), FoedselsNr(fodselNr), fom, tom)
     }
 }

@@ -5,7 +5,6 @@ import no.nav.infotrygd.beregningsgrunnlag.repository.PeriodeRepository
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import no.nav.infotrygd.beregningsgrunnlag.testutil.restClient
 import no.nav.infotrygd.beregningsgrunnlag.testutil.restClientNoAuth
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +27,7 @@ class ForeldrepengerFoedselTest {
     @Autowired
     private lateinit var periodeRepository: PeriodeRepository
 
-    private val fnr = FoedselNr("12345678900")
+    private val fnr = TestData.foedselsNr()
     private val queryString = "fodselNr=${fnr.asString}&fom=2018-01-01"
     val uri = "/foreldrepenger/foedsel?$queryString"
 

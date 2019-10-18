@@ -1,18 +1,17 @@
 package no.nav.infotrygd.beregningsgrunnlag.service
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.dto.PaaroerendeSykdom
 import no.nav.infotrygd.beregningsgrunnlag.dto.periodeToGrunnlag
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype.*
 import no.nav.infotrygd.beregningsgrunnlag.repository.PeriodeRepository
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.springframework.stereotype.Service
-import java.lang.IllegalStateException
 import java.time.LocalDate
 
 @Service
 class PaaroerendeSykdomISBasenService(private val periodeRepository: PeriodeRepository) {
-    fun hentPaaroerendeSykdom(foedselNr: FoedselNr, fom: LocalDate, tom: LocalDate?): List<PaaroerendeSykdom> {
+    fun hentPaaroerendeSykdom(foedselsNr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<PaaroerendeSykdom> {
         val stoenadstyper = listOf(
             BARNS_SYKDOM,
             ALV_SYKT_BARN,
@@ -22,9 +21,9 @@ class PaaroerendeSykdomISBasenService(private val periodeRepository: PeriodeRepo
         )
 
         val result = if(tom != null) {
-            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselNr, stoenadstyper, fom, tom)
+            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselsNr, stoenadstyper, fom, tom)
         } else {
-            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselNr, stoenadstyper, fom)
+            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselsNr, stoenadstyper, fom)
         }
 
         return result.map { PaaroerendeSykdom(

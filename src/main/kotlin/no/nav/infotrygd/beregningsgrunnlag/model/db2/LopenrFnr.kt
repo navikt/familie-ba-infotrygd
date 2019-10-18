@@ -1,7 +1,7 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.model.converters.FoedselNrConverter
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import javax.persistence.*
 
 @Entity
@@ -13,5 +13,5 @@ data class LopenrFnr(
 
     @Column(name = "PERSONNR", nullable = false, columnDefinition = "CHAR")
     @Convert(converter = FoedselNrConverter::class)
-    val fnr: FoedselNr
+    val fnr: FoedselsNr
 )

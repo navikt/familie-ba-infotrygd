@@ -25,7 +25,7 @@ class BarnSykdomServiceTest {
     lateinit var vedtakRepository: VedtakRepository
 
     val datoFoerste = LocalDate.now()
-    val fnr = TestData.foedselNr()
+    val fnr = TestData.foedselsNr()
     val datoAndre = datoFoerste.plusMonths(1)
 
     lateinit var foerste: Vedtak

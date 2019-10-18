@@ -1,9 +1,9 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.dto.PaaroerendeSykdom
 import no.nav.infotrygd.beregningsgrunnlag.service.ClientValidator
 import no.nav.infotrygd.beregningsgrunnlag.service.PaaroerendeSykdomService
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import no.nav.security.oidc.api.Protected
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.GetMapping
@@ -29,6 +29,6 @@ class PaaroerendeSykdomController(
                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                    tom: LocalDate?): List<PaaroerendeSykdom> {
         clientValidator.authorizeClient()
-        return paaroerendeSykdomService.hentPaaroerendeSykdom(FoedselNr(fodselNr), fom, tom)
+        return paaroerendeSykdomService.hentPaaroerendeSykdom(FoedselsNr(fodselNr), fom, tom)
     }
 }

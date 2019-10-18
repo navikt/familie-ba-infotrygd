@@ -20,7 +20,7 @@ class VedtakRepositoryTest {
 
     @Test
     fun findByFnr() {
-        val fnr = TestData.foedselNr()
+        val fnr = TestData.foedselsNr()
 
         val vedtak = TestData.vedtak(
             fnr = fnr,
@@ -39,7 +39,7 @@ class VedtakRepositoryTest {
 
     @Test
     fun findByFnrAndFom() {
-        val fnr = TestData.foedselNr()
+        val fnr = TestData.foedselsNr()
         val dato = LocalDate.now()
 
         val relevant = TestData.vedtak(
@@ -66,7 +66,7 @@ class VedtakRepositoryTest {
 
     @Test
     fun findByFnrAndFomTom() {
-        val fnr = TestData.foedselNr()
+        val fnr = TestData.foedselsNr()
         val dato = LocalDate.now()
 
         val relevant = TestData.vedtak(

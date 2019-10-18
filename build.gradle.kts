@@ -38,6 +38,14 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Github"
+        url = uri("https://maven.pkg.github.com/navikt/nav-foedselsnummer")
+        credentials {
+            username = "x-access-token" //project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GPR_API_KEY")
+        }
+    }
 }
 
 allOpen {
@@ -46,7 +54,23 @@ allOpen {
     annotation("javax.persistence.Embeddable")
 }
 
+/*
+<dependency>
+  <groupId>com.github.navikt</groupId>
+  <artifactId>nav-foedselsnummer.core</artifactId>
+  <version>1.0-snapshot.1</version>
+</dependency>
+ */
+
+configurations.all {
+    resolutionStrategy {
+        force("nav-foedselsnummer:core:1.0-snapshot.2")
+    }
+}
+
 dependencies {
+    implementation("nav-foedselsnummer:core:1.0-SNAPSHOT.1")
+    testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.1")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")

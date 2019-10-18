@@ -1,14 +1,16 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.converters
 
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
+import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.infotrygd.beregningsgrunnlag.utils.fraReversert
+import no.nav.infotrygd.beregningsgrunnlag.utils.reversert
 import javax.persistence.AttributeConverter
 
-class ReversedFoedselNrConverter : AttributeConverter<FoedselNr?, String?> {
-    override fun convertToDatabaseColumn(attribute: FoedselNr?): String? {
+class ReversedFoedselNrConverter : AttributeConverter<FoedselsNr?, String?> {
+    override fun convertToDatabaseColumn(attribute: FoedselsNr?): String? {
         return attribute?.reversert ?: "00000000000"
     }
 
-    override fun convertToEntityAttribute(dbData: String?): FoedselNr? {
+    override fun convertToEntityAttribute(dbData: String?): FoedselsNr? {
         if(dbData == null) {
             return null
         }
@@ -17,6 +19,6 @@ class ReversedFoedselNrConverter : AttributeConverter<FoedselNr?, String?> {
             return null
         }
 
-        return FoedselNr.fraReversert(dbData)
+        return FoedselsNr.fraReversert(dbData)
     }
 }

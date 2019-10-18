@@ -1,5 +1,8 @@
 package no.nav.infotrygd.beregningsgrunnlag.testutil
 
+import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.commons.foedselsnummer.Kjoenn
+import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.infotrygd.beregningsgrunnlag.model.Inntekt
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
@@ -7,26 +10,22 @@ import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
 import no.nav.infotrygd.beregningsgrunnlag.nextId
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
-import no.nav.infotrygd.beregningsgrunnlag.values.Kjoenn
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 object TestData {
-    fun foedselNr(
+    fun foedselsNr(
         foedselsdato: LocalDate = LocalDate.now(),
-        kjoenn: Kjoenn = Kjoenn.MANN): FoedselNr {
+        kjoenn: Kjoenn = Kjoenn.MANN): FoedselsNr {
 
-        val individnummer = individnummer(foedselsdato, kjoenn)
-
-        val fnr = String.format("%02d%02d%s%03d99",
-            foedselsdato.dayOfMonth, foedselsdato.monthValue, foedselsdato.year.toString().takeLast(2), individnummer)
-
-        return FoedselNr(fnr)
+        return fnrGenerator.foedselsnummer(
+            foedselsdato = foedselsdato,
+            kjoenn = kjoenn
+        )
     }
 
     private fun individnummer(foedselsdato: LocalDate, kjoenn: Kjoenn): Int {
-        for ((individSerie, aarSerie) in FoedselNr.serier) {
+        for ((individSerie, aarSerie) in FoedselsNr.Companion.tabeller.serier) {
             if (aarSerie.contains(foedselsdato.year)) {
                 var res = individSerie.start + nextId().toInt()
                 when(kjoenn) {
@@ -44,7 +43,7 @@ object TestData {
             id = nextId(),
             personKey = 1,
             arbufoerSeq = 1,
-            fnr = FoedselNr("01015912345"),
+            fnr = foedselsNr(),
             stoenadstype = Stoenadstype.SVANGERSKAP,
             frisk = Frisk.LOPENDE,
             arbufoer = LocalDate.now(),
@@ -58,12 +57,12 @@ object TestData {
             foedselsdatoBarn = null,
             arbeidskategori = null,
             tkNr = "1000",
-            barnFnr = FoedselNr("01019912345"),
+            barnFnr = foedselsNr(),
             stebarnsadopsjon = null,
             regdato = LocalDate.now(),
             brukerId = "br.id",
             inntektsgrunnlagProsent = null,
-            morFnr = TestData.foedselNr()
+            morFnr = foedselsNr()
         )
     }
 
@@ -101,14 +100,16 @@ object TestData {
     data class PeriodeFactory(
         val personKey: Long = nextId(),
         val arbufoerSeq: Long = nextId(),
-        val fnr: FoedselNr = FoedselNr((10000000000 + nextId()).toString()),
+        val fnr: FoedselsNr = foedselsNr(),
+        val barnFnr: FoedselsNr = foedselsNr(),
         val stebarnsadopsjon: String? = null) {
 
         fun periode(): Periode = TestData.periode().copy(
             personKey = personKey,
             arbufoerSeq = arbufoerSeq,
             stebarnsadopsjon = stebarnsadopsjon,
-            fnr = fnr
+            fnr = fnr,
+            barnFnr = barnFnr
         )
 
         fun utbetaling(): Utbetaling = TestData.utbetaling().copy(
@@ -140,7 +141,7 @@ object TestData {
             tidspunktRegistrert = LocalDateTime.now(),
             barn = LopenrFnr(
                 id = nextId(),
-                fnr = foedselNr()
+                fnr = foedselsNr()
             )
         )
     }
@@ -178,7 +179,7 @@ object TestData {
 
     fun vedtak(
         datoStart: LocalDate = LocalDate.now(),
-        fnr: FoedselNr = foedselNr(),
+        fnr: FoedselsNr = foedselsNr(),
         kodeRutine: String = "BS",
         delytelserEksermpler: List<Delytelse> = listOf(),
         arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
@@ -208,4 +209,6 @@ object TestData {
             delytelser = delytelser
         )
     }
+
+    private val fnrGenerator = FoedselsnummerGenerator()
 }

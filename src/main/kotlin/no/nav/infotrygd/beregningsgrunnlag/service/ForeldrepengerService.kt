@@ -1,12 +1,12 @@
 package no.nav.infotrygd.beregningsgrunnlag.service
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.dto.Foreldrepenger
 import no.nav.infotrygd.beregningsgrunnlag.dto.periodeToForeldrepengerDetaljer
 import no.nav.infotrygd.beregningsgrunnlag.dto.periodeToGrunnlag
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.repository.PeriodeRepository
 import no.nav.infotrygd.beregningsgrunnlag.repository.VedtakBarnRepository
-import no.nav.infotrygd.beregningsgrunnlag.values.FoedselNr
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.transaction.Transactional
@@ -17,12 +17,12 @@ class ForeldrepengerService(
     private val periodeRepository: PeriodeRepository,
     private val vedtakBarnRepository: VedtakBarnRepository
 ) {
-    fun hentForeldrepenger(stoenadstyper: List<Stoenadstype>, foedselNr: FoedselNr, fom: LocalDate, tom: LocalDate?): List<Foreldrepenger> {
+    fun hentForeldrepenger(stoenadstyper: List<Stoenadstype>, foedselsNr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<Foreldrepenger> {
 
         val result = if(tom != null) {
-            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselNr, stoenadstyper, fom, tom)
+            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselsNr, stoenadstyper, fom, tom)
         } else {
-            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselNr, stoenadstyper, fom)
+            periodeRepository.findByFnrAndStoenadstypeAndDates(foedselsNr, stoenadstyper, fom)
         }
 
         return result.map { periode ->
