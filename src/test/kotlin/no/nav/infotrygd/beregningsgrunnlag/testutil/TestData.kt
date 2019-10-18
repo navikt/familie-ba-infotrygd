@@ -15,27 +15,13 @@ import java.time.LocalDateTime
 
 object TestData {
     fun foedselsNr(
-        foedselsdato: LocalDate = LocalDate.now(),
+        foedselsdato: LocalDate? = null,
         kjoenn: Kjoenn = Kjoenn.MANN): FoedselsNr {
 
         return fnrGenerator.foedselsnummer(
             foedselsdato = foedselsdato,
             kjoenn = kjoenn
         )
-    }
-
-    private fun individnummer(foedselsdato: LocalDate, kjoenn: Kjoenn): Int {
-        for ((individSerie, aarSerie) in FoedselsNr.Companion.tabeller.serier) {
-            if (aarSerie.contains(foedselsdato.year)) {
-                var res = individSerie.start + nextId().toInt()
-                when(kjoenn) {
-                    Kjoenn.MANN -> if (res % 2 == 0) res++
-                    Kjoenn.KVINNE -> if(res % 2 != 0) res++
-                }
-                return res
-            }
-        }
-        throw IllegalArgumentException("Fødselsdato må være mellom år 1854 og 2039")
     }
 
     fun periode(): Periode {
