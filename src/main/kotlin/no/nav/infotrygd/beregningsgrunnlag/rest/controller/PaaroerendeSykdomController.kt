@@ -14,7 +14,7 @@ import java.time.LocalDate
 
 @Protected
 @RestController
-@Timed(value = "infotrygd_paaroerendeSykdom_controller", percentiles = [0.5, 0.95])
+@Timed(value = "infotrygd_grunnlag_paaroerendeSykdom_controller", percentiles = [0.5, 0.95])
 class PaaroerendeSykdomController(
     private val paaroerendeSykdomService: PaaroerendeSykdomService,
     private val clientValidator: ClientValidator
