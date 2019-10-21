@@ -54,20 +54,6 @@ allOpen {
     annotation("javax.persistence.Embeddable")
 }
 
-/*
-<dependency>
-  <groupId>com.github.navikt</groupId>
-  <artifactId>nav-foedselsnummer.core</artifactId>
-  <version>1.0-snapshot.1</version>
-</dependency>
- */
-
-configurations.all {
-    resolutionStrategy {
-        force("nav-foedselsnummer:core:1.0-snapshot.2")
-    }
-}
-
 dependencies {
     implementation("nav-foedselsnummer:core:1.0-SNAPSHOT.3")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.3")
