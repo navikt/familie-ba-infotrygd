@@ -36,6 +36,8 @@ configurations {
     }
 }
 
+println("Api key length: " + (project.findProperty("gpr.key") as String? ?: System.getenv("GPR_API_KEY"))?.length)
+
 repositories {
     mavenCentral()
     maven {
