@@ -6,7 +6,6 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.infotrygd.beregningsgrunnlag.model.Inntekt
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
-import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
 import no.nav.infotrygd.beregningsgrunnlag.nextId
@@ -38,16 +37,10 @@ object TestData {
             inntekter = listOf(),
             utbetaltFom = null,
             utbetaltTom = null,
-            arbufoerOpprinnelig = LocalDate.now(),
-            dekningsgrad = null,
             foedselsdatoBarn = null,
             arbeidskategori = null,
-            tkNr = "1000",
-            barnFnr = foedselsNr(),
-            stebarnsadopsjon = null,
             regdato = LocalDate.now(),
             brukerId = "br.id",
-            inntektsgrunnlagProsent = null,
             morFnr = foedselsNr()
         )
     }
@@ -93,9 +86,7 @@ object TestData {
         fun periode(): Periode = TestData.periode().copy(
             personKey = personKey,
             arbufoerSeq = arbufoerSeq,
-            stebarnsadopsjon = stebarnsadopsjon,
-            fnr = fnr,
-            barnFnr = barnFnr
+            fnr = fnr
         )
 
         fun utbetaling(): Utbetaling = TestData.utbetaling().copy(
@@ -107,17 +98,6 @@ object TestData {
             personKey = personKey,
             arbufoerSeq = arbufoerSeq
         )
-
-        fun vedtakBarn(): VedtakBarn {
-            val periode = periode()
-            return VedtakBarn(
-                id = nextId(),
-                personKey = periode.barnPersonKey!!,
-                arbufoerSeq = arbufoerSeq.toString(),
-                kode = periode().barnKode,
-                dekningsgrad = 100.toBigDecimal()
-            )
-        }
     }
 
     fun stonadBs(): StonadBs {

@@ -1,19 +1,5 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
-import no.nav.infotrygd.beregningsgrunnlag.model.VedtakBarn
-import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
-
-fun periodeToForeldrepengerDetaljer(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode, vedtak: VedtakBarn?): ForeldrepengerDetaljer {
-    check(p.tema == Tema.FORELDREPENGER) { "Forventet ytelse == FORELDREPENGER" }
-
-    return ForeldrepengerDetaljer(
-        opprinneligIdentdato = p.arbufoerOpprinnelig,
-        dekningsgrad = p.dekningsgrad,
-        gradering = vedtak?.dekningsgrad,
-        foedselsdatoBarn = p.foedselsdatoBarn
-    )
-}
-
 fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): GrunnlagGenerelt {
     val tema = p.tema
     val status = p.frisk.status?.let { Kodeverdi(it.kode, it.tekst) }

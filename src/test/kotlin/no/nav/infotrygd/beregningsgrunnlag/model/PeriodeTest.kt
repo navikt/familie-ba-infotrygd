@@ -1,11 +1,8 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
-import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
-import no.nav.infotrygd.beregningsgrunnlag.utils.reversert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -45,47 +42,6 @@ class PeriodeTest {
         //'BR' - Barn Sykdom m/refusjon
     }
 
-    @Test
-    fun barnPersonKey() {
-        val tkNr = "1000"
-        val fnr = TestData.foedselsNr()
-
-        val periode = TestData.periode().copy(
-            tkNr = tkNr,
-            barnFnr = fnr
-        )
-
-        assertThat(periode.barnPersonKey).isEqualTo("$tkNr${fnr.reversert}".toLong())
-    }
-
-    @Test
-    fun barnKode() {
-        for(adopsjon in listOf("A", "D")) {
-            for(kjoenn in Kjoenn.values()) {
-                val kode = beregnKode(adopsjon, kjoenn)
-                assertThat(kode).isEqualTo("1")
-            }
-        }
-
-        for(adopsjon in listOf("B", "C", "E")) {
-            for(kjoenn in Kjoenn.values()) {
-                val kode = beregnKode(adopsjon, kjoenn)
-                assertThat(kode).isEqualTo("2")
-            }
-        }
-
-        assertThat(beregnKode("x", Kjoenn.KVINNE)).isEqualTo("1")
-        assertThat(beregnKode("x", Kjoenn.MANN)).isEqualTo("2")
-    }
-
-    private fun beregnKode(adopsjon: String, kjoenn: Kjoenn): String? {
-        val fnr = TestData.foedselsNr(kjoenn = kjoenn)
-
-        return TestData.periode().copy(
-            stebarnsadopsjon = adopsjon,
-            fnr = fnr
-        ).barnKode
-    }
 
     private fun periode(type: Stoenadstype): Periode {
         return TestData.periode().copy(

@@ -87,37 +87,4 @@ class ConvertersKtTest {
 
         assertThat(dto).isEqualTo(forventet)
     }
-
-    @Test
-    fun periodeToForeldrepengerDetaljer() {
-        val stoenadstype = Stoenadstype.FOEDSEL // ytelse = foreldrepenger
-        val opprinneligIdentdato = LocalDate.now()
-        val dekningsgrad = 75
-        val gradering = 50.toBigDecimal()
-        val foedselsdatoBarn = LocalDate.now().minusYears(1)
-
-        val pf = TestData.PeriodeFactory()
-
-        val vedtak = pf.vedtakBarn().copy(
-            dekningsgrad = gradering
-        )
-
-        val periode = pf.periode().copy(
-            stoenadstype = stoenadstype,
-            arbufoerOpprinnelig = opprinneligIdentdato,
-            dekningsgrad = dekningsgrad,
-            foedselsdatoBarn = foedselsdatoBarn
-        )
-
-        val dto = periodeToForeldrepengerDetaljer(periode, vedtak)
-
-        val expected = ForeldrepengerDetaljer(
-            opprinneligIdentdato = opprinneligIdentdato,
-            dekningsgrad = dekningsgrad,
-            gradering = gradering,
-            foedselsdatoBarn = foedselsdatoBarn
-        )
-
-        assertThat(dto).isEqualTo(expected)
-    }
 }

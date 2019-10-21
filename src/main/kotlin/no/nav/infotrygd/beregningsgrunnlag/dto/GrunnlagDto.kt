@@ -51,42 +51,7 @@ data class GrunnlagGenerelt(
     override val vedtak: List<Vedtak>
 ) : Grunnlag
 
-
 // ======================================== Ytelser ========================================
-
-
-// --- Foreldrepenger ---
-
-interface Foreldrepengerfelt {
-    val opprinneligIdentdato: LocalDate?
-    val dekningsgrad: Int?
-    val gradering: BigDecimal?
-    val foedselsdatoBarn: LocalDate?
-}
-
-data class ForeldrepengerDetaljer(
-    override val opprinneligIdentdato: LocalDate?,
-    override val dekningsgrad: Int?,
-    override val gradering: BigDecimal?,
-    override val foedselsdatoBarn: LocalDate?
-) : Foreldrepengerfelt
-
-data class Foreldrepenger(
-    private val generelt: GrunnlagGenerelt,
-    private val foreldrepengerDetaljer: ForeldrepengerDetaljer
-) : Grunnlag by generelt,
-    Foreldrepengerfelt by foreldrepengerDetaljer
-
-
-
-// --- Sykepenger ---
-
-data class Sykepenger(
-    private val generelt: GrunnlagGenerelt,
-    val inntektsgrunnlagProsent: Int?
-) : Grunnlag by generelt
-
-
 
 // --- Pårørende sykdom ---
 

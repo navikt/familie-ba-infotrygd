@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 
+import io.micrometer.core.annotation.Timed
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.dto.PaaroerendeSykdom
 import no.nav.infotrygd.beregningsgrunnlag.service.ClientValidator
@@ -13,6 +14,7 @@ import java.time.LocalDate
 
 @Protected
 @RestController
+@Timed(value = "infotrygd_paaroerendeSykdom_controller", percentiles = [0.5, 0.95])
 class PaaroerendeSykdomController(
     private val paaroerendeSykdomService: PaaroerendeSykdomService,
     private val clientValidator: ClientValidator

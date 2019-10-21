@@ -1,13 +1,11 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.infotrygd.beregningsgrunnlag.model.converters.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
-import no.nav.infotrygd.beregningsgrunnlag.utils.reversert
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.io.Serializable
@@ -50,27 +48,13 @@ data class Periode(
     @Convert(converter = NavLocalDateConverter::class)
     val arbufoer: LocalDate,
 
-    @Column(name = "IS10_ARBUFOER_OPPR", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
-    val arbufoerOpprinnelig: LocalDate,
-
-    @Column(name = "IS10_DEKNINGSGRAD", columnDefinition = "DECIMAL")
-    val dekningsgrad: Int?,
-
     @Column(name = "IS10_FDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val foedselsdatoBarn: LocalDate?,
 
-    @Column(name = "IS10_TIDSK_BARNFNR", columnDefinition = "CHAR")
-    @Convert(converter = ReversedFoedselNrConverter::class)
-    val barnFnr: FoedselsNr?,
-
     @Column(name = "IS10_MORFNR", columnDefinition = "DECIMAL")
     @Convert(converter = ReversedLongFoedselNrConverter::class)
     val morFnr: FoedselsNr?,
-
-    @Column(name = "IS10_STEBARNSADOPSJON", columnDefinition = "CHAR")
-    val stebarnsadopsjon: String?,
 
     @Column(name = "IS10_ARBKAT", columnDefinition = "CHAR")
     val arbeidskategori: Arbeidskategori?,
@@ -83,16 +67,9 @@ data class Periode(
     @Convert(converter = BrukerIdConverter::class)
     val brukerId: String?,
 
-    @Column(name = "IS10_PROS_INNTEKT_GR", columnDefinition = "CHAR")
-    @Convert(converter = UtbetalingsgradConverter::class)
-    val inntektsgrunnlagProsent: Int?,
-
     @Column(name = "IS10_STOPPDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val stoppdato: LocalDate?,
-
-    @Column(name = "TK_NR", columnDefinition = "CHAR")
-    val tkNr: String,
 
     @OneToMany
     @JoinColumns(value = [
@@ -119,28 +96,5 @@ data class Periode(
             }
 
             return Tema.UKJENT
-        }
-
-    val barnPersonKey: Long?
-        get() {
-            return barnFnr?.let { "$tkNr${it.reversert}".toLong() }
-        }
-
-    val barnKode: String
-        get() {
-            val sammeKjoennMor = stebarnsadopsjon in setOf("A", "D")
-            if (sammeKjoennMor) {
-                return "1"
-            }
-
-            val sammeKjoennFar = stebarnsadopsjon in setOf("B", "C", "E")
-            if (sammeKjoennFar) {
-                return "2"
-            }
-
-            return when (fnr.kjoenn) {
-                Kjoenn.KVINNE -> "1"
-                Kjoenn.MANN -> "2"
-            }
         }
 }

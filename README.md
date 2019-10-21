@@ -1,4 +1,4 @@
-# Infotrygd - Beregningsgrunnlag
+# Infotrygd - Beregningsgrunnlag for "Pårørende sykdom"
 
 Dette er en REST-tjeneste som gir tilgang til historiske data fra Infotrygd
 via replikert database.
