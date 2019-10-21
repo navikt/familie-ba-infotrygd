@@ -27,12 +27,12 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
         iverksatt = p.arbufoer,
         opphoerFom = p.stoppdato,
         behandlingstema = p.stoenadstype!!.toDto(),
-        identdato = p.arbufoer, // todo: pårørende sykdom
-        periode = periode, // todo: pårørende sykdom
+        identdato = p.arbufoer,
+        periode = periode,
         arbeidskategori = arbeidskategori,
         arbeidsforhold = p.inntekter.map {
             Arbeidsforhold(
-                inntektForPerioden = it.loenn, // todo: pårørende sykdom
+                inntektForPerioden = it.loenn,
                 inntektsperiode = Kodeverdi(it.periode.kode, it.periode.tekst),
                 arbeidsgiverOrgnr = it.arbgiverNr
             )
@@ -43,7 +43,7 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
                 periode = Periode(
                     it.utbetaltFom,
                     it.utbetaltTom
-                ) // todo: pårørende sykdom
+                )
             )
         }
     )
