@@ -36,8 +36,6 @@ configurations {
     }
 }
 
-println("Api key length: " + (project.findProperty("gpr.key") as String? ?: System.getenv("GPR_API_KEY"))?.length)
-
 repositories {
     mavenCentral()
     maven {
@@ -45,7 +43,7 @@ repositories {
         url = uri("https://maven.pkg.github.com/navikt/nav-foedselsnummer")
         credentials {
             username = "x-access-token" //project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GPR_API_KEY")
+            password = System.getenv("GPR_API_KEY") ?: project.findProperty("gpr.key") as String?
         }
     }
 }
