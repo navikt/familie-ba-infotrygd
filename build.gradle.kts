@@ -12,6 +12,7 @@ val jacksonVersion = "2.9.9"
 val swaggerVersion = "2.9.2"
 val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
+val navFoedselsnummerVersion = "1.0-SNAPSHOT.4"
 
 val mainClass = "no.nav.infotrygd.kontantstotte.InfotrygdBeregningsgrunnlagApplication"
 
@@ -55,8 +56,8 @@ allOpen {
 }
 
 dependencies {
-    implementation("nav-foedselsnummer:core:1.0-SNAPSHOT.3")
-    testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.3")
+    implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
+    testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
