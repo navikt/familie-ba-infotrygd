@@ -38,6 +38,7 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
                 )
             }
         ),
-        foedselsdatoPleietrengende = vedtak.stonad.stonadBs?.barn?.fnr?.foedselsdato
+        foedselsdatoPleietrengende = null,
+        foedselsnummerPleietrengende = vedtak.stonad.stonadBs?.barn?.fnr?.asString
     )
 }

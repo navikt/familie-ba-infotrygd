@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.dto
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -58,5 +59,6 @@ data class GrunnlagGenerelt(
 
 data class PaaroerendeSykdom(
     private val generelt: GrunnlagGenerelt,
-    val foedselsdatoPleietrengende: LocalDate?
+    val foedselsdatoPleietrengende: LocalDate?,
+    val foedselsnummerPleietrengende: String?
 ) : Grunnlag by generelt

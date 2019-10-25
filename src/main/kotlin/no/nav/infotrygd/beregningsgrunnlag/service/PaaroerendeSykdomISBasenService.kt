@@ -28,15 +28,25 @@ class PaaroerendeSykdomISBasenService(private val periodeRepository: PeriodeRepo
 
         return result.map { PaaroerendeSykdom(
             generelt = periodeToGrunnlag(it),
-            foedselsdatoPleietrengende = foedselsdatoPleietrengende(it)
+            foedselsdatoPleietrengende = foedselsdatoPleietrengende(it),
+            foedselsnummerPleietrengende = foedselsnummerPleietrengende(it)?.asString
         ) }
+    }
+}
+
+fun foedselsnummerPleietrengende(periode: Periode): FoedselsNr? {
+    val stoenadstype = periode.stoenadstype
+    return when(stoenadstype) {
+        KURS_KAP_3_23, ALV_SYKT_BARN,PLEIEPENGER_INSTOPPH -> periode.morFnr
+        BARNS_SYKDOM, PAS_DOEDSSYK -> null
+        else -> throw IllegalStateException("Uventet stønadstype i IS-basen: ${stoenadstype?.kode}")
     }
 }
 
 fun foedselsdatoPleietrengende(periode: Periode): LocalDate? {
     val stoenadstype = periode.stoenadstype
     return when(stoenadstype) {
-        KURS_KAP_3_23, ALV_SYKT_BARN,PLEIEPENGER_INSTOPPH -> periode.morFnr?.foedselsdato
+        KURS_KAP_3_23, ALV_SYKT_BARN,PLEIEPENGER_INSTOPPH -> null
         BARNS_SYKDOM, PAS_DOEDSSYK -> periode.foedselsdatoBarn
         else -> throw IllegalStateException("Uventet stønadstype i IS-basen: ${stoenadstype?.kode}")
     }

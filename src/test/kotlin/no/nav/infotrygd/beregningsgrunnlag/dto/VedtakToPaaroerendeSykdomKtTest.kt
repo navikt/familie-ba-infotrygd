@@ -133,7 +133,8 @@ class VedtakToPaaroerendeSykdomKtTest {
                     )
                 )
             ),
-            foedselsdatoPleietrengende = LocalDate.of(2003, 2, 1)
+            foedselsdatoPleietrengende = null,
+            foedselsnummerPleietrengende = barnFnr.asString
         )
 
         val resultat = vedtakToPaaroerendeSykdom(vedtak)
