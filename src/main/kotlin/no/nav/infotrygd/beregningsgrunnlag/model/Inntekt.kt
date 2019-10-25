@@ -1,11 +1,9 @@
 package no.nav.infotrygd.beregningsgrunnlag.model
 
+import no.nav.infotrygd.beregningsgrunnlag.model.converters.RefusjonJaNeiConverter
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import java.math.BigDecimal
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "IS_INNTEKT_13")
@@ -27,5 +25,9 @@ data class Inntekt(
     val loenn: BigDecimal,
 
     @Column(name = "IS13_PERIODE", columnDefinition = "CHAR")
-    val periode: Inntektsperiode
+    val periode: Inntektsperiode,
+
+    @Column(name = "IS13_REF", columnDefinition = "CHAR")
+    @Convert(converter = RefusjonJaNeiConverter::class)
+    val refusjon: Boolean
 )

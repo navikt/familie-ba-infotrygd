@@ -27,7 +27,8 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
                 Arbeidsforhold(
                     inntektForPerioden = it.inntekt,
                     inntektsperiode = it.periode.toDto(),
-                    arbeidsgiverOrgnr = it.orgNr.toString()
+                    arbeidsgiverOrgnr = it.orgNr.toString(),
+                    refusjon = it.refusjon
                 )
             },
             vedtak = delytelser.map {

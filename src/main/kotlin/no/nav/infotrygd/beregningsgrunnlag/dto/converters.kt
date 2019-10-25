@@ -34,7 +34,8 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
             Arbeidsforhold(
                 inntektForPerioden = it.loenn,
                 inntektsperiode = Kodeverdi(it.periode.kode, it.periode.tekst),
-                arbeidsgiverOrgnr = it.arbgiverNr
+                arbeidsgiverOrgnr = it.arbgiverNr,
+                refusjon = it.refusjon
             )
         },
         vedtak = p.utbetalinger.map {

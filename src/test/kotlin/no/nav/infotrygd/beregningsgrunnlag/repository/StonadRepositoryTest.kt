@@ -42,7 +42,8 @@ class StonadRepositoryTest {
             lopeNr = lopeNr,
             inntekt = 123.toBigDecimal(),
             periode = Inntektsperiode.MAANEDLIG,
-            status = "L"
+            status = "L",
+            refusjon = true
         )
         return inntekt
     }

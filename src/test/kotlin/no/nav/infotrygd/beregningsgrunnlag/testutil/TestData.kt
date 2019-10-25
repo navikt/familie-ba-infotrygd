@@ -62,7 +62,8 @@ object TestData {
             arbufoerSeq = 1,
             arbgiverNr = "12345678901",
             loenn = 1.toBigDecimal(),
-            periode = Inntektsperiode.MAANEDLIG
+            periode = Inntektsperiode.MAANEDLIG,
+            refusjon = false
         )
 
     fun inntektStonad(): no.nav.infotrygd.beregningsgrunnlag.model.db2.Inntekt =
@@ -73,7 +74,8 @@ object TestData {
             inntektFom = LocalDate.now(),
             lopeNr = 1,
             status = "L",
-            periode = Inntektsperiode.MAANEDLIG
+            periode = Inntektsperiode.MAANEDLIG,
+            refusjon = false
         )
 
     data class PeriodeFactory(

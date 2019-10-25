@@ -31,7 +31,8 @@ data class Periode(
 data class Arbeidsforhold(
     val inntektForPerioden: BigDecimal?,
     val inntektsperiode: Kodeverdi,
-    val arbeidsgiverOrgnr: String
+    val arbeidsgiverOrgnr: String,
+    val refusjon: Boolean
 )
 
 data class Kodeverdi(val kode: String, val termnavn: String)

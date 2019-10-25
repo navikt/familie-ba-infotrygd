@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
+import no.nav.infotrygd.beregningsgrunnlag.model.converters.RefusjonJaNeiConverter
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Inntektsperiode
 import java.io.Serializable
 import java.math.BigDecimal
@@ -33,7 +34,11 @@ data class Inntekt(
     val inntekt: BigDecimal,
 
     @Column(name = "PERIODE", columnDefinition = "CHAR")
-    val periode: Inntektsperiode
+    val periode: Inntektsperiode,
+
+    @Column(name = "REFUSJON", columnDefinition = "CHAR")
+    @Convert(converter = RefusjonJaNeiConverter::class)
+    val refusjon: Boolean
 )
 
 @Embeddable

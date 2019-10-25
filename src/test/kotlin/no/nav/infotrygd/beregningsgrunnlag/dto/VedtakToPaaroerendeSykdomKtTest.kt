@@ -31,6 +31,7 @@ class VedtakToPaaroerendeSykdomKtTest {
         val tidspunktRegistrert = iverksatt.minusDays(12).atStartOfDay()
 
         val barnFnr = TestData.foedselsNr(foedselsdato = LocalDate.of(2003, 2, 1))
+        val refusjon = true
 
         val vedtak = TVedtak(
             id = -1,
@@ -56,7 +57,8 @@ class VedtakToPaaroerendeSykdomKtTest {
                         lopeNr = 1,
                         inntekt = inntektForPerioden,
                         periode = inntektsperiode,
-                        status = "L"
+                        status = "L",
+                        refusjon = refusjon
                     )
                 )
             ),
@@ -116,7 +118,8 @@ class VedtakToPaaroerendeSykdomKtTest {
                     Arbeidsforhold(
                         inntektForPerioden = inntektForPerioden,
                         inntektsperiode = inntektsperiode.toDto(),
-                        arbeidsgiverOrgnr = arbeidsgiverOrgNr.toString()
+                        arbeidsgiverOrgnr = arbeidsgiverOrgNr.toString(),
+                        refusjon = refusjon
                     )
                 ),
                 vedtak = listOf(

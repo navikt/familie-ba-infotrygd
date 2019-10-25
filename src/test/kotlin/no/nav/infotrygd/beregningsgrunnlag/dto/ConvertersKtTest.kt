@@ -26,6 +26,7 @@ class ConvertersKtTest {
         val inntektForPerioden = 1000.toBigDecimal()
         val arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
         val utbetalingsgrad = 100
+        val refusjon = true
 
         val frisk = Frisk.BARN
         val status = frisk.status!!
@@ -35,7 +36,8 @@ class ConvertersKtTest {
         val inntekt = pf.inntekt().copy(
             periode = inntektsperiode,
             arbgiverNr = arbeidsgiverOrgnr,
-            loenn = inntektForPerioden
+            loenn = inntektForPerioden,
+            refusjon = refusjon
         )
 
         val utbetaling = pf.utbetaling().copy(
@@ -74,7 +76,8 @@ class ConvertersKtTest {
                 Arbeidsforhold(
                     inntektForPerioden = inntektForPerioden,
                     inntektsperiode = Kodeverdi(inntektsperiode.kode, inntektsperiode.tekst),
-                    arbeidsgiverOrgnr = arbeidsgiverOrgnr
+                    arbeidsgiverOrgnr = arbeidsgiverOrgnr,
+                    refusjon = refusjon
                 )
             ),
             vedtak = listOf(
