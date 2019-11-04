@@ -48,6 +48,10 @@ data class Periode(
     @Convert(converter = NavLocalDateConverter::class)
     val arbufoer: LocalDate,
 
+    @Column(name = "IS10_ARBUFOER_TOM", columnDefinition = "DECIMAL")
+    @Convert(converter = NavLocalDateConverter::class)
+    val arbufoerTom: LocalDate?,
+
     @Column(name = "IS10_FDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val foedselsdatoBarn: LocalDate?,
@@ -70,6 +74,14 @@ data class Periode(
     @Column(name = "IS10_STOPPDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val stoppdato: LocalDate?,
+
+    @Column(name = "IS10_FRISKM_DATO", columnDefinition = "DECIMAL")
+    @Convert(converter = NavLocalDateConverter::class)
+    val friskmeldtDato: LocalDate?,
+
+    @Column(name = "IS10_MAX", columnDefinition = "DECIMAL")
+    @Convert(converter = NavLocalDateConverter::class)
+    val maksdato: LocalDate?,
 
     @OneToMany
     @JoinColumns(value = [

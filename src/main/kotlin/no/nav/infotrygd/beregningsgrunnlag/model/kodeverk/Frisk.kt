@@ -1,13 +1,13 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
 
-enum class Frisk(val status: Status?, val kode: String) {
-    LOPENDE(Status.LOEPENDE, " "),
-    AVVIST(Status.IKKE_STARTET, "A"),
-    BARN(Status.LOEPENDE, "B"),
-    DOEDSSYK(Status.LOEPENDE, "D"),
-    EGENMELDING(Status.LOEPENDE, "E"),
-    FRISKMELDT(Status.AVSLUTTET, "F"),
+enum class Frisk(val status: FriskStatus?, val kode: String) {
+    LOPENDE(FriskStatus.LOEPENDE, " "),
+    AVVIST(FriskStatus.IKKE_STARTET, "A"),
+    BARN(FriskStatus.LOEPENDE, "B"),
+    DOEDSSYK(FriskStatus.LOEPENDE, "D"),
+    EGENMELDING(FriskStatus.LOEPENDE, "E"),
+    FRISKMELDT(FriskStatus.AVSLUTTET, "F"),
     HISTORIKK(null, "H"),
-    PASSIV(Status.IKKE_STARTET, "P"),
-    TILBAKEKJOERT(Status.AVSLUTTET, "T")
+    PASSIV(FriskStatus.IKKE_STARTET, "P"),
+    TILBAKEKJOERT(FriskStatus.AVSLUTTET, "T")
 }

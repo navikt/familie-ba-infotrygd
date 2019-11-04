@@ -8,6 +8,8 @@ import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
+import no.nav.infotrygd.beregningsgrunnlag.model.sak.Sak
+import no.nav.infotrygd.beregningsgrunnlag.model.sak.Status
 import no.nav.infotrygd.beregningsgrunnlag.nextId
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -41,7 +43,10 @@ object TestData {
             arbeidskategori = null,
             regdato = LocalDate.now(),
             brukerId = "br.id",
-            morFnr = foedselsNr()
+            morFnr = foedselsNr(),
+            arbufoerTom = null,
+            friskmeldtDato = null,
+            maksdato = null
         )
     }
 
@@ -77,6 +82,35 @@ object TestData {
             periode = Inntektsperiode.MAANEDLIG,
             refusjon = false
         )
+
+    fun sak(fnr: FoedselsNr = foedselsNr()): Sak {
+        val saksblokk = "X"
+        val saksnummer = "11"
+        val personKey = nextId()
+        return Sak(
+            id = nextId(),
+            fnr = fnr,
+            personKey = personKey,
+            saksblokk = saksblokk,
+            saksnummer = saksnummer,
+            kapittelNr = "BS",
+            valg = SakValg.PN,
+            type = SakType.A,
+            resultat = SakResultat.A,
+            vedtaksdato = LocalDate.now(),
+            iverksattdato = LocalDate.now(),
+            statushistorikk = listOf(
+                Status(
+                    id = nextId(),
+                    personKey = personKey,
+                    saksblokk = saksblokk,
+                    saksnummer = saksnummer,
+                    lopeNr = nextId() % 99,
+                    status = SakStatus.IKKE_BEHANDLET
+                )
+            )
+        )
+    }
 
     data class PeriodeFactory(
         val personKey: Long = nextId(),
@@ -121,7 +155,8 @@ object TestData {
             datoStart = LocalDate.now(),
             datoOpphoer = LocalDate.now(),
             stonadBs = stonadBs(),
-            inntektshistorikk = listOf()
+            inntektshistorikk = listOf(),
+            tidspunktRegistrert = LocalDateTime.now()
         )
     }
 
@@ -149,8 +184,10 @@ object TestData {
         datoStart: LocalDate = LocalDate.now(),
         fnr: FoedselsNr = foedselsNr(),
         kodeRutine: String = "BS",
-        delytelserEksermpler: List<Delytelse> = listOf(),
-        arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL
+        delytelserEksermpler: List<Delytelse> = listOf(delytelse()),
+        arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL,
+        tidspunktRegistrert: LocalDateTime = LocalDateTime.now(),
+        datoOpphoer: LocalDate = LocalDate.now()
     ): Vedtak {
         val vedtakId = nextId()
         val delytelser = delytelserEksermpler.map { it.copy(
@@ -165,7 +202,10 @@ object TestData {
         return Vedtak(
             id = vedtakId,
             stonad = stonad().copy(
-                kodeRutine = kodeRutine
+                kodeRutine = kodeRutine,
+                tidspunktRegistrert = tidspunktRegistrert,
+                datoOpphoer = datoOpphoer,
+                datoStart = datoStart
             ),
             person = LopenrFnr(id = nextId(), fnr = fnr),
             kodeRutine = kodeRutine,

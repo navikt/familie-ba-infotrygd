@@ -60,7 +60,8 @@ class VedtakToPaaroerendeSykdomKtTest {
                         status = "L",
                         refusjon = refusjon
                     )
-                )
+                ),
+                tidspunktRegistrert = tidspunktRegistrert
             ),
             person = LopenrFnr(
                 id = -1,

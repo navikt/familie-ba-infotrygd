@@ -4,6 +4,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.converters.Char2Converter
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -22,6 +23,9 @@ data class Stonad(
 
     @Column(name = "DATO_OPPHOR", columnDefinition = "DATE")
     val datoOpphoer: LocalDate,
+
+    @Column(name = "TIDSPUNKT_REG", columnDefinition = "TIMESTAMP")
+    val tidspunktRegistrert: LocalDateTime,
 
     @OneToOne
     @JoinColumn(name = "STONAD_ID", referencedColumnName = "STONAD_ID")

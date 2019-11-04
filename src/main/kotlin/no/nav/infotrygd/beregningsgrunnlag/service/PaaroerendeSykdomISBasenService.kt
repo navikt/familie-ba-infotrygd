@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 @Service
 class PaaroerendeSykdomISBasenService(private val periodeRepository: PeriodeRepository) {
-    fun hentPaaroerendeSykdom(foedselsNr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<PaaroerendeSykdom> {
+    fun hentPaaroerendeSykdom(foedselsNr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<Periode> {
         val stoenadstyper = listOf(
             BARNS_SYKDOM,
             ALV_SYKT_BARN,
@@ -20,18 +20,20 @@ class PaaroerendeSykdomISBasenService(private val periodeRepository: PeriodeRepo
             PLEIEPENGER_INSTOPPH
         )
 
-        val result = if(tom != null) {
+        return if(tom != null) {
             periodeRepository.findByFnrAndStoenadstypeAndDates(foedselsNr, stoenadstyper, fom, tom)
         } else {
             periodeRepository.findByFnrAndStoenadstypeAndDates(foedselsNr, stoenadstyper, fom)
         }
-
-        return result.map { PaaroerendeSykdom(
-            generelt = periodeToGrunnlag(it),
-            foedselsdatoPleietrengende = foedselsdatoPleietrengende(it),
-            foedselsnummerPleietrengende = foedselsnummerPleietrengende(it)?.asString
-        ) }
     }
+}
+
+fun periodeToPaaroerendeSykdom(periode: Periode): PaaroerendeSykdom {
+    return PaaroerendeSykdom(
+        generelt = periodeToGrunnlag(periode),
+        foedselsdatoPleietrengende = foedselsdatoPleietrengende(periode),
+        foedselsnummerPleietrengende = foedselsnummerPleietrengende(periode)?.asString
+    )
 }
 
 fun foedselsnummerPleietrengende(periode: Periode): FoedselsNr? {

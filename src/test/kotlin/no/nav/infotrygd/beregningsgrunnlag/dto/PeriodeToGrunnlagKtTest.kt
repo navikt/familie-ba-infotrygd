@@ -9,7 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
 
-class ConvertersKtTest {
+class PeriodeToGrunnlagKtTest {
 
     @Test
     fun periodeToGrunnlag() {

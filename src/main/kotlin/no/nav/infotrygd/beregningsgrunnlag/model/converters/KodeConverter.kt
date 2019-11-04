@@ -45,3 +45,15 @@ class ArbeidskategoriConverter : KodeConverter<Arbeidskategori>(Arbeidskategori.
 
 @Converter(autoApply = true)
 class InntektsperiodeConverter : KodeConverter<Inntektsperiode>(Inntektsperiode.values().toList(), fieldSize = 2)
+
+@Converter(autoApply = true)
+class SakStatusConverter : KodeConverter<SakStatus>(SakStatus.values().toList(), fieldSize = 2)
+
+@Converter(autoApply = true)
+class SakTypeConverter : KodeConverter<SakType>(SakType.values().toList(), fieldSize = 1)
+
+@Converter(autoApply = true)
+class SakResultatConverter: KodeConverter<SakResultat>(SakResultat.values().toList(), fieldSize = 2)
+
+@Converter(autoApply = true)
+class SakValgConverter : KodeConverter<SakValg>(SakValg.values().toList(), fieldSize = 2)
