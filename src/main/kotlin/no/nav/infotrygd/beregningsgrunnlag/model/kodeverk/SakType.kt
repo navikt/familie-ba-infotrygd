@@ -1,10 +1,27 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
 
-enum class SakType(override val tekst: String) : Kode {
-    S("Søknad"),
-    R("Revurdering"),
-    K("Klage"),
-    A("Anke");
-    override val kode: String
-        get() = this.name
+enum class SakType(override val kode: String, override val tekst: String) : Kode {
+    A("A", "Anke"),
+    DF("DF", "Dispensasjon foreldelse"),
+    DI("DI", "dokumentinnsyn"),
+    EG("EG", "etterlyse girokort"),
+    FS("FS", "forespørsel"),
+    I("I", "Informasjonssak"),
+    J("J", "Journalsak"),
+    JP("JP", "Journalsak fra privatperson"),
+    JT("JT", "Journalsak fra trygdekontor"),
+    JU("JU", "Journalsak fra utenl trm"),
+    K("K", "Klage"),
+    KE("KE", "Klage ettergivelse"),
+    KS("KS", "Kontrollsak"),
+    KT("KT", "Klage tilbakebetaling"),
+    R("R", "Revurdering"),
+    S("S", "Søknad"),
+    SE("SE", "Søknad om ettergivelse"),
+    SV("SV", "Strafferettslig vurdering"),
+    T("T", "Tilbakebetalingssak"),
+    TE("TE", "Tilbakebetaling endring"),
+    TK("TK", "Tidskonto"),
+    TU("TU", "Tipsutredning"),
+    UA("UA", "Utbetalt til annen"),
 }

@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.repository
 
+import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.SakType
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.SakValg
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
@@ -69,5 +70,27 @@ class SakRepositoryTest {
         repository.save(sak)
 
         assertThat(repository.findPaaroerendeSykdomByFnr(fnr)).isEmpty()
+    }
+
+    @Test
+    fun relevanteTyper() {
+        val relevanteTyper = listOf(SakType.S, SakType.R, SakType.K, SakType.A)
+
+        val fnr = TestData.foedselsNr()
+
+        for(type in SakType.values()) {
+            val sak = TestData.sak(fnr = fnr).copy(
+                kapittelNr = "BS",
+                valg = SakValg.OP,
+                type = type
+            )
+            repository.save(sak)
+        }
+
+        val result = repository.findPaaroerendeSykdomByFnr(fnr)
+        assertThat(result).hasSameSizeAs(relevanteTyper)
+        for(sak in result) {
+            assertThat(relevanteTyper).contains(sak.type)
+        }
     }
 }

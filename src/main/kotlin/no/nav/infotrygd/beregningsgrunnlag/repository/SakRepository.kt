@@ -11,6 +11,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
     @Query("""
         SELECT s FROM Sak s
          WHERE s.fnr = :fnr
+           AND s.type in ('S', 'R', 'K', 'A')
            AND s.kapittelNr = 'BS'
            AND s.valg IN ('OP', 'PB', 'OM', 'PN', 'PI', 'PP')
     """)
