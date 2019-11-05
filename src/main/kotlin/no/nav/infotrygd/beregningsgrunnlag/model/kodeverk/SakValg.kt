@@ -7,4 +7,6 @@ enum class SakValg(override val kode: String, override val tekst: String) : Kode
     PI("PI", "pleiepenger"),
     PN("PN", "pleiepenger ny ordning"),
     PP("PP", "pleiepenger pårørende"),
+
+    UGYLDIG("~!", "Ugyldig")
 }

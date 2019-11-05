@@ -18,7 +18,7 @@ import java.time.LocalDate
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class PaaroerendeSykdomControllerTest {
+class PaaroerendeSykdomGrunnlagControllerTest {
 
     @LocalServerPort
     private var port: Int = 0
@@ -28,7 +28,7 @@ class PaaroerendeSykdomControllerTest {
 
     private val fnr = TestData.foedselsNr()
     private val queryString = "fodselNr=${fnr.asString}&fom=2018-01-01"
-    private val uri = "/paaroerendeSykdom?$queryString"
+    private val uri = "/paaroerendeSykdom/grunnlag?$queryString"
 
     @Test
     fun barnSykdom() {

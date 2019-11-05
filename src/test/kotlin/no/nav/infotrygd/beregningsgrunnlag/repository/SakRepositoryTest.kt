@@ -58,16 +58,16 @@ class SakRepositoryTest {
         assertThat(repository.findPaaroerendeSykdomByFnr(fnr)).isEmpty()
     }
 
-/*    @Test
+    @Test
     fun ugyldigValg() {
         val fnr = TestData.foedselsNr()
         val sak = TestData.sak(fnr = fnr).copy(
             kapittelNr = "BS",
-            valg = "XX"
+            valg = SakValg.UGYLDIG
         )
 
         repository.save(sak)
 
         assertThat(repository.findPaaroerendeSykdomByFnr(fnr)).isEmpty()
-    }*/
+    }
 }
