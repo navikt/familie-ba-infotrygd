@@ -42,9 +42,15 @@ class VedtakRepositoryTest {
         val fnr = TestData.foedselsNr()
         val dato = LocalDate.now()
 
-        val relevant = TestData.vedtak(
+        val relevantBS = TestData.vedtak(
             datoStart = dato,
-            fnr = fnr
+            fnr = fnr,
+            kodeRutine = "BS"
+        )
+        val relevantBR = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "BR"
         )
         val forGammel = TestData.vedtak(
             datoStart = dato.minusYears(1),
@@ -56,12 +62,10 @@ class VedtakRepositoryTest {
             kodeRutine = "XX"
         )
 
-        repository.saveAll(listOf(relevant, forGammel, feilKodeRutine))
+        repository.saveAll(listOf(relevantBS, relevantBR, forGammel, feilKodeRutine))
 
         val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1))
-        assertThat(res).hasSize(1)
-
-        assertThat(relevant).isEqualTo(res[0])
+        assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
     }
 
     @Test
@@ -69,9 +73,15 @@ class VedtakRepositoryTest {
         val fnr = TestData.foedselsNr()
         val dato = LocalDate.now()
 
-        val relevant = TestData.vedtak(
+        val relevantBS = TestData.vedtak(
             datoStart = dato,
-            fnr = fnr
+            fnr = fnr,
+            kodeRutine = "BS"
+        )
+        val relevantBR = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "BR"
         )
         val forGammel = TestData.vedtak(
             datoStart = dato.minusYears(1),
@@ -87,11 +97,9 @@ class VedtakRepositoryTest {
             kodeRutine = "XX"
         )
 
-        repository.saveAll(listOf(relevant, forGammel, forNy, feilKodeRutine))
+        repository.saveAll(listOf(relevantBS, relevantBR, forGammel, forNy, feilKodeRutine))
 
         val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1), dato.plusDays(1))
-        assertThat(res).hasSize(1)
-
-        assertThat(relevant).isEqualTo(res[0])
+        assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
     }
 }

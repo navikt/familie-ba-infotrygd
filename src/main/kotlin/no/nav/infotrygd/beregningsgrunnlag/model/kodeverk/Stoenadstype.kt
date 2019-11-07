@@ -2,6 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.model.kodeverk
 
 import no.nav.infotrygd.beregningsgrunnlag.dto.Kodeverdi
 
+// https://confluence.adeo.no/display/INFOTRYGD/Kodeverk+IS-basen
 enum class Stoenadstype(val tema: Tema, override val kode: String, override val tekst: String) : Kode {
     // Sykepenger
     SYKEPENGER(Tema.SYKEPENGER,"", "Sykepenger"),
