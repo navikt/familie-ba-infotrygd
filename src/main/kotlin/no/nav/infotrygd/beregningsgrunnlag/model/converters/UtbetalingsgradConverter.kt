@@ -18,6 +18,7 @@ class UtbetalingsgradConverter : AttributeConverter<Int?, String?> {
             return null
         }
 
-        return dbData.toInt()
+        val res = dbData.toInt()
+        return if(res == 0) null else res
     }
 }

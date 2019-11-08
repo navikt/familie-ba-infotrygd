@@ -40,7 +40,7 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
         },
         vedtak = p.utbetalinger.map {
             Vedtak(
-                utbetalingsgrad = it.grad,
+                utbetalingsgrad = it.grad ?: 100,
                 periode = Periode(
                     it.utbetaltFom,
                     it.utbetaltTom

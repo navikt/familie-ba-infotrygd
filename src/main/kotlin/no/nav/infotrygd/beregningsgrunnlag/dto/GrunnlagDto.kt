@@ -20,7 +20,7 @@ interface Grunnlag {
 }
 
 data class Vedtak(
-    val utbetalingsgrad: Int?,
+    val utbetalingsgrad: Int,
     val periode: Periode
 )
 

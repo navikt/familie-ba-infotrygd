@@ -10,7 +10,6 @@ class UtbetalingsgradConverterTest {
     @Test
     fun convertToDatabaseColumn() {
         convertToDatabaseColumn(null, "   ")
-        convertToDatabaseColumn(0, "000")
         convertToDatabaseColumn(51, "051")
         convertToDatabaseColumn(100, "100")
     }
@@ -19,7 +18,7 @@ class UtbetalingsgradConverterTest {
     fun convertToEntityAttribute() {
         convertToEntityAttribute(null, null)
         convertToEntityAttribute("   ", null)
-        convertToEntityAttribute("000", 0)
+        convertToEntityAttribute("000", null) // 0 -> ingen gradering er registrert
         convertToEntityAttribute("051", 51)
         convertToEntityAttribute("100", 100)
     }

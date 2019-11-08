@@ -31,7 +31,7 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
             },
             vedtak = delytelser.filter{ it.type == "PN" }.map {
                 Vedtak(
-                    utbetalingsgrad = it.delytelseSpFaBs?.grad,
+                    utbetalingsgrad = it.delytelseSpFaBs?.grad ?: 100,
                     periode = Periode(it.fom, it.tom)
                 )
             }
