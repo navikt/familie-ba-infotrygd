@@ -98,6 +98,19 @@ class VedtakToPaaroerendeSykdomKtTest {
                         tidspunktRegistrert = LocalDateTime.now(),
                         grad = 65
                     )
+                ),
+                Delytelse(
+                    vedtakId = -1,
+                    type = "xx",
+                    tidspunktRegistrert = LocalDateTime.now(),
+                    fom = fom2,
+                    tom = tom2,
+                    delytelseSpFaBs = DelytelseSpFaBs(
+                        vedtakId = -1,
+                        type = "PN",
+                        tidspunktRegistrert = LocalDateTime.now(),
+                        grad = 65
+                    )
                 )
             ),
             kodeRutine = "BS"

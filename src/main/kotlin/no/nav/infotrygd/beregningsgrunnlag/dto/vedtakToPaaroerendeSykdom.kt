@@ -5,8 +5,6 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 
 fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
-    vedtak.delytelser.forEach { require(it.type == "PN") { "Ugyldig databaseverdi (delytelse.type = '${it.type}'), forventet type = PN" } }
-
     val delytelser = vedtak.delytelser.sortedBy { it.fom }
     val datoStart = vedtak.stonad.datoStart
     val periode = Periode(datoStart, delytelser.last().tom)
@@ -31,7 +29,7 @@ fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
                     refusjon = it.refusjon
                 )
             },
-            vedtak = delytelser.map {
+            vedtak = delytelser.filter{ it.type == "PN" }.map {
                 Vedtak(
                     utbetalingsgrad = it.delytelseSpFaBs?.grad,
                     periode = Periode(it.fom, it.tom)
