@@ -13,3 +13,4 @@ Confluence:
 - https://confluence.adeo.no/display/INFOTRYGD/Kodeverk+IS-basen
 
 .
+.
