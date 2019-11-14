@@ -25,12 +25,22 @@ jobs:
         run: ./gradlew test build
       - name: build docker image
         run: docker build . --pull -t $(cat .docker_image):$(cat .docker_tag)
+      - name: Check API rate limit
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: push docker image
         run: |
           echo "$GITHUB_ACCESS_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           docker push $(cat .docker_image):$(cat .docker_tag)
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check API rate limit
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: deploy to dev
         uses: navikt/deployment-cli/action@0.4.1
         env:
@@ -40,6 +50,11 @@ jobs:
           cluster: dev-fss
           team: infotrygd
           resources: nais/dev-fss.yml
+      - name: Check API rate limit
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: deploy to prod
         uses: navikt/deployment-cli/action@0.4.1
         env:
@@ -49,3 +64,8 @@ jobs:
           cluster: prod-fss
           team: infotrygd
           resources: nais/prod-fss.yml
+      - name: Check API rate limit
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
