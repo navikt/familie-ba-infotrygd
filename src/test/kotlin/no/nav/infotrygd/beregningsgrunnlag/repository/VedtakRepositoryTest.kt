@@ -69,6 +69,38 @@ class VedtakRepositoryTest {
     }
 
     @Test
+    fun findByFnrAndFomUtenPN() {
+        val fnr = TestData.foedselsNr()
+        val dato = LocalDate.now()
+
+        val relevant = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "BS",
+            delytelserEksermpler = listOf(
+                TestData.delytelse().copy(
+                    type = "PN"
+                )
+            )
+        )
+
+        val urelevant = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "BS",
+            delytelserEksermpler = listOf(
+                TestData.delytelse().copy(
+                    type = "OM"
+                )
+            )
+        )
+
+        repository.saveAll(listOf(relevant, urelevant))
+        val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1))
+        assertThat(listOf(relevant)).isEqualTo(res)
+    }
+
+    @Test
     fun findByFnrAndFomTom() {
         val fnr = TestData.foedselsNr()
         val dato = LocalDate.now()
@@ -101,5 +133,37 @@ class VedtakRepositoryTest {
 
         val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1), dato.plusDays(1))
         assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
+    }
+
+    @Test
+    fun findByFnrAndFomTomUtenPN() {
+        val fnr = TestData.foedselsNr()
+        val dato = LocalDate.now()
+
+        val relevant = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "BS",
+            delytelserEksermpler = listOf(
+                TestData.delytelse().copy(
+                    type = "PN"
+                )
+            )
+        )
+
+        val urelevant = TestData.vedtak(
+            datoStart = dato,
+            fnr = fnr,
+            kodeRutine = "BS",
+            delytelserEksermpler = listOf(
+                TestData.delytelse().copy(
+                    type = "OM"
+                )
+            )
+        )
+
+        repository.saveAll(listOf(relevant, urelevant))
+        val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1), dato.plusDays(1))
+        assertThat(listOf(relevant)).isEqualTo(res)
     }
 }

@@ -18,18 +18,28 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
 
     @Query("""
         SELECT v FROM Vedtak v
+          JOIN v.delytelser D
          WHERE v.person.fnr = :fnr
            AND v.datoStart >= :fom
            AND v.stonad.kodeRutine IN ('BS', 'BR')
+           AND exists (
+                FROM D d 
+                 WHERE d.vedtakId = v.id
+                   AND d.type = 'PN')
     """)
     fun findByFnrAndStartDato(fnr: FoedselsNr, fom: LocalDate): List<Vedtak>
 
     @Query("""
         SELECT v FROM Vedtak v
+          JOIN v.delytelser D
          WHERE v.person.fnr = :fnr
            AND v.datoStart >= :fom
            AND v.datoStart <= :tom
            AND v.stonad.kodeRutine IN ('BS', 'BR')
+           AND exists (
+                FROM D d 
+                 WHERE d.vedtakId = v.id
+                   AND d.type = 'PN')
     """)
     fun findByFnrAndStartDato(fnr: FoedselsNr, fom: LocalDate, tom: LocalDate): List<Vedtak>
 }
