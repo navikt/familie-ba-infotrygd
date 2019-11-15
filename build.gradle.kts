@@ -66,6 +66,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("no.nav.security:oidc-spring-support:0.2.18")
+    implementation("net.ttddyy:datasource-proxy:1.4.1")
     testImplementation("no.nav.security:oidc-test-support:0.2.18")
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
