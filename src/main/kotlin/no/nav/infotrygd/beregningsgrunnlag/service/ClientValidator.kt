@@ -1,7 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.service
 
 import no.nav.infotrygd.beregningsgrunnlag.Profiles
-import no.nav.security.oidc.context.OIDCClaims
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.security.oidc.context.OIDCValidationContext
 import org.slf4j.LoggerFactory
@@ -17,9 +16,6 @@ class ClientValidator(
     private val environment: Environment,
     private val ctxHolder: OIDCRequestContextHolder?,
 
-    @Value("\${app.security.issuer}")
-    private val issuer: String,
-
     @Value("\${app.security.clientWhitelist}")
     clientWhitelistStr: String
 ) {
@@ -28,7 +24,7 @@ class ClientValidator(
 
     fun authorizeClient() {
         if(!authorized()) {
-            val msg = "Klienten er ikke autorisert: ${subject()}"
+            val msg = "Klienten er ikke autorisert: ${issuerSubjects()}"
             logger.info(msg)
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
         }
@@ -38,12 +34,19 @@ class ClientValidator(
         if(environment.acceptsProfiles(Profiles.NOAUTH)) {
             return true
         }
-        return clientWhitelist.contains(subject())
+
+        val subjects = issuerSubjects()
+        for(entry in clientWhitelist) {
+            if(subjects.contains(entry)) {
+                return true
+            }
+        }
+        return false
     }
 
-    private fun subject(): String? {
+    private fun issuerSubjects(): List<String> {
         val oidcValidationContext: OIDCValidationContext? = ctxHolder?.oidcValidationContext
-        val claims: OIDCClaims? = oidcValidationContext?.getClaims(issuer)
-        return claims?.subject
+        val allClaims = oidcValidationContext?.allClaims
+        return allClaims?.map { "${it.key}/${it.value.subject!!}" } ?: emptyList()
     }
 }
