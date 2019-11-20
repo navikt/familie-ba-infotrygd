@@ -35,7 +35,7 @@ object TestData {
             frisk = Frisk.LOPENDE,
             arbufoer = LocalDate.now(),
             stoppdato = null,
-            utbetalinger = listOf(),
+            utbetalingshistorikk = listOf(),
             inntekter = listOf(),
             utbetaltFom = null,
             utbetaltTom = null,
@@ -57,7 +57,9 @@ object TestData {
             arbufoerSeq = 1,
             utbetaltTom = LocalDate.now(),
             utbetaltFom = LocalDate.now(),
-            grad = null
+            grad = null,
+            type = null,
+            korr = null
         )
 
     fun inntekt(): Inntekt =

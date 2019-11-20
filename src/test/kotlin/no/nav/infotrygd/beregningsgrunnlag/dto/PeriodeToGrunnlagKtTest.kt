@@ -57,7 +57,7 @@ class PeriodeToGrunnlagKtTest {
             utbetaltTom = utbetaltTom,
             arbeidskategori = arbeidskategori,
             inntekter = listOf(inntekt),
-            utbetalinger = listOf(utbetaling)
+            utbetalingshistorikk = listOf(utbetaling)
         )
 
         val dto = periodeToGrunnlag(periode)

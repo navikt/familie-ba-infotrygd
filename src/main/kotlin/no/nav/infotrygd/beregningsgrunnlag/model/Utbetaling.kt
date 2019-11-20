@@ -28,5 +28,11 @@ data class Utbetaling(
 
     @Column(name = "IS15_GRAD", columnDefinition = "CHAR")
     @Convert(converter = UtbetalingsgradConverter::class)
-    val grad: Int?
+    val grad: Int?,
+
+    @Column(name = "IS15_TYPE", columnDefinition = "CHAR")
+    val type: String?,
+
+    @Column(name = "IS15_KORR", columnDefinition = "CHAR")
+    val korr: String?
 )

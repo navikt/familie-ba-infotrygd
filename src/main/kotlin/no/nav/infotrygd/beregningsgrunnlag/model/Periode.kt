@@ -89,7 +89,7 @@ data class Periode(
         JoinColumn(name = "IS10_ARBUFOER_SEQ", referencedColumnName = "IS10_ARBUFOER_SEQ")
     ])
     @Cascade(value = [CascadeType.ALL])
-    val utbetalinger: List<Utbetaling>,
+    val utbetalingshistorikk: List<Utbetaling>,
 
     @OneToMany
     @JoinColumns(value = [
@@ -99,6 +99,13 @@ data class Periode(
     @Cascade(value = [CascadeType.ALL])
     val inntekter: List<Inntekt>
 ) : Serializable {
+    val utbetalinger: List<Utbetaling>
+        get() {
+            // Fra https://confluence.adeo.no/display/INFOTRYGD/Tjeneste+finnGrunnlag+-+Informasjonsmodell
+            // IS15-perioder som er tilbakeført eller korrigert skal ikke tas med i uttrekk, dvs. IS15-TYPE = '7' eller IS15-KORR not = space.
+            return utbetalingshistorikk.filter { it.type != "7" && it.korr.isNullOrBlank() }
+        }
+
     val tema: Tema
         get() {
             val tema: Tema? = stoenadstype?.tema
