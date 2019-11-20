@@ -1,6 +1,8 @@
 server.port: 8080
 
 spring:
+  application:
+    name: ${NAIS_APP_NAME:infotrygd-grunnlag-paaroerende-sykdom}
   jackson:
     serialization:
       indent_output: true
