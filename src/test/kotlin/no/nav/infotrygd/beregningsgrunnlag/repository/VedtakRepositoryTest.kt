@@ -40,31 +40,24 @@ class VedtakRepositoryTest {
     @Test
     fun findByFnrAndFom() {
         val fnr = TestData.foedselsNr()
-        val dato = LocalDate.now()
 
         val relevantBS = TestData.vedtak(
-            datoStart = dato,
             fnr = fnr,
             kodeRutine = "BS"
         )
         val relevantBR = TestData.vedtak(
-            datoStart = dato,
             fnr = fnr,
             kodeRutine = "BR"
         )
-        val forGammel = TestData.vedtak(
-            datoStart = dato.minusYears(1),
-            fnr = fnr
-        )
+
         val feilKodeRutine = TestData.vedtak(
-            datoStart = dato,
             fnr = fnr,
             kodeRutine = "XX"
         )
 
-        repository.saveAll(listOf(relevantBS, relevantBR, forGammel, feilKodeRutine))
+        repository.saveAll(listOf(relevantBS, relevantBR, feilKodeRutine))
 
-        val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1))
+        val res = repository.findByFnrAndStartDato(fnr)
         assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
     }
 
@@ -96,7 +89,7 @@ class VedtakRepositoryTest {
         )
 
         repository.saveAll(listOf(relevant, urelevant))
-        val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1))
+        val res = repository.findByFnrAndStartDato(fnr)
         assertThat(listOf(relevant)).isEqualTo(res)
     }
 
@@ -115,23 +108,15 @@ class VedtakRepositoryTest {
             fnr = fnr,
             kodeRutine = "BR"
         )
-        val forGammel = TestData.vedtak(
-            datoStart = dato.minusYears(1),
-            fnr = fnr
-        )
-        val forNy = TestData.vedtak(
-            datoStart = dato.plusYears(1),
-            fnr = fnr
-        )
         val feilKodeRutine = TestData.vedtak(
             datoStart = dato,
             fnr = fnr,
             kodeRutine = "XX"
         )
 
-        repository.saveAll(listOf(relevantBS, relevantBR, forGammel, forNy, feilKodeRutine))
+        repository.saveAll(listOf(relevantBS, relevantBR, feilKodeRutine))
 
-        val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1), dato.plusDays(1))
+        val res = repository.findByFnrAndStartDato(fnr)
         assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
     }
 
@@ -163,7 +148,7 @@ class VedtakRepositoryTest {
         )
 
         repository.saveAll(listOf(relevant, urelevant))
-        val res = repository.findByFnrAndStartDato(fnr, dato.minusDays(1), dato.plusDays(1))
+        val res = repository.findByFnrAndStartDato(fnr)
         assertThat(listOf(relevant)).isEqualTo(res)
     }
 }

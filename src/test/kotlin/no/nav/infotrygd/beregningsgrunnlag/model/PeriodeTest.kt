@@ -5,6 +5,7 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import java.time.LocalDate
 
 
 class PeriodeTest {
@@ -34,14 +35,57 @@ class PeriodeTest {
         for(type in paaroerendeSykdom) {
             assertThat(periode(type).tema).isEqualTo(Tema.PAAROERENDE_SYKDOM)
         }
-
-        // TODO:
-        // T_STONAD og T_VEDTAK: felt KODE_RUTINE
-        //
-        //'BS' - Barn Sykdom
-        //'BR' - Barn Sykdom m/refusjon
     }
 
+    @Test
+    fun opphoerFom() {
+        var periode = TestData.periode()
+        assertThat(periode.opphoerFom).isNull()
+
+        val stoppdato = LocalDate.of(2019, 1, 1)
+        val friskmeldtDato = stoppdato.plusMonths(1)
+        val arbufoerTom = friskmeldtDato.plusMonths(1)
+        val maksdato = arbufoerTom.plusMonths(1)
+
+        periode = periode.copy(maksdato = maksdato)
+        assertThat(periode.opphoerFom).isEqualTo(maksdato)
+
+        periode = periode.copy(arbufoerTom = arbufoerTom)
+        assertThat(periode.opphoerFom).isEqualTo(arbufoerTom.plusDays(1))
+
+        periode = periode.copy(friskmeldtDato = friskmeldtDato)
+        assertThat(periode.opphoerFom).isEqualTo(friskmeldtDato)
+
+        periode = periode.copy(stoppdato = stoppdato)
+        assertThat(periode.opphoerFom).isEqualTo(stoppdato)
+    }
+
+    @Test
+    fun innenforPeriode() {
+        val start = LocalDate.of(2019, 1, 1)
+        val stop = start.plusYears(1)
+
+        val periode = TestData.periode().copy(
+            arbufoer = start,
+            stoppdato = stop
+        )
+
+        assertThat(periode.innenforPeriode(LocalDate.MIN, null)).isTrue()
+        assertThat(periode.innenforPeriode(LocalDate.MIN, start.minusDays(1))).isFalse()
+        assertThat(periode.innenforPeriode(LocalDate.MIN, start)).isTrue()
+
+        assertThat(periode.innenforPeriode(start.minusDays(1), start.plusDays(1))).isTrue()
+
+        assertThat(periode.innenforPeriode(start, stop)).isTrue()
+        assertThat(periode.innenforPeriode(start.plusDays(1), stop.minusDays(1))).isTrue()
+
+        assertThat(periode.innenforPeriode(stop.minusDays(1), null)).isTrue()
+        assertThat(periode.innenforPeriode(stop.minusDays(1), stop.plusDays(1))).isTrue()
+
+        assertThat(periode.innenforPeriode(stop, stop.plusDays(1))).isTrue()
+        assertThat(periode.innenforPeriode(stop.plusDays(1), null)).isFalse()
+        assertThat(periode.innenforPeriode(stop.plusDays(1), stop.plusDays(2))).isFalse()
+    }
 
     private fun periode(type: Stoenadstype): Periode {
         return TestData.periode().copy(

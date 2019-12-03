@@ -57,6 +57,10 @@ data class Sak(
     @Convert(converter = NavReversedLocalDateConverter::class)
     val iverksattdato: LocalDate?,
 
+    @Column(name = "S10_REG_DATO", columnDefinition = "DECIMAL")
+    @Convert(converter = NavReversedLocalDateConverter::class)
+    val registrert: LocalDate?,
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumns(value = [
         JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "S01_PERSONKEY"),
@@ -68,4 +72,20 @@ data class Sak(
 ) : Serializable {
     val status: SakStatus
         get() = statushistorikk.minBy { it.lopeNr }?.status ?: SakStatus.IKKE_BEHANDLET
+
+    fun innenforPeriode(fom: LocalDate, tom: LocalDate?): Boolean {
+        if(tom != null) {
+            require(fom == tom || fom.isBefore(tom)) { "Tom-dato kan ikke være før fom-dato." }
+        }
+
+        if(tom != null && tom.isBefore(registrert)) {
+            return false
+        }
+
+        if(fom.isAfter(registrert)) {
+            return false
+        }
+
+        return true
+    }
 }

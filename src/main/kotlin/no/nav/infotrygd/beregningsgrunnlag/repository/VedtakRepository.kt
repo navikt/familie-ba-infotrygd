@@ -5,7 +5,6 @@ import no.nav.infotrygd.beregningsgrunnlag.model.db2.Vedtak
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 
 @Repository
 interface VedtakRepository : JpaRepository<Vedtak, Long> {
@@ -20,26 +19,11 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
         SELECT v FROM Vedtak v
           JOIN v.delytelser D
          WHERE v.person.fnr = :fnr
-           AND v.datoStart >= :fom
            AND v.stonad.kodeRutine IN ('BS', 'BR')
            AND exists (
                 FROM D d 
                  WHERE d.vedtakId = v.id
                    AND d.type = 'PN')
     """)
-    fun findByFnrAndStartDato(fnr: FoedselsNr, fom: LocalDate): List<Vedtak>
-
-    @Query("""
-        SELECT v FROM Vedtak v
-          JOIN v.delytelser D
-         WHERE v.person.fnr = :fnr
-           AND v.datoStart >= :fom
-           AND v.datoStart <= :tom
-           AND v.stonad.kodeRutine IN ('BS', 'BR')
-           AND exists (
-                FROM D d 
-                 WHERE d.vedtakId = v.id
-                   AND d.type = 'PN')
-    """)
-    fun findByFnrAndStartDato(fnr: FoedselsNr, fom: LocalDate, tom: LocalDate): List<Vedtak>
+    fun findByFnrAndStartDato(fnr: FoedselsNr): List<Vedtak>
 }

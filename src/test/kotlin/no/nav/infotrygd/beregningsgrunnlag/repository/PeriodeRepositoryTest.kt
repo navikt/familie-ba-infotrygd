@@ -1,6 +1,5 @@
 package no.nav.infotrygd.beregningsgrunnlag.repository
 
-import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
@@ -36,12 +35,10 @@ class PeriodeRepositoryTest {
         val dato = LocalDate.now()
         val relevant = periode(tema, arbufoer = dato)
         val feilTema = periode(Stoenadstype.ADOPSJON, arbufoer = dato)
-        val forTidlig = periode(tema, arbufoer = dato.minusYears(1))
-        val forSen = periode(tema, arbufoer = dato.plusYears(1))
 
-        repository.saveAll(listOf(relevant, feilTema, forTidlig, forSen))
+        repository.saveAll(listOf(relevant, feilTema))
 
-        val result = repository.findByFnrAndStoenadstypeAndDates(fnr, listOf(tema), dato.minusDays(1), dato.plusDays(1))
+        val result = repository.findByFnrAndStoenadstype(fnr, listOf(tema))
 
         assertThat(listOf(relevant)).isEqualTo(result) // relevant hibernate bug: https://hibernate.atlassian.net/browse/HHH-5409
     }

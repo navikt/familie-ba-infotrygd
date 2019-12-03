@@ -31,6 +31,7 @@ internal class SakToSakDtoKtTest {
             resultat = resultat,
             vedtaksdato = vedtatt,
             iverksattdato = iverksatt,
+            registrert = LocalDate.now(),
             statushistorikk = listOf(
                 Status(
                     id = -1,

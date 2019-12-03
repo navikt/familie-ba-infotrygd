@@ -34,30 +34,36 @@ internal class PaaroerendeSykdomSakServiceTest {
 
     @Test
     fun hentSak() {
-        val datoStart = LocalDate.now()
+        val dato = LocalDate.now()
 
         val fnr = TestData.foedselsNr()
         val periode = TestData.periode().copy(
             fnr = fnr,
             stoenadstype = Stoenadstype.BARNS_SYKDOM,
-            arbufoerTom = datoStart
+            arbufoerTom = dato,
+            stoppdato = dato
         )
 
         periodeRepository.save(periode)
 
-        val vedtak = TestData.vedtak(kodeRutine = "BS", datoStart = datoStart, fnr = fnr)
+        val vedtak = TestData.vedtak(kodeRutine = "BS", datoStart = dato, datoOpphoer = dato, fnr = fnr)
         vedtakRepository.save(vedtak)
 
         val sak = TestData.sak(fnr = fnr).copy(
             kapittelNr = "BS",
-            valg = SakValg.OM
+            valg = SakValg.OM,
+            registrert = dato
         )
         sakRepository.save(sak)
 
-        val fom = datoStart.minusDays(1)
-        val tom = datoStart.plusDays(1)
+        val saker = listOf(periode, vedtak, sak)
+
+        val fom = dato.minusDays(1)
+        val tom = dato.plusDays(1)
 
         val res = paaroerendeSykdomSakService.hentSak(fnr, fom, tom)
-        assertThat(res).hasSize(3)
+        assertThat(res).hasSameSizeAs(saker)
+
+        assertThat(paaroerendeSykdomSakService.hentSak(fnr, dato.minusDays(1), dato.minusDays(1))).isEmpty()
     }
 }

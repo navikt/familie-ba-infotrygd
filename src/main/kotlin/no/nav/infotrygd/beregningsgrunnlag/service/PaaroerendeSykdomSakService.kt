@@ -13,9 +13,15 @@ class PaaroerendeSykdomSakService(
     private val sakRepository: SakRepository
 ) {
     fun hentSak(fnr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<SakDto> {
-        val isRes = paaroerendeSykdomISBasenService.hentPaaroerendeSykdom(fnr, fom, tom).map { periodeToSakDto(it) }
-        val vedtakRes = paaroerendeSykdomVedtaksbasenService.barnsSykdom(fnr, fom, tom).map { vedtakToSakDto(it) }
-        val sakRes = sakRepository.findPaaroerendeSykdomByFnr(fnr).map { sakToSakDto(it) }
+        val isRes = paaroerendeSykdomISBasenService.hentPaaroerendeSykdom(fnr)
+            .filter { it.innenforPeriode(fom, tom) }
+            .map { periodeToSakDto(it) }
+        val vedtakRes = paaroerendeSykdomVedtaksbasenService.barnsSykdom(fnr)
+            .filter { it.innenforPeriode(fom, tom) }
+            .map { vedtakToSakDto(it) }
+        val sakRes = sakRepository.findPaaroerendeSykdomByFnr(fnr)
+            .filter { it.innenforPeriode(fom, tom) }
+            .map { sakToSakDto(it) }
 
         return (isRes + vedtakRes + sakRes).sortedBy { it.iverksatt }
     }

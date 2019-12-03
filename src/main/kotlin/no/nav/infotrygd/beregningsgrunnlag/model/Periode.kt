@@ -116,4 +116,26 @@ data class Periode(
 
             return Tema.UKJENT
         }
+
+    val opphoerFom: LocalDate?
+        get() = stoppdato
+            ?: friskmeldtDato
+            ?: arbufoerTom?.plusDays(1)
+            ?: maksdato
+
+    fun innenforPeriode(fom: LocalDate, tom: LocalDate?): Boolean {
+        if(tom != null) {
+            require(fom == tom || fom.isBefore(tom)) { "Tom-dato kan ikke være før fom-dato." }
+        }
+
+        if(tom != null && tom.isBefore(arbufoer)) {
+            return false
+        }
+
+        if(opphoerFom != null && fom.isAfter(opphoerFom)) {
+            return false
+        }
+
+        return true
+    }
 }

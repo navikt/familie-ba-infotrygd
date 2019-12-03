@@ -37,4 +37,20 @@ data class Vedtak(
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
     @Cascade(CascadeType.ALL)
     val delytelser: List<Delytelse>
-)
+) {
+    fun innenforPeriode(fom: LocalDate, tom: LocalDate?): Boolean {
+        if(tom != null) {
+            require(fom == tom || fom.isBefore(tom)) { "Tom-dato kan ikke være før fom-dato." }
+        }
+
+        if(tom != null && tom.isBefore(datoStart)) {
+            return false
+        }
+
+        if(fom.isAfter(stonad.datoOpphoer)) {
+            return false
+        }
+
+        return true
+    }
+}

@@ -10,11 +10,7 @@ import javax.transaction.Transactional
 @Service
 @Transactional
 class PaaroerendeSykdomVedtaksbasenService(private val vedtakRepository: VedtakRepository) {
-    fun barnsSykdom(fnr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<Vedtak> {
-        return if(tom == null) {
-            vedtakRepository.findByFnrAndStartDato(fnr, fom)
-        } else {
-            vedtakRepository.findByFnrAndStartDato(fnr, fom, tom)
-        }
+    fun barnsSykdom(fnr: FoedselsNr): List<Vedtak> {
+        return vedtakRepository.findByFnrAndStartDato(fnr)
     }
 }

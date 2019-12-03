@@ -12,8 +12,12 @@ class PaaroerendeSykdomGrunnlagService(
     private val paaroerendeSykdomVedtaksbasenService: PaaroerendeSykdomVedtaksbasenService
 ) {
     fun hentPaaroerendeSykdom(foedselsNr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<PaaroerendeSykdom> {
-        val isbase = paaroerendeSykdomISBasenService.hentPaaroerendeSykdom(foedselsNr, fom, tom).map { periodeToPaaroerendeSykdom(it) }
-        val barnsSykdom = paaroerendeSykdomVedtaksbasenService.barnsSykdom(foedselsNr, fom, tom).map { vedtakToPaaroerendeSykdom(it) }
+        val isbase = paaroerendeSykdomISBasenService.hentPaaroerendeSykdom(foedselsNr)
+            .filter { it.innenforPeriode(fom, tom) }
+            .map { periodeToPaaroerendeSykdom(it) }
+        val barnsSykdom = paaroerendeSykdomVedtaksbasenService.barnsSykdom(foedselsNr)
+            .filter { it.innenforPeriode(fom, tom) }
+            .map { vedtakToPaaroerendeSykdom(it) }
         return (isbase + barnsSykdom).sortedBy { it.identdato }
     }
 }

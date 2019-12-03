@@ -101,6 +101,7 @@ object TestData {
             resultat = SakResultat.A,
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
+            registrert = LocalDate.now(),
             statushistorikk = listOf(
                 Status(
                     id = nextId(),
