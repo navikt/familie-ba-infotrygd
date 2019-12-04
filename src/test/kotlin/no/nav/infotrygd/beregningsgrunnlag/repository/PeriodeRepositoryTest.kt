@@ -34,9 +34,10 @@ class PeriodeRepositoryTest {
     fun findByFnrAndStoenadstypeAndDates() {
         val dato = LocalDate.now()
         val relevant = periode(tema, arbufoer = dato)
+        val historikk = periode(tema, frisk = Frisk.HISTORIKK)
         val feilTema = periode(Stoenadstype.ADOPSJON, arbufoer = dato)
 
-        repository.saveAll(listOf(relevant, feilTema))
+        repository.saveAll(listOf(relevant, historikk, feilTema))
 
         val result = repository.findByFnrAndStoenadstype(fnr, listOf(tema))
 
