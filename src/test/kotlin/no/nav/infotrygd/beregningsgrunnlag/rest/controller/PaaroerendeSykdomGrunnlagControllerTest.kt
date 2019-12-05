@@ -27,7 +27,7 @@ class PaaroerendeSykdomGrunnlagControllerTest {
     lateinit var vedtakRepository: VedtakRepository
 
     private val fnr = TestData.foedselsNr()
-    private val queryString = "fodselNr=${fnr.asString}&fom=2018-01-01"
+    private val queryString = "fnr=${fnr.asString}&fom=2018-01-01"
     private val uri = "/paaroerendeSykdom/grunnlag?$queryString"
 
     @Test

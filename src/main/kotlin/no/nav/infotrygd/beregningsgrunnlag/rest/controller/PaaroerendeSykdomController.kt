@@ -24,22 +24,22 @@ class PaaroerendeSykdomController(
 ) {
     @GetMapping(path = ["/paaroerendeSykdom/grunnlag"])
     fun paaroerendeSykdom(@RequestParam
-                   fodselNr: FoedselsNr,
+                   fnr: FoedselsNr,
 
-                   @RequestParam
+                          @RequestParam
                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                    fom: LocalDate,
 
-                   @RequestParam(required = false)
+                          @RequestParam(required = false)
                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                    tom: LocalDate?): List<PaaroerendeSykdom> {
         clientValidator.authorizeClient()
-        return paaroerendeSykdomGrunnlagService.hentPaaroerendeSykdom(fodselNr, fom, tom)
+        return paaroerendeSykdomGrunnlagService.hentPaaroerendeSykdom(fnr, fom, tom)
     }
 
     @GetMapping(path = ["/paaroerendeSykdom/sak"])
     fun hentSak(@RequestParam
-                fodselNr: FoedselsNr,
+                fnr: FoedselsNr,
 
                 @RequestParam
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -49,6 +49,6 @@ class PaaroerendeSykdomController(
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                 tom: LocalDate?): List<SakDto> {
         clientValidator.authorizeClient()
-        return paaroerendeSykdomSakService.hentSak(fodselNr, fom, tom)
+        return paaroerendeSykdomSakService.hentSak(fnr, fom, tom)
     }
 }
