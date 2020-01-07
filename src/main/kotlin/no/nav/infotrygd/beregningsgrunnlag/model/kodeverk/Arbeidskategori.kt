@@ -29,5 +29,7 @@ enum class Arbeidskategori(override val kode: String, override val tekst: String
     ARB_OPPDRAGSTAKER_U_FORS("25", "Kombinert frilanser uten forsikring/arbeidstaker"),
     SELVSTENDIG_DAGMAMMA_DAGPAPPA("26", "Selvstendig dagmamma/dagpappa"),
     FISKER_MED_HYRE("27", "Fisker m/hyre (brukes ved kun hyre)"),
-    INNTEKTSOPPLYSNINGER_MANGLER("99", "Inntektsopplysninger mangler")
+    INNTEKTSOPPLYSNINGER_MANGLER("99", "Inntektsopplysninger mangler"),
+
+    UKJENT_30("30", "Ukjent nr. 30")
 }
