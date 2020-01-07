@@ -25,7 +25,7 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
         status = status,
         saksbehandlerId = p.brukerId,
         iverksatt = p.arbufoer,
-        opphoerFom = p.stoppdato,
+        opphoerFom = p.opphoerFom,
         behandlingstema = p.stoenadstype!!.toDto(),
         identdato = p.arbufoer,
         periode = periode,
