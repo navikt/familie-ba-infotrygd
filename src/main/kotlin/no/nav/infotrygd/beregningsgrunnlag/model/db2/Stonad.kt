@@ -22,7 +22,7 @@ data class Stonad(
     val datoStart: LocalDate,
 
     @Column(name = "DATO_OPPHOR", columnDefinition = "DATE")
-    val datoOpphoer: LocalDate,
+    val datoOpphoer: LocalDate?,
 
     @Column(name = "TIDSPUNKT_REG", columnDefinition = "TIMESTAMP")
     val tidspunktRegistrert: LocalDateTime,

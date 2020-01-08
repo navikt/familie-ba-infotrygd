@@ -47,7 +47,8 @@ data class Vedtak(
             return false
         }
 
-        if(fom.isAfter(stonad.datoOpphoer)) {
+        val datoOpphoer = stonad.datoOpphoer
+        if(datoOpphoer != null && fom.isAfter(datoOpphoer)) { // todo: null-sjekk på datoOpphoer
             return false
         }
 

@@ -190,7 +190,7 @@ object TestData {
         delytelserEksermpler: List<Delytelse> = listOf(delytelse()),
         arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL,
         tidspunktRegistrert: LocalDateTime = LocalDateTime.now(),
-        datoOpphoer: LocalDate = LocalDate.now()
+        datoOpphoer: LocalDate? = LocalDate.now()
     ): Vedtak {
         val vedtakId = nextId()
         val delytelser = delytelserEksermpler.map { it.copy(

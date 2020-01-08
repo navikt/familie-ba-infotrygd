@@ -30,4 +30,11 @@ class VedtakTest {
         Assertions.assertThat(vedtak.innenforPeriode(stop.plusDays(1), null)).isFalse()
         Assertions.assertThat(vedtak.innenforPeriode(stop.plusDays(1), stop.plusDays(2))).isFalse()
     }
+
+    @Test
+    fun innenforPeriodeOpphoerNull() {
+        val start = LocalDate.of(2019, 1, 1)
+        val vedtak = TestData.vedtak(datoStart = start, datoOpphoer = null)
+        Assertions.assertThat(vedtak.innenforPeriode(start, start.plusDays(1))).isTrue()
+    }
 }

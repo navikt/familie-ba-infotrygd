@@ -15,6 +15,7 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
          WHERE p.fnr = :fnr
            AND p.stoenadstype IN :stoenadstyper
            AND p.frisk != 'H'
+           AND p.arbufoer != 0
     """)
     fun findByFnrAndStoenadstype(fnr: FoedselsNr, stoenadstyper: List<Stoenadstype>): List<Periode>
 }
