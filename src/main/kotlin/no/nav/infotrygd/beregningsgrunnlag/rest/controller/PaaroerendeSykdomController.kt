@@ -22,7 +22,7 @@ class PaaroerendeSykdomController(
     private val paaroerendeSykdomSakService: PaaroerendeSykdomSakService,
     private val clientValidator: ClientValidator
 ) {
-    @GetMapping(path = ["/paaroerendeSykdom/grunnlag"])
+    @GetMapping(path = ["/paaroerendeSykdom/grunnlag", "/grunnlag"])
     fun paaroerendeSykdom(
                 @RequestParam
                 fnr: FoedselsNr,
@@ -38,7 +38,7 @@ class PaaroerendeSykdomController(
         return paaroerendeSykdomGrunnlagService.hentPaaroerendeSykdom(fnr, fom, tom)
     }
 
-    @GetMapping(path = ["/paaroerendeSykdom/sak"])
+    @GetMapping(path = ["/paaroerendeSykdom/sak", "/saker"])
     fun hentSak(@RequestParam
                 fnr: FoedselsNr,
 
