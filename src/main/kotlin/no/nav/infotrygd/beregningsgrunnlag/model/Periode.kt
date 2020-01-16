@@ -65,7 +65,7 @@ data class Periode(
 
     @Column(name = "IS10_REG_DATO", columnDefinition = "CHAR")
     @Convert(converter = NavCharDateConverter::class)
-    val regdato: LocalDate?,
+    val registrert: LocalDate?,
 
     @Column(name = "IS10_BRUKERID", columnDefinition = "CHAR")
     @Convert(converter = BrukerIdConverter::class)

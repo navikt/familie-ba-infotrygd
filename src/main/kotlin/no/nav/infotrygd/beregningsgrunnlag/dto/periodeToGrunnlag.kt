@@ -21,7 +21,7 @@ fun periodeToGrunnlag(p: no.nav.infotrygd.beregningsgrunnlag.model.Periode): Gru
 
     return GrunnlagGenerelt(
         tema = Kodeverdi(tema.kode, tema.tekst),
-        registrert = p.regdato,
+        registrert = p.registrert,
         status = status,
         saksbehandlerId = p.brukerId,
         iverksatt = p.arbufoer,

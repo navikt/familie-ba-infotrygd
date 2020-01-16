@@ -11,6 +11,7 @@ fun periodeToSakDto(periode: no.nav.infotrygd.beregningsgrunnlag.model.Periode):
         resultat = null,
         vedtatt = null,
         iverksatt = periode.arbufoer,
+        registrert = periode.registrert,
         opphoerFom = periode.opphoerFom
     )
 }

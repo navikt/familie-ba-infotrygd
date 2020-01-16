@@ -41,7 +41,7 @@ object TestData {
             utbetaltTom = null,
             foedselsdatoBarn = null,
             arbeidskategori = null,
-            regdato = LocalDate.now(),
+            registrert = LocalDate.now(),
             brukerId = "br.id",
             morFnr = foedselsNr(),
             arbufoerTom = null,

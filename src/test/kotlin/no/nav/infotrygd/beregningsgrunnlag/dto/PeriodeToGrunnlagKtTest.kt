@@ -47,7 +47,7 @@ class PeriodeToGrunnlagKtTest {
         )
 
         val periode = pf.periode().copy(
-            regdato = registrert,
+            registrert = registrert,
             frisk = frisk,
             brukerId = saksbehandlerId,
             arbufoer = utbetaltFom,

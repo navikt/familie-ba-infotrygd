@@ -18,7 +18,7 @@ internal class SakToSakDtoKtTest {
         val resultat = SakResultat.BESLUTNINGSSTOETTE
         val vedtatt = LocalDate.now()
         val iverksatt = vedtatt.minusDays(1)
-
+        val registrert = LocalDate.now()
         val sak = Sak(
             id = -1,
             fnr = TestData.foedselsNr(),
@@ -31,7 +31,7 @@ internal class SakToSakDtoKtTest {
             resultat = resultat,
             vedtaksdato = vedtatt,
             iverksattdato = iverksatt,
-            registrert = LocalDate.now(),
+            registrert = registrert,
             statushistorikk = listOf(
                 Status(
                     id = -1,
@@ -53,6 +53,7 @@ internal class SakToSakDtoKtTest {
             resultat = resultat.toDto(),
             vedtatt = vedtatt,
             iverksatt = iverksatt,
+            registrert = registrert,
             opphoerFom = null
         )
 

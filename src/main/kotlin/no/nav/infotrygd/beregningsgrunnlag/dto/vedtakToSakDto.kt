@@ -13,6 +13,7 @@ fun vedtakToSakDto(vedtak: no.nav.infotrygd.beregningsgrunnlag.model.db2.Vedtak)
         resultat = null,
         vedtatt = vedtak.stonad.tidspunktRegistrert.toLocalDate(),
         iverksatt = vedtak.stonad.datoStart,
+        registrert = vedtak.stonad.tidspunktRegistrert.toLocalDate(),
         opphoerFom = vedtak.stonad.datoOpphoer
     )
 }

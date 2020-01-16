@@ -15,10 +15,12 @@ internal class VedtakToSakDtoKtTest {
         val iverksatt = vedtatt.plusDays(1)
         val opphoerFom = iverksatt.plusDays(1)
 
+        val registrert = vedtatt.atStartOfDay()
+
         val vedtak = TestData.vedtak(
             datoStart = iverksatt,
             kodeRutine = "BS",
-            tidspunktRegistrert = vedtatt.atStartOfDay(),
+            tidspunktRegistrert = registrert,
             datoOpphoer = opphoerFom
         )
 
@@ -31,6 +33,7 @@ internal class VedtakToSakDtoKtTest {
             resultat = null,
             vedtatt = vedtatt,
             iverksatt = iverksatt,
+            registrert = registrert.toLocalDate(),
             opphoerFom = opphoerFom
         )
 

@@ -16,5 +16,6 @@ data class SakDto(
     val resultat: Kodeverdi?,
     val vedtatt: LocalDate?,
     val iverksatt: LocalDate?,
+    val registrert: LocalDate?,
     val opphoerFom: LocalDate?
 )

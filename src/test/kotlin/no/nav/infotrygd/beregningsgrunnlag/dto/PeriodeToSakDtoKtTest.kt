@@ -16,10 +16,12 @@ internal class PeriodeToSakDtoKtTest {
         val iverksatt = vedtatt.plusDays(1)
         val opphoerFom = iverksatt.plusDays(1)
 
+        val registrert = vedtatt.minusDays(1)
         val periode = TestData.periode().copy(
             stoenadstype = Stoenadstype.BARNS_SYKDOM,
             arbufoer = iverksatt,
             stoppdato = opphoerFom,
+            registrert = registrert,
             frisk = frisk
         )
 
@@ -32,6 +34,7 @@ internal class PeriodeToSakDtoKtTest {
             resultat = null,
             vedtatt = null,
             iverksatt = iverksatt,
+            registrert = registrert,
             opphoerFom = opphoerFom
         )
 

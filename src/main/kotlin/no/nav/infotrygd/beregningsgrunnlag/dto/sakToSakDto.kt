@@ -15,6 +15,7 @@ fun sakToSakDto(sak: Sak): SakDto {
         resultat = sak.resultat.toDto(),
         vedtatt = sak.vedtaksdato,
         iverksatt = sak.iverksattdato,
+        registrert = sak.registrert,
         opphoerFom = null
     )
 }
