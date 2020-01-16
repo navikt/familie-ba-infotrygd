@@ -12,17 +12,21 @@ class PaaroerendeSykdomSakService(
     private val paaroerendeSykdomVedtaksbasenService: PaaroerendeSykdomVedtaksbasenService,
     private val sakRepository: SakRepository
 ) {
-    fun hentSak(fnr: FoedselsNr, fom: LocalDate, tom: LocalDate?): List<SakDto> {
+    fun hentSak(fnr: FoedselsNr, fom: LocalDate, tom: LocalDate?): SakResult {
+        val sakRes = sakRepository.findPaaroerendeSykdomByFnr(fnr)
+            .filter { it.innenforPeriode(fom, tom) }
+            .map { sakToSakDto(it) }
+        
         val isRes = paaroerendeSykdomISBasenService.hentPaaroerendeSykdom(fnr)
             .filter { it.innenforPeriode(fom, tom) }
             .map { periodeToSakDto(it) }
         val vedtakRes = paaroerendeSykdomVedtaksbasenService.barnsSykdom(fnr)
             .filter { it.innenforPeriode(fom, tom) }
             .map { vedtakToSakDto(it) }
-        val sakRes = sakRepository.findPaaroerendeSykdomByFnr(fnr)
-            .filter { it.innenforPeriode(fom, tom) }
-            .map { sakToSakDto(it) }
 
-        return (isRes + vedtakRes + sakRes).sortedBy { it.iverksatt }
+        return SakResult(
+            saker = sakRes.sortedBy { it.iverksatt },
+            vedtak = (isRes + vedtakRes).sortedBy { it.iverksatt }
+        )
     }
 }

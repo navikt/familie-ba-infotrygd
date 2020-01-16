@@ -2,6 +2,11 @@ package no.nav.infotrygd.beregningsgrunnlag.dto
 
 import java.time.LocalDate
 
+data class SakResult(
+    val saker: List<SakDto>,
+    val vedtak: List<SakDto>
+)
+
 data class SakDto(
     val sakId: String?,
     val tema: Kodeverdi?,

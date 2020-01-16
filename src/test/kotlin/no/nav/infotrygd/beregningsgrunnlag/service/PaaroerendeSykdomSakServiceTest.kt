@@ -56,14 +56,18 @@ internal class PaaroerendeSykdomSakServiceTest {
         )
         sakRepository.save(sak)
 
-        val saker = listOf(periode, vedtak, sak)
+        val vedtaksliste = listOf(periode, vedtak)
+        val saksliste = listOf(sak)
 
         val fom = dato.minusDays(1)
         val tom = dato.plusDays(1)
 
         val res = paaroerendeSykdomSakService.hentSak(fnr, fom, tom)
-        assertThat(res).hasSameSizeAs(saker)
+        assertThat(res.saker).hasSameSizeAs(saksliste)
+        assertThat(res.vedtak).hasSameSizeAs(vedtaksliste)
 
-        assertThat(paaroerendeSykdomSakService.hentSak(fnr, dato.minusDays(1), dato.minusDays(1))).isEmpty()
+        val tomResponse = paaroerendeSykdomSakService.hentSak(fnr, dato.minusDays(1), dato.minusDays(1))
+        assertThat(tomResponse.saker).isEmpty()
+        assertThat(tomResponse.vedtak).isEmpty()
     }
 }

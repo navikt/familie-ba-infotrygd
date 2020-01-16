@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 
+import no.nav.infotrygd.beregningsgrunnlag.dto.SakResult
 import no.nav.infotrygd.beregningsgrunnlag.repository.VedtakRepository
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import no.nav.infotrygd.beregningsgrunnlag.testutil.restClient
@@ -45,10 +46,10 @@ class PaaroerendeSykdomSakControllerTest {
             .uri(uri)
             .exchange()
             .block() !!
-            .bodyToMono(Array<Any>::class.java)
+            .bodyToMono(SakResult::class.java)
             .block() !!
 
-        Assertions.assertThat(result).hasSize(1)
+        Assertions.assertThat(result.vedtak).hasSize(1)
     }
 
     @Test

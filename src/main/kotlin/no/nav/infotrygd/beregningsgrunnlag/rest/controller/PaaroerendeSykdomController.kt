@@ -3,7 +3,7 @@ package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 import io.micrometer.core.annotation.Timed
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.dto.PaaroerendeSykdom
-import no.nav.infotrygd.beregningsgrunnlag.dto.SakDto
+import no.nav.infotrygd.beregningsgrunnlag.dto.SakResult
 import no.nav.infotrygd.beregningsgrunnlag.service.ClientValidator
 import no.nav.infotrygd.beregningsgrunnlag.service.PaaroerendeSykdomGrunnlagService
 import no.nav.infotrygd.beregningsgrunnlag.service.PaaroerendeSykdomSakService
@@ -23,16 +23,17 @@ class PaaroerendeSykdomController(
     private val clientValidator: ClientValidator
 ) {
     @GetMapping(path = ["/paaroerendeSykdom/grunnlag"])
-    fun paaroerendeSykdom(@RequestParam
-                   fnr: FoedselsNr,
+    fun paaroerendeSykdom(
+                @RequestParam
+                fnr: FoedselsNr,
 
-                          @RequestParam
-                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                   fom: LocalDate,
+                @RequestParam
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                fom: LocalDate,
 
-                          @RequestParam(required = false)
-                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                   tom: LocalDate?): List<PaaroerendeSykdom> {
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                tom: LocalDate?): List<PaaroerendeSykdom> {
         clientValidator.authorizeClient()
         return paaroerendeSykdomGrunnlagService.hentPaaroerendeSykdom(fnr, fom, tom)
     }
@@ -47,7 +48,7 @@ class PaaroerendeSykdomController(
 
                 @RequestParam(required = false)
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                tom: LocalDate?): List<SakDto> {
+                tom: LocalDate?): SakResult {
         clientValidator.authorizeClient()
         return paaroerendeSykdomSakService.hentSak(fnr, fom, tom)
     }
