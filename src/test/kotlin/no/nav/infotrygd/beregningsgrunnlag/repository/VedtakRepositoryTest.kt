@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.repository
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -151,4 +152,30 @@ class VedtakRepositoryTest {
         val res = repository.findByFnrAndStartDato(fnr)
         assertThat(listOf(relevant)).isEqualTo(res)
     }
+
+    @Test
+    fun findByBarnFnr() {
+        val fnrBarn = TestData.foedselsNr()
+        val fnrMor = TestData.foedselsNr()
+        val fnrFar = TestData.foedselsNr()
+
+        val fnrUrelevantBarn = TestData.foedselsNr()
+
+        val vedtakMor = vedtak(fnrMor, fnrBarn)
+        val vedtakFar = vedtak(fnrFar, fnrBarn)
+        val vedtakUrelevant = vedtak(fnrFar, fnrUrelevantBarn)
+
+        repository.saveAll(listOf(vedtakMor, vedtakFar, vedtakUrelevant))
+
+        val result = repository.findBSByFnrBarn(fnrBarn)
+        assertThat(result.map { it.id }).containsExactlyInAnyOrder(vedtakMor.id, vedtakFar.id)
+    }
+
+    private fun vedtak(
+        fnrForelder: FoedselsNr,
+        fnrBarn: FoedselsNr
+    ) = TestData.vedtak(
+        fnr = fnrForelder,
+        stonad = TestData.stonad().copy(stonadBs = TestData.stonadBs(fnrBarn = fnrBarn))
+    )
 }

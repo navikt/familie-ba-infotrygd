@@ -26,4 +26,10 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
                    AND d.type = 'PN')
     """)
     fun findByFnrAndStartDato(fnr: FoedselsNr): List<Vedtak>
+
+    @Query("""
+        SELECT v FROM Vedtak v
+         WHERE v.stonad.stonadBs.barn.fnr = :fnrBarn
+    """)
+    fun findBSByFnrBarn(fnrBarn: FoedselsNr): List<Vedtak>
 }

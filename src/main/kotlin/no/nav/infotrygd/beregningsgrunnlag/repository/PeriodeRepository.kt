@@ -18,4 +18,6 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
            AND p.arbufoer != 0
     """)
     fun findByFnrAndStoenadstype(fnr: FoedselsNr, stoenadstyper: List<Stoenadstype>): List<Periode>
+
+    // todo: søk på barn fnr, hvor frisk not in H, B, T, A, F, P
 }
