@@ -26,6 +26,10 @@ data class Utbetaling(
     @Convert(converter = NavLocalDateConverter::class)
     val utbetaltTom: LocalDate,
 
+    @Column(name = "IS15_UTBETDATO", columnDefinition = "DECIMAL")
+    @Convert(converter = NavLocalDateConverter::class)
+    val utbetalingsdato: LocalDate?,
+
     @Column(name = "IS15_GRAD", columnDefinition = "CHAR")
     @Convert(converter = UtbetalingsgradConverter::class)
     val grad: Int?,

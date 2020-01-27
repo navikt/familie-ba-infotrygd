@@ -103,7 +103,8 @@ data class Periode(
         get() {
             // Fra https://confluence.adeo.no/display/INFOTRYGD/Tjeneste+finnGrunnlag+-+Informasjonsmodell
             // IS15-perioder som er tilbakeført eller korrigert skal ikke tas med i uttrekk, dvs. IS15-TYPE = '7' eller IS15-KORR not = space.
-            return utbetalingshistorikk.filter { it.type != "7" && it.korr.isNullOrBlank() }
+            // Utbetalinger som har utbetalingsdago = null er ikke reelle utbetalinger.
+            return utbetalingshistorikk.filter { it.type != "7" && it.korr.isNullOrBlank() && it.utbetalingsdato != null }
         }
 
     val tema: Tema

@@ -57,6 +57,7 @@ object TestData {
             arbufoerSeq = 1,
             utbetaltTom = LocalDate.now(),
             utbetaltFom = LocalDate.now(),
+            utbetalingsdato = LocalDate.now(),
             grad = null,
             type = null,
             korr = null

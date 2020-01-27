@@ -87,6 +87,27 @@ class PeriodeTest {
         assertThat(periode.innenforPeriode(stop.plusDays(1), stop.plusDays(2))).isFalse()
     }
 
+    @Test
+    fun utbetalinger() {
+        assertThat(periodeMedUtbetalinger("1", "", LocalDate.now()).utbetalinger).isNotEmpty()
+
+        assertThat(periodeMedUtbetalinger("1", "KORR", LocalDate.now()).utbetalinger).isEmpty()
+        assertThat(periodeMedUtbetalinger("7", "", LocalDate.now()).utbetalinger).isEmpty()
+        assertThat(periodeMedUtbetalinger("1", "", null).utbetalinger).isEmpty()
+    }
+
+    private fun periodeMedUtbetalinger(type: String?, korr: String?, utbetalingsdato: LocalDate?): Periode {
+        val pf = TestData.PeriodeFactory()
+        val utbetaling = pf.utbetaling().copy(
+            type = type,
+            korr = korr,
+            utbetalingsdato = utbetalingsdato
+        )
+        return pf.periode().copy(
+            utbetalingshistorikk = listOf(utbetaling)
+        )
+    }
+
     private fun periode(type: Stoenadstype): Periode {
         return TestData.periode().copy(
             stoenadstype = type
