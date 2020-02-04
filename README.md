@@ -11,3 +11,4 @@ Confluence:
 - https://confluence.adeo.no/display/INFOTRYGD/Tjeneste+finnSakListe
 - https://confluence.adeo.no/display/INFOTRYGD/Tjeneste+finnGrunnlag+-+Informasjonsmodell
 - https://confluence.adeo.no/display/INFOTRYGD/Kodeverk+IS-basen
+
