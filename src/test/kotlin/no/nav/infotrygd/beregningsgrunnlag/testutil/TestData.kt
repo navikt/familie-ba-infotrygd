@@ -152,13 +152,14 @@ object TestData {
         )
     }
 
-    fun stonad(): Stonad {
+    fun stonad(stonadBs: StonadBs = stonadBs()): Stonad {
+        val id = nextId()
         return Stonad(
-            id = nextId(),
+            id = id,
             kodeRutine = "BS",
             datoStart = LocalDate.now(),
             datoOpphoer = LocalDate.now(),
-            stonadBs = stonadBs(),
+            stonadBs = stonadBs.copy(id = id),
             inntektshistorikk = listOf(),
             tidspunktRegistrert = LocalDateTime.now()
         )
@@ -192,7 +193,7 @@ object TestData {
         arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL,
         tidspunktRegistrert: LocalDateTime = LocalDateTime.now(),
         datoOpphoer: LocalDate? = LocalDate.now(),
-        stonad: Stonad = stonad()
+        stonad: Stonad = stonad(stonadBs())
     ): Vedtak {
         val vedtakId = nextId()
         val delytelser = delytelserEksermpler.map { it.copy(

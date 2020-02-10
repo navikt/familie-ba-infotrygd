@@ -20,25 +20,6 @@ class VedtakRepositoryTest {
     lateinit var repository: VedtakRepository
 
     @Test
-    fun findByFnr() {
-        val fnr = TestData.foedselsNr()
-
-        val vedtak = TestData.vedtak(
-            fnr = fnr,
-            delytelserEksermpler = listOf(TestData.delytelse())
-        )
-
-        repository.save(vedtak)
-
-        val res = repository.findByFnr(fnr)
-        assertThat(res).hasSize(1)
-        val v = res[0]
-        assertThat(v.delytelser).hasSize(1)
-        assertThat(v.delytelser[0].delytelseSpFaBs).isNotNull
-        assertThat(v.vedtakSpFaBs).isNotNull
-    }
-
-    @Test
     fun findByFnrAndFom() {
         val fnr = TestData.foedselsNr()
 
@@ -58,7 +39,7 @@ class VedtakRepositoryTest {
 
         repository.saveAll(listOf(relevantBS, relevantBR, feilKodeRutine))
 
-        val res = repository.findByFnrAndStartDato(fnr)
+        val res = repository.findByFnr(fnr)
         assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
     }
 
@@ -90,7 +71,7 @@ class VedtakRepositoryTest {
         )
 
         repository.saveAll(listOf(relevant, urelevant))
-        val res = repository.findByFnrAndStartDato(fnr)
+        val res = repository.findByFnr(fnr)
         assertThat(listOf(relevant)).isEqualTo(res)
     }
 
@@ -117,7 +98,7 @@ class VedtakRepositoryTest {
 
         repository.saveAll(listOf(relevantBS, relevantBR, feilKodeRutine))
 
-        val res = repository.findByFnrAndStartDato(fnr)
+        val res = repository.findByFnr(fnr)
         assertThat(listOf(relevantBR, relevantBS)).containsExactlyInAnyOrderElementsOf(res)
     }
 
@@ -149,7 +130,7 @@ class VedtakRepositoryTest {
         )
 
         repository.saveAll(listOf(relevant, urelevant))
-        val res = repository.findByFnrAndStartDato(fnr)
+        val res = repository.findByFnr(fnr)
         assertThat(listOf(relevant)).isEqualTo(res)
     }
 
@@ -167,15 +148,49 @@ class VedtakRepositoryTest {
 
         repository.saveAll(listOf(vedtakMor, vedtakFar, vedtakUrelevant))
 
-        val result = repository.findBSByFnrBarn(fnrBarn)
+        val result = repository.findByBarnFnr(fnrBarn)
         assertThat(result.map { it.id }).containsExactlyInAnyOrder(vedtakMor.id, vedtakFar.id)
+    }
+
+    @Test
+    fun findByBarnFnrMedFeilKodeRutineEllerType() {
+        val fnrBarn = TestData.foedselsNr()
+        val fnrForelder = TestData.foedselsNr()
+
+        for(kodeRutine in listOf("BS", "BR", "XX")) {
+            for(type in listOf("PN", "OM", "PP")) {
+                val vedtak = vedtak(
+                    fnrForelder = fnrForelder,
+                    fnrBarn = fnrBarn,
+                    kodeRutine = kodeRutine,
+                    type = type
+                )
+                repository.save(vedtak)
+            }
+        }
+
+        val result = repository.findByBarnFnr(fnrBarn)
+        for(vedtak in result) {
+            assertThat(vedtak.kodeRutine).isIn("BS", "BR")
+            for(delytelse in vedtak.delytelser) {
+                assertThat(delytelse.type).isEqualTo("PN")
+            }
+        }
     }
 
     private fun vedtak(
         fnrForelder: FoedselsNr,
-        fnrBarn: FoedselsNr
+        fnrBarn: FoedselsNr,
+        kodeRutine: String = "BS",
+        type: String = "PN"
     ) = TestData.vedtak(
         fnr = fnrForelder,
-        stonad = TestData.stonad().copy(stonadBs = TestData.stonadBs(fnrBarn = fnrBarn))
+        kodeRutine = kodeRutine,
+        delytelserEksermpler = listOf(
+            TestData.delytelse().copy(
+                type = type
+            )
+        ),
+        stonad = TestData.stonad(TestData.stonadBs(fnrBarn = fnrBarn))
     )
 }

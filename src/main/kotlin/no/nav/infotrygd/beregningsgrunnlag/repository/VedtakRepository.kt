@@ -11,12 +11,6 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
 
     @Query("""
         SELECT v FROM Vedtak v
-         WHERE v.person.fnr = :fnr
-    """)
-    fun findByFnr(fnr: FoedselsNr): List<Vedtak>
-
-    @Query("""
-        SELECT v FROM Vedtak v
           JOIN v.delytelser D
          WHERE v.person.fnr = :fnr
            AND v.stonad.kodeRutine IN ('BS', 'BR')
@@ -25,11 +19,17 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
                  WHERE d.vedtakId = v.id
                    AND d.type = 'PN')
     """)
-    fun findByFnrAndStartDato(fnr: FoedselsNr): List<Vedtak>
+    fun findByFnr(fnr: FoedselsNr): List<Vedtak>
 
     @Query("""
         SELECT v FROM Vedtak v
-         WHERE v.stonad.stonadBs.barn.fnr = :fnrBarn
+          JOIN v.delytelser D
+         WHERE v.stonad.stonadBs.barn.fnr = :barnFnr
+           AND v.stonad.kodeRutine IN ('BS', 'BR')
+           AND exists (
+                FROM D d
+                 WHERE d.vedtakId = v.id
+                   AND d.type = 'PN')
     """)
-    fun findBSByFnrBarn(fnrBarn: FoedselsNr): List<Vedtak>
+    fun findByBarnFnr(barnFnr: FoedselsNr): List<Vedtak>
 }

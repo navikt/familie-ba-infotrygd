@@ -9,7 +9,7 @@ class StonadTest {
     fun inntekter() {
         val relevantOrgNr: Long = 2
 
-        val stonad = TestData.stonad().copy(
+        val stonad = TestData.stonad(TestData.stonadBs()).copy(
             inntektshistorikk = listOf(
                 TestData.inntektStonad().copy(
                     status = "x",
