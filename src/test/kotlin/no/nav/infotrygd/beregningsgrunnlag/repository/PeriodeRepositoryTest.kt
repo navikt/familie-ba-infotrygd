@@ -1,5 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.repository
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Frisk
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
@@ -31,7 +32,7 @@ class PeriodeRepositoryTest {
     private val tema = Stoenadstype.RISIKOFYLT_ARBMILJOE
 
     @Test
-    fun findByFnrAndStoenadstypeAndDates() {
+    fun findByFnrAndStoenadstype() {
         val dato = LocalDate.now()
         val relevant = periode(tema, arbufoer = dato)
         val historikk = periode(tema, frisk = Frisk.HISTORIKK)
@@ -44,16 +45,74 @@ class PeriodeRepositoryTest {
         assertThat(listOf(relevant)).isEqualTo(result) // relevant hibernate bug: https://hibernate.atlassian.net/browse/HHH-5409
     }
 
+    @Test
+    fun findByBarnFnr() {
+        val gyldigeStoenadstyper = listOf(
+            Stoenadstype.BARNS_SYKDOM,
+            Stoenadstype.ALV_SYKT_BARN,
+            Stoenadstype.KURS_KAP_3_23,
+            Stoenadstype.PAS_DOEDSSYK,
+            Stoenadstype.PLEIEPENGER_INSTOPPH
+        )
+        val ugyldigeStoenadstyper = listOf(Stoenadstype.PLEIEPENGER_NY_ORDNING)
+
+        val gyldigeFrisk = listOf(
+            Frisk.LOPENDE,
+            Frisk.DOEDSSYK,
+            Frisk.EGENMELDING
+        )
+        val ugyldigeFrisk = listOf(
+            Frisk.AVVIST,
+            Frisk.BARN,
+            Frisk.FRISKMELDT,
+            Frisk.HISTORIKK,
+            Frisk.PASSIV,
+            Frisk.TILBAKEKJOERT
+        )
+
+        val barnFnr = TestData.foedselsNr()
+        val urelevantFnr = TestData.foedselsNr()
+
+        for(stoenadstype in gyldigeStoenadstyper + ugyldigeStoenadstyper) {
+            for(frisk in gyldigeFrisk + ugyldigeFrisk) {
+                val periodeBarn = periode(
+                    stoenadstype = stoenadstype,
+                    frisk = frisk,
+                    barnFnr = barnFnr
+                )
+                val periodeUrelevant = periode(
+                    stoenadstype = stoenadstype,
+                    frisk = frisk,
+                    barnFnr = urelevantFnr
+                )
+
+                repository.saveAll(listOf(periodeBarn, periodeUrelevant))
+            }
+        }
+
+        val res = repository.findByBarnFnr(barnFnr)
+
+        val fnrRes = res.map { it.morFnr }.toSet()
+        val stoenadstypeRes = res.map { it.stoenadstype }.toSet()
+        val friskRes = res.map { it.frisk }.toSet()
+
+        assertThat(fnrRes).containsOnly(barnFnr)
+        assertThat(stoenadstypeRes).containsExactlyInAnyOrderElementsOf(gyldigeStoenadstyper)
+        assertThat(friskRes).containsExactlyInAnyOrderElementsOf(gyldigeFrisk)
+    }
+
     private fun periode(
         stoenadstype: Stoenadstype,
         frisk: Frisk = Frisk.LOPENDE,
-        arbufoer: LocalDate = LocalDate.now()
+        arbufoer: LocalDate = LocalDate.now(),
+        barnFnr: FoedselsNr? = null
     ): Periode {
         return TestData.periode().copy(
             fnr = fnr,
             stoenadstype = stoenadstype,
             frisk = frisk,
-            arbufoer = arbufoer
+            arbufoer = arbufoer,
+            morFnr = barnFnr
         )
     }
 }

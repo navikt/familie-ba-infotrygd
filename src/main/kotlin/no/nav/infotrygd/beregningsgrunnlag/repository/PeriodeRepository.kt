@@ -19,5 +19,12 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
     """)
     fun findByFnrAndStoenadstype(fnr: FoedselsNr, stoenadstyper: List<Stoenadstype>): List<Periode>
 
-    // todo: søk på barn fnr, hvor frisk not in H, B, T, A, F, P
+    @Query("""
+        SELECT p FROM Periode p
+         WHERE p.morFnr = :barnFnr
+           AND p.stoenadstype IN ('OP', 'PB', 'PI', 'OM', 'PP')
+           AND p.frisk NOT IN ('H', 'B', 'T', 'A', 'F', 'P')
+           AND p.arbufoer != 0
+    """)
+    fun findByBarnFnr(barnFnr: FoedselsNr): List<Periode>
 }
