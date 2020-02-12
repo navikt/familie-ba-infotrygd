@@ -14,8 +14,8 @@ import org.springframework.test.context.junit4.SpringRunner
 import java.time.LocalDate
 
 @RunWith(SpringRunner::class)
-@ContextConfiguration(classes = [VedtakBarnService::class])
-internal class VedtakBarnServiceTest {
+@ContextConfiguration(classes = [VedtakPleietrengendeService::class])
+internal class VedtakPleietrengendeServiceTest {
 
     @MockBean
     lateinit var periodeRepository: PeriodeRepository
@@ -24,7 +24,7 @@ internal class VedtakBarnServiceTest {
     lateinit var vedtakRepository: VedtakRepository
 
     @Autowired
-    lateinit var vedtakBarnService: VedtakBarnService
+    lateinit var vedtakPleietrengendeService: VedtakPleietrengendeService
 
     @Test
     fun hentingFiltreringGruppering() {
@@ -49,7 +49,7 @@ internal class VedtakBarnServiceTest {
         Mockito.`when`(periodeRepository.findByBarnFnr(barnFnr)).thenReturn(listOf(periode, periodeAnnenSoeker))
         Mockito.`when`(vedtakRepository.findByBarnFnr(barnFnr)).thenReturn(listOf(vedtak))
 
-        val result = vedtakBarnService.finnVedtakBarn(barnFnr, LocalDate.now(), null)
+        val result = vedtakPleietrengendeService.finnVedtakForPleietrengende(barnFnr, LocalDate.now(), null)
         assertThat(result).hasSameSizeAs(listOf(soekerFnr, annenSoekerFnr))
 
         val soekerResult = result.find { it.soekerFnr == soekerFnr.asString } !!
@@ -58,7 +58,7 @@ internal class VedtakBarnServiceTest {
         val annenSoekerResult = result.find { it.soekerFnr == annenSoekerFnr.asString } !!
         assertThat(annenSoekerResult.vedtak).hasSameSizeAs(listOf(periodeAnnenSoeker))
 
-        val empty = vedtakBarnService.finnVedtakBarn(barnFnr, LocalDate.now().minusYears(1), LocalDate.now().minusYears(1))
+        val empty = vedtakPleietrengendeService.finnVedtakForPleietrengende(barnFnr, LocalDate.now().minusYears(1), LocalDate.now().minusYears(1))
         assertThat(empty).isEmpty()
     }
 }

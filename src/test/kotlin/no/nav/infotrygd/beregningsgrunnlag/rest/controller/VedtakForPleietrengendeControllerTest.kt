@@ -1,7 +1,6 @@
 package no.nav.infotrygd.beregningsgrunnlag.rest.controller
 
-import no.nav.infotrygd.beregningsgrunnlag.dto.SakResult
-import no.nav.infotrygd.beregningsgrunnlag.dto.VedtakBarnDto
+import no.nav.infotrygd.beregningsgrunnlag.dto.VedtakPleietrengendeDto
 import no.nav.infotrygd.beregningsgrunnlag.repository.VedtakRepository
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import no.nav.infotrygd.beregningsgrunnlag.testutil.restClient
@@ -20,7 +19,7 @@ import java.time.LocalDate
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class VedtakBarnControllerTest {
+class VedtakForPleietrengendeControllerTest {
 
     @LocalServerPort
     private var port: Int = 0
@@ -30,11 +29,11 @@ class VedtakBarnControllerTest {
 
     private val barnFnr = TestData.foedselsNr()
 
-    private val queryString = "barnFnr=${barnFnr.asString}&fom=2018-01-01"
-    private val uri = "/vedtakBarn?$queryString"
+    private val queryString = "fnr=${barnFnr.asString}&fom=2018-01-01"
+    private val uri = "/vedtakForPleietrengende?$queryString"
 
     @Test
-    fun vedtakBarn() {
+    fun vedtakForPleietrengende() {
         val vedtak = TestData.vedtak(
             datoStart = LocalDate.now(),
             stonad = TestData.stonad(TestData.stonadBs(fnrBarn = barnFnr)),
@@ -48,7 +47,7 @@ class VedtakBarnControllerTest {
             .uri(uri)
             .exchange()
             .block() !!
-            .bodyToMono(Array<VedtakBarnDto>::class.java)
+            .bodyToMono(Array<VedtakPleietrengendeDto>::class.java)
             .block() !!
 
         Assertions.assertThat(result).hasSize(1)
