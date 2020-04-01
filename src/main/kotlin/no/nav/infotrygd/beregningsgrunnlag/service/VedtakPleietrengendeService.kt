@@ -25,6 +25,7 @@ class VedtakPleietrengendeService(
 
         vedtakRepository.findByBarnFnr(barnFnr)
             .filter { it.innenforPeriode(fom, tom) }
+            .filter { !it.annullert }
             .groupByTo(vedtakByFnr, {it.person.fnr}, ::vedtakToSakDto)
 
         return vedtakByFnr.map { entry ->

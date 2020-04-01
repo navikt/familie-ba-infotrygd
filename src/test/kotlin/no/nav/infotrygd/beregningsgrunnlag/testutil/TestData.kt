@@ -193,6 +193,7 @@ object TestData {
         arbeidskategori: Arbeidskategori = Arbeidskategori.AMBASSADEPERSONELL,
         tidspunktRegistrert: LocalDateTime = LocalDateTime.now(),
         datoOpphoer: LocalDate? = LocalDate.now(),
+        vedtakSpFaBsOpphoer: LocalDate? = null,
         stonad: Stonad = stonad(stonadBs())
     ): Vedtak {
         val vedtakId = nextId()
@@ -218,9 +219,10 @@ object TestData {
             datoStart = datoStart,
             vedtakSpFaBs = VedtakSpFaBs(
                 vedtakId = vedtakId,
-                arbeidskategori = arbeidskategori
+                arbeidskategori = arbeidskategori,
+                opphoerFom = vedtakSpFaBsOpphoer
             ),
-            delytelser = delytelser
+            alleDelytelser = delytelser
         )
     }
 

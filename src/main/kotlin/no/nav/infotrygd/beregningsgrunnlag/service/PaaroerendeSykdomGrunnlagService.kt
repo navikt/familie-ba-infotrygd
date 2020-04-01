@@ -17,6 +17,7 @@ class PaaroerendeSykdomGrunnlagService(
             .map { periodeToPaaroerendeSykdom(it) }
         val barnsSykdom = paaroerendeSykdomVedtaksbasenService.barnsSykdom(foedselsNr)
             .filter { it.innenforPeriode(fom, tom) }
+            .filter { !it.annullert }
             .map { vedtakToPaaroerendeSykdom(it) }
         return (isbase + barnsSykdom).sortedBy { it.identdato }
     }

@@ -36,7 +36,7 @@ data class Vedtak(
     @OneToMany
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
     @Cascade(CascadeType.ALL)
-    val delytelser: List<Delytelse>
+    val alleDelytelser: List<Delytelse>
 ) {
     fun innenforPeriode(fom: LocalDate, tom: LocalDate?): Boolean {
         if(tom != null) {
@@ -53,5 +53,16 @@ data class Vedtak(
         }
 
         return true
+    }
+
+    val delytelser: List<Delytelse>
+        get() = alleDelytelser.filter{ !this.annullert(it) }
+
+    val annullert: Boolean
+        get() = delytelser.isEmpty()
+
+    private fun annullert(delytelse: Delytelse): Boolean {
+        val opphoerFom = vedtakSpFaBs?.opphoerFom ?: return false
+        return !opphoerFom.isAfter(delytelse.tom)
     }
 }

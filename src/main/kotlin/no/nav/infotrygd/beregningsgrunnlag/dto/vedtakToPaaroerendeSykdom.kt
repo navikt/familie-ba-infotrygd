@@ -5,6 +5,8 @@ import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Stoenadstype
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Tema
 
 fun vedtakToPaaroerendeSykdom(vedtak: Vedtak): PaaroerendeSykdom {
+    require(!vedtak.annullert) { "Kan ikke konvertere annulerte vedtak" }
+
     val delytelser = vedtak.delytelser.sortedBy { it.fom }
     val datoStart = vedtak.stonad.datoStart
     val periode = Periode(datoStart, delytelser.last().tom)

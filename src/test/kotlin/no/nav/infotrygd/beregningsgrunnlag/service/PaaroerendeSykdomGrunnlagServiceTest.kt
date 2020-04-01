@@ -5,7 +5,6 @@ import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -52,5 +51,22 @@ class PaaroerendeSykdomGrunnlagServiceTest {
 
         val tildigDato = dato.plusDays(1)
         assertThat(service.hentPaaroerendeSykdom(fnr, tildigDato, tildigDato)).isEmpty()
+    }
+
+    @Test
+    fun annulerteVedtak() {
+        val dato = LocalDate.of(2020, 1, 1)
+        val vedtak = TestData.vedtak(
+            datoStart = dato,
+            datoOpphoer = dato,
+            vedtakSpFaBsOpphoer = dato,
+            delytelserEksermpler = listOf(TestData.delytelse().copy(
+                tom = dato
+            ))
+        )
+        val fnr = TestData.foedselsNr()
+        `when`(paaroerendeSykdomVedtaksbasenService.barnsSykdom(fnr)).thenReturn(listOf(vedtak))
+
+        assertThat(service.hentPaaroerendeSykdom(fnr, dato, dato)).isEmpty()
     }
 }

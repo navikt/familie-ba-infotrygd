@@ -1,6 +1,7 @@
 package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.Arbeidskategori
+import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -14,5 +15,8 @@ data class VedtakSpFaBs (
     val vedtakId: Long,
 
     @Column(name = "ARBKAT", columnDefinition = "CHAR")
-    val arbeidskategori: Arbeidskategori
+    val arbeidskategori: Arbeidskategori,
+
+    @Column(name = "DATO_OPPHOR_FOM", columnDefinition = "DATE")
+    val opphoerFom: LocalDate?
 )

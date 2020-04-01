@@ -61,4 +61,26 @@ internal class VedtakPleietrengendeServiceTest {
         val empty = vedtakPleietrengendeService.finnVedtakForPleietrengende(barnFnr, LocalDate.now().minusYears(1), LocalDate.now().minusYears(1))
         assertThat(empty).isEmpty()
     }
+
+    @Test
+    fun annullerteVedtak() {
+        val soekerFnr = TestData.foedselsNr()
+        val barnFnr = TestData.foedselsNr()
+
+        val dato = LocalDate.of(2020, 1, 1)
+        val vedtak = TestData.vedtak(
+            fnr = soekerFnr,
+            datoStart = dato,
+            datoOpphoer = dato,
+            vedtakSpFaBsOpphoer = dato,
+            stonad = TestData.stonad(TestData.stonadBs(fnrBarn = barnFnr)),
+            delytelserEksermpler = listOf(TestData.delytelse().copy(
+                tom = dato
+            ))
+        )
+        Mockito.`when`(vedtakRepository.findByBarnFnr(barnFnr)).thenReturn(listOf(vedtak))
+
+        val empty = vedtakPleietrengendeService.finnVedtakForPleietrengende(barnFnr, dato, dato)
+        assertThat(empty).isEmpty()
+    }
 }

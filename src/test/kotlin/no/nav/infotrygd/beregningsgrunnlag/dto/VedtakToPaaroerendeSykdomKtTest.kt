@@ -70,9 +70,10 @@ class VedtakToPaaroerendeSykdomKtTest {
             datoStart = LocalDate.now(),
             vedtakSpFaBs = VedtakSpFaBs(
                 vedtakId = -1,
-                arbeidskategori = arbeidskategori
+                arbeidskategori = arbeidskategori,
+                opphoerFom = null
             ),
-            delytelser = listOf(
+            alleDelytelser = listOf(
                 Delytelse(
                     vedtakId = -1,
                     type = "PN",

@@ -11,7 +11,7 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
 
     @Query("""
         SELECT v FROM Vedtak v
-          JOIN v.delytelser D
+          JOIN v.alleDelytelser D
          WHERE v.person.fnr = :fnr
            AND v.stonad.kodeRutine IN ('BS', 'BR')
            AND exists (
@@ -23,7 +23,7 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
 
     @Query("""
         SELECT v FROM Vedtak v
-          JOIN v.delytelser D
+          JOIN v.alleDelytelser D
          WHERE v.stonad.stonadBs.barn.fnr = :barnFnr
            AND v.stonad.kodeRutine IN ('BS', 'BR')
            AND exists (

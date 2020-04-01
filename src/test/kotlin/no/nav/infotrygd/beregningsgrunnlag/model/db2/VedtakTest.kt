@@ -2,6 +2,7 @@ package no.nav.infotrygd.beregningsgrunnlag.model.db2
 
 import no.nav.infotrygd.beregningsgrunnlag.testutil.TestData
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
 
@@ -36,5 +37,38 @@ class VedtakTest {
         val start = LocalDate.of(2019, 1, 1)
         val vedtak = TestData.vedtak(datoStart = start, datoOpphoer = null)
         Assertions.assertThat(vedtak.innenforPeriode(start, start.plusDays(1))).isTrue()
+    }
+
+
+    @Test
+    fun opphoerFom_gt_tom() {
+        val tom = LocalDate.of(2020, 1, 1)
+        val opphoerFom = tom.plusDays(1)
+        assertThat(vedtakMedDelytelse(tom, opphoerFom).annullert).isFalse()
+    }
+
+    @Test
+    fun opphoerFom_eq_tom() {
+        val dato = LocalDate.of(2020, 1, 1)
+        assertThat(vedtakMedDelytelse(dato, dato).annullert).isTrue()
+    }
+
+    @Test
+    fun opphoerFom_lt_tom() {
+        val opphoerFom = LocalDate.of(2020, 1, 1)
+        val tom = opphoerFom.plusDays(1)
+        assertThat(vedtakMedDelytelse(tom, opphoerFom).annullert).isTrue()
+    }
+
+    @Test
+    fun opphoerFom_null() {
+        val dato = LocalDate.of(2020, 1, 1)
+        assertThat(vedtakMedDelytelse(dato, null).annullert).isFalse()
+    }
+
+    fun vedtakMedDelytelse(tom: LocalDate, opphoerFom: LocalDate?): Vedtak {
+        return TestData.vedtak(vedtakSpFaBsOpphoer = opphoerFom, delytelserEksermpler = listOf(
+            TestData.delytelse().copy(tom = tom)
+        ))
     }
 }
