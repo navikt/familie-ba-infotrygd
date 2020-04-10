@@ -7,6 +7,8 @@ import no.nav.infotrygd.beregningsgrunnlag.model.Inntekt
 import no.nav.infotrygd.beregningsgrunnlag.model.Periode
 import no.nav.infotrygd.beregningsgrunnlag.model.Utbetaling
 import no.nav.infotrygd.beregningsgrunnlag.model.db2.*
+import no.nav.infotrygd.beregningsgrunnlag.model.ip.Person
+import no.nav.infotrygd.beregningsgrunnlag.model.ip.Personkort
 import no.nav.infotrygd.beregningsgrunnlag.model.kodeverk.*
 import no.nav.infotrygd.beregningsgrunnlag.model.sak.Sak
 import no.nav.infotrygd.beregningsgrunnlag.model.sak.Status
@@ -112,6 +114,30 @@ object TestData {
                     lopeNr = nextId() % 99,
                     status = SakStatus.IKKE_BEHANDLET
                 )
+            )
+        )
+    }
+
+    fun personkort(
+        fnr: FoedselsNr = foedselsNr(),
+        dato: LocalDate = LocalDate.now(),
+        fom: LocalDate = LocalDate.now(),
+        tom: LocalDate = LocalDate.now(),
+        kontonummer: Long = nextId(),
+        tekst: String = "hello world"
+    ): Personkort {
+        return Personkort(
+            id = nextId(),
+            datoSeq = nextId(),
+            kontonummer = kontonummer,
+            dato = dato,
+            fom = fom,
+            tom = tom,
+            tekst = tekst,
+            person = Person(
+                id = nextId(),
+                merkeligPersonKey = nextId().toString(),
+                fnr = fnr
             )
         )
     }

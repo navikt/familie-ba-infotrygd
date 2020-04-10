@@ -468,3 +468,69 @@ Create table INFOTRYGD_Q0.SA_STATUS_15 (
     REGION                         CHAR(1)             DEFAULT ' '  , -- NOT NULL,
     ID_STATUS                      NUMBER              DEFAULT NOT NULL -- endret fra NUMBER
 );
+
+CREATE TABLE INFOTRYGD_Q0.IP_PERSONKORT_90(
+    IP01_PERSNKEY        VARCHAR2(7 CHAR)   NOT NULL,
+    IP90_DATO_SEQ        NUMBER(8)          NOT NULL,
+    IP90_KONTONR         NUMBER(7)          NOT NULL,
+    IP90_DATO            NUMBER(8)          NOT NULL,
+    IP90_BEVILGET_BELOEP NUMBER(9,2),        -- NOT NULL
+    IP90_FOM             NUMBER(8)          NOT NULL,
+    IP90_TOM             NUMBER(8)          NOT NULL,
+    IP90_TEKST           VARCHAR2(30 CHAR)  NOT NULL,
+    IP90_BEV_PROS        NUMBER(5,2),        -- NOT NULL
+    IP90_BETALT_BELOEP   NUMBER(9,2),        -- NOT NULL
+    IP90_GRUPPE          CHAR(1 CHAR),       -- NOT NULL
+    IP90_EIENDOM         CHAR(1 CHAR),       -- NOT NULL
+    IP90_EIENDOM_KODE    VARCHAR2(2 CHAR),   -- NOT NULL
+    IP90_OPPDAT_KODE     CHAR(1 CHAR),       -- NOT NULL
+    OPPRETTET            TIMESTAMP(6),       -- NOT NULL
+    ENDRET_I_KILDE       TIMESTAMP(6),       -- NOT NULL
+    KILDE_IS             VARCHAR2(12 CHAR),  -- NOT NULL
+    REGION               CHAR(1 CHAR),       -- NOT NULL
+    ID_PERSK             NUMBER,             -- NOT NULL
+    OPPDATERT            TIMESTAMP(6)
+);
+
+CREATE TABLE INFOTRYGD_Q0.IP_PERSON_01(
+    IP01_PERSNKEY           VARCHAR2(7 CHAR) NOT NULL,
+    IP01_PERSONKEY          NUMBER(15) , -- NOT NULL,
+    IP01_TKAVD              CHAR(1 CHAR) , -- NOT NULL,
+    IP01_DOEDSDATO          NUMBER(8) , -- NOT NULL,
+    IP01_PENS_STAT          CHAR(1 CHAR) , -- NOT NULL,
+    IP01_SAK_STATUS         CHAR(1 CHAR) , -- NOT NULL,
+    IP01_STATBORGER         CHAR(1 CHAR) , -- NOT NULL,
+    IP01_EKTEF_PENSJ        CHAR(1 CHAR) , -- NOT NULL,
+    IP01_BARNE_PENSJ        CHAR(1 CHAR) , -- NOT NULL,
+    IP01_SP_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_AL_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_AF_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_IN_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_FORSIKR_STAT       CHAR(1 CHAR) , -- NOT NULL,
+    IP01_MAALFORM           CHAR(1 CHAR) , -- NOT NULL,
+    IP01_AVG_STAT           CHAR(1 CHAR) , -- NOT NULL,
+    IP01_BI_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_DIV_STAT           CHAR(1 CHAR) , -- NOT NULL,
+    IP01_PERS_STATUS        CHAR(1 CHAR) , -- NOT NULL,
+    IP01_REG_KILDE          CHAR(1 CHAR) , -- NOT NULL,
+    IP01_FORS_DIFF          NUMBER(7) , -- NOT NULL,
+    IP01_YTELSE             VARCHAR2(2 CHAR) , -- NOT NULL,
+    IP01_POBA_GIRO          NUMBER(11) , -- NOT NULL,
+    IP01_SAK_TELLER         NUMBER(3) , -- NOT NULL,
+    IP01_LEVEATTEST_UTGAATT CHAR(1 CHAR) , -- NOT NULL,
+    IP01_AKT_STAT           VARCHAR2(3 CHAR) , -- NOT NULL,
+    IP01_KJOENN             CHAR(1 CHAR) , -- NOT NULL,
+    IP01_SYSTAVD            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_FNR_ENDRET         CHAR(1 CHAR) , -- NOT NULL,
+    IP01_BS_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_FA_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    IP01_RP_STAT            CHAR(1 CHAR) , -- NOT NULL,
+    TK_NR                   VARCHAR2(4) , -- NOT NULL,
+    F_NR                    VARCHAR2(11) NOT NULL,
+    OPPRETTET               TIMESTAMP(6) , -- NOT NULL,
+    ENDRET_I_KILDE          TIMESTAMP(6) , -- NOT NULL,
+    KILDE_IS                VARCHAR2(12 CHAR) , -- NOT NULL,
+    REGION                  CHAR(1 CHAR) , -- NOT NULL,
+    ID_IPERS                NUMBER NOT NULL,
+    OPPDATERT                        TIMESTAMP(6)
+);
