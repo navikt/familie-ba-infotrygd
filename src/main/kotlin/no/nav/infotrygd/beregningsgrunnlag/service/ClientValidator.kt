@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
 
-
 @Component
 class ClientValidator(
     private val environment: Environment,
@@ -24,7 +23,7 @@ class ClientValidator(
 
     fun authorizeClient() {
         if(!authorized()) {
-            val msg = "Klienten er ikke autorisert: ${issuerSubjects()}"
+            val msg = "Klienten er ikke autorisert: ${issuerSubjects().plus(azureClientIds())}"
             logger.info(msg)
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
         }
@@ -41,12 +40,38 @@ class ClientValidator(
                 return true
             }
         }
+
+        val azureClientIds = azureClientIds()
+        for (entry in clientWhitelist) {
+            if (azureClientIds.contains(entry)) {
+                return true
+            }
+        }
+
         return false
     }
 
     private fun issuerSubjects(): List<String> {
         val oidcValidationContext: OIDCValidationContext? = ctxHolder?.oidcValidationContext
-        val allClaims = oidcValidationContext?.allClaims
-        return allClaims?.map { "${it.key}/${it.value.subject!!}" } ?: emptyList()
+        val allClaims = oidcValidationContext?.allClaims ?: return emptyList()
+        return allClaims
+            .filter { it.value.subject != null }
+            .map { "${it.key}/${it.value.subject!!}" }
+    }
+
+    private fun azureClientIds() : List<String> {
+        val oidcValidationContext: OIDCValidationContext? = ctxHolder?.oidcValidationContext
+        val allClaims = oidcValidationContext?.allClaims ?: return emptyList()
+        return allClaims
+            .filter { (issuer, _) -> AzureIssuer == issuer }
+            .filter { (_, claims) -> claims.get(AzureV2ClientIdClaim) != null || claims.get(AzureV1ClientIdClaim) != null }
+            .map { (_, claims) -> "${AzureIssuer}/${claims.get(AzureV2ClientIdClaim)?:claims.get(AzureV1ClientIdClaim)!!}" }
+    }
+
+    private companion object {
+        private const val AzureIssuer = "azure"
+        // https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens#payload-claims
+        private const val AzureV1ClientIdClaim = "appid"
+        private const val AzureV2ClientIdClaim = "azp"
     }
 }

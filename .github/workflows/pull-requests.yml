@@ -11,6 +11,8 @@ jobs:
         with:
           java-version: '11.x'
       - name: test and build
+        env:
+          GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test build
       - name: build docker image
         run: docker build . --pull
