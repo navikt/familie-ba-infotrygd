@@ -122,7 +122,7 @@ object TestData {
         fnr: FoedselsNr = foedselsNr(),
         dato: LocalDate = LocalDate.now(),
         fom: LocalDate = LocalDate.now(),
-        tom: LocalDate = LocalDate.now(),
+        tom: LocalDate? = LocalDate.now(),
         kontonummer: Long = nextId(),
         tekst: String = "hello world"
     ): Personkort {

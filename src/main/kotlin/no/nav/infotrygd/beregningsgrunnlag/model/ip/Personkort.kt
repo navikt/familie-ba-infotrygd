@@ -34,7 +34,7 @@ data class Personkort(
 
     @Column(name = "IP90_TOM", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
-    val tom: LocalDate,
+    val tom: LocalDate?,
 
     @Column(name = "IP90_TEKST", columnDefinition = "VARCHAR2")
     val tekst: String
@@ -46,11 +46,16 @@ data class Personkort(
             return true
         }
 
-        if(this.fom in fom..tom || this.tom in fom..tom) {
+        if(this.fom in fom..tom) {
             return true
         }
 
-        if(fom in this.fom..this.tom || tom in this.fom..this.tom) {
+        if(this.tom != null && this.tom!! in fom..tom) {
+            return true
+        }
+
+        if(fom in this.fom..(this.tom ?: LocalDate.MAX)
+            || tom in this.fom..(this.tom ?: LocalDate.MAX)) {
             return true
         }
 

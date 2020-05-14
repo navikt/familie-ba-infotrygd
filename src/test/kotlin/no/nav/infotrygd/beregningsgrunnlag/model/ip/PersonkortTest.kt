@@ -35,7 +35,7 @@ internal class PersonkortTest {
     }
 
     @Test
-    fun datUtenforPersonkort() {
+    fun datoUtenforPersonkort() {
         val pk = TestData.personkort(dato = b, fom = d, tom = e)
 
         // rundt dato
@@ -47,6 +47,15 @@ internal class PersonkortTest {
         assertThat(pk.innenforPeriode(a, a)).isFalse()
 
         // rundt periode
+        assertThat(pk.innenforPeriode(d, e)).isTrue()
+    }
+
+    @Test
+    fun `uten tom`() {
+        val pk = TestData.personkort(dato = LocalDate.MIN, fom = c, tom = null)
+        assertThat(pk.innenforPeriode(a, b)).isFalse()
+        assertThat(pk.innenforPeriode(b, c)).isTrue()
+        assertThat(pk.innenforPeriode(b, d)).isTrue()
         assertThat(pk.innenforPeriode(d, e)).isTrue()
     }
 }
