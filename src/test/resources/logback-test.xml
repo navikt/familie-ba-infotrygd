@@ -1,6 +1,6 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="no.nav.infotrygd.beregningsgrunnlag.LogFilter" />
+        <filter class="no.nav.infotrygd.barnetrygd.LogFilter" />
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>

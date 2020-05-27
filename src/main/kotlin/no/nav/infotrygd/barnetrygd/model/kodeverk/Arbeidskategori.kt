@@ -1,0 +1,35 @@
+package no.nav.infotrygd.barnetrygd.model.kodeverk
+
+enum class Arbeidskategori(override val kode: String, override val tekst: String) : Kode {
+    FISKER("00", "Fisker"),
+    ARBEIDSTAKER("01", "Arbeidstaker"),
+    SELVSTENDIG("02", "Selvstendig næringsdrivende"),
+    ARBTAKER_SELVSTENDIG("03", "Kombinert arb.taker/selvs"),
+    SJOMENN("04", "Sjømann"),
+    JORDBRUKER("05", "Jordbruker"),
+    ARBEIDSLEDIG("06", "Arbeidsledig"),
+    INAKTIV("07", "Inaktiv"),
+    BEFAL("08", "Militær (befal)"),
+    MENING_KORPORAL("09", "Vernepliktige"),
+    ARBTAKER_M_SJOEM("10", "Arbtaker m/sjøm."),
+    TURNUSKANDIDATER("11", "Inaktive m/sjøm."),
+    SVALBARDARBEIDER("12", "Svalbardarbeidere"),
+    ARBTAKER_JORDBRUKER("13", "Kombinert arb.taker/jordbruker"),
+    YRKESSKADE("14", "Yrkesskade"),
+    AMBASSADEPERSONELL("15", "Ambassadepersonell"),
+    REINDRIFT("16", "Utøvere av reindrift"),
+    ARBTAKER_FISKER("17", "Fisker/arbeidstaker"),
+    IKKE_I_BRUK("18", "IKKE-I-BRUK"),
+    OPPDRAGSTAKER("19", "Frilanser m/forsikring for tilleggssykepenger"),
+    ARBTAKER_OPPDRAGSTAKER("20", "Kombinert arb.taker/frilanser m/forsikring for tilleggssykepenger"),
+    FFU_21("21", "FFU-21"),
+    FFU_22("22", "FFU-22"),
+    ARBTAKER_A_LOYSE("23", "Arbtaker/A-løyse"),
+    OPPDRAGSTAKER_U_FORS("24", "Frilanser uten forsikring"),
+    ARB_OPPDRAGSTAKER_U_FORS("25", "Kombinert frilanser uten forsikring/arbeidstaker"),
+    SELVSTENDIG_DAGMAMMA_DAGPAPPA("26", "Selvstendig dagmamma/dagpappa"),
+    FISKER_MED_HYRE("27", "Fisker m/hyre (brukes ved kun hyre)"),
+    INNTEKTSOPPLYSNINGER_MANGLER("99", "Inntektsopplysninger mangler"),
+
+    UKJENT_30("30", "Ukjent nr. 30")
+}

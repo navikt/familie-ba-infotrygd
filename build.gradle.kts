@@ -14,7 +14,7 @@ val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.5"
 
-val mainClass = "no.nav.infotrygd.kontantstotte.InfotrygdBeregningsgrunnlagApplication"
+val mainClass = "no.nav.infotrygd.barnetrygd.Main"
 
 
 plugins {
