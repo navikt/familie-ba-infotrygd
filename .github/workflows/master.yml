@@ -15,7 +15,7 @@ jobs:
           java-version: '11.x'
       - name: create docker tag
         env:
-          DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/infotrygd-grunnlag-paaroerende-sykdom-1
+          DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/infotrygd-barnetrygd
         run: |
           echo $DOCKER_IMAGE > .docker_image
           echo $(echo $GITHUB_SHA | cut -c1-7) > .docker_tag
@@ -41,31 +41,31 @@ jobs:
           curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: deploy to dev
-        uses: navikt/deployment-cli/action@0.4.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AWAIT_SECONDS: 0
-        with:
-          cluster: dev-fss
-          team: infotrygd
-          resources: nais/dev-fss.yml
-      - name: Check API rate limit
-        run: |
-          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: deploy to prod
-        uses: navikt/deployment-cli/action@0.4.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
-          AWAIT_SECONDS: 0
-        with:
-          cluster: prod-fss
-          team: infotrygd
-          resources: nais/prod-fss.yml
-      - name: Check API rate limit
-        run: |
-          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: deploy to dev
+#        uses: navikt/deployment-cli/action@0.4.1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          AWAIT_SECONDS: 0
+#        with:
+#          cluster: dev-fss
+#          team: infotrygd
+#          resources: nais/dev-fss.yml
+#      - name: Check API rate limit
+#        run: |
+#          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: deploy to prod
+#        uses: navikt/deployment-cli/action@0.4.1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          AWAIT_SECONDS: 0
+#        with:
+#          cluster: prod-fss
+#          team: infotrygd
+#          resources: nais/prod-fss.yml
+#      - name: Check API rate limit
+#        run: |
+#          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
