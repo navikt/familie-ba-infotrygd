@@ -3,12 +3,9 @@ package no.nav.infotrygd.barnetrygd.testutil
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
+import no.nav.infotrygd.barnetrygd.model.*
 import no.nav.infotrygd.barnetrygd.model.Inntekt
-import no.nav.infotrygd.barnetrygd.model.Periode
-import no.nav.infotrygd.barnetrygd.model.Utbetaling
 import no.nav.infotrygd.barnetrygd.model.db2.*
-import no.nav.infotrygd.barnetrygd.model.ip.Person
-import no.nav.infotrygd.barnetrygd.model.ip.Personkort
 import no.nav.infotrygd.barnetrygd.model.kodeverk.*
 import no.nav.infotrygd.barnetrygd.model.sak.Sak
 import no.nav.infotrygd.barnetrygd.model.sak.Status
@@ -118,27 +115,35 @@ object TestData {
         )
     }
 
-    fun personkort(
-        fnr: FoedselsNr = foedselsNr(),
-        dato: LocalDate = LocalDate.now(),
-        fom: LocalDate = LocalDate.now(),
-        tom: LocalDate? = LocalDate.now(),
-        kontonummer: Long = nextId(),
-        tekst: String = "hello world"
-    ): Personkort {
-        return Personkort(
+    fun barn(
+        person: Person,
+        barnetrygdTom: String = "000000",
+        barnFnr: FoedselsNr = foedselsNr()
+    ): Barn {
+        return Barn(
             id = nextId(),
-            datoSeq = nextId(),
-            kontonummer = kontonummer,
-            dato = dato,
-            fom = fom,
-            tom = tom,
-            tekst = tekst,
-            person = Person(
-                id = nextId(),
-                merkeligPersonKey = nextId().toString(),
-                fnr = fnr
-            )
+            fnr = person.fnr,
+            tkNr = person.tkNr,
+            personKey = person.personKey,
+            barnFnr = barnFnr.asString.toLong(),
+            barnetrygdTom = barnetrygdTom
+        )
+    }
+
+    fun person(
+        fnr: FoedselsNr = foedselsNr(),
+        tkNr: String = "1000",
+        personKey: Long = tkNr.let { it + fnr.asString }.toLong(),
+        stønader: List<Stønad> = listOf(),
+        barn: List<Barn> = listOf()
+    ): Person {
+        return Person(
+            id = nextId(),
+            fnr = fnr,
+            tkNr = tkNr,
+            personKey = personKey,
+            stønader = stønader,
+            barn = barn
         )
     }
 
@@ -175,6 +180,19 @@ object TestData {
                 id = nextId(),
                 fnr = fnrBarn
             )
+        )
+    }
+
+    fun stønad(
+        mottaker: Person,
+        opphørtFom: String = "000000"
+    ): Stønad {
+        return Stønad(
+            id = nextId(),
+            personKey = mottaker.personKey,
+            fnr = mottaker.fnr,
+            tkNr = mottaker.tkNr,
+            opphørtFom = opphørtFom
         )
     }
 

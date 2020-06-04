@@ -23,7 +23,6 @@ class PaaroerendeSykdomController(
     private val paaroerendeSykdomGrunnlagService: PaaroerendeSykdomGrunnlagService,
     private val paaroerendeSykdomSakService: PaaroerendeSykdomSakService,
     private val vedtakPleietrengendeService: VedtakPleietrengendeService,
-    private val rammevedtakService: RammevedtakService,
     private val clientValidator: ClientValidator
 ) {
     @ApiOperation("Finner beregningsgrunnlag basert på fødselsnummeret til søker.")
@@ -105,30 +104,4 @@ class PaaroerendeSykdomController(
         return vedtakPleietrengendeService.finnVedtakForPleietrengende(fnr, fom, tom)
     }
 
-    @ApiOperation("Finner rammevedtak basert på fødselsnummeret til søker.")
-    @GetMapping(path = ["/rammevedtak/omsorgspenger"])
-    fun finnRammevedtakForOmsorgspenger(
-                        @ApiParam(
-                            value = "Søkers fødselsnummer",
-                            required = true)
-                        @RequestParam
-                        fnr: FoedselsNr,
-
-                        @ApiParam(
-                            value = "Fra-dato for søket. Matcher vedtaksperiode eller dato for rammevedtak.",
-                            example = "2019-01-01",
-                            required = true)
-                        @RequestParam
-                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                        fom: LocalDate,
-
-                        @ApiParam(
-                            value = "Til-dato for søket. Matcher vedtaksperiode eller dato for rammevedtak.",
-                            example = "2019-01-01")
-                        @RequestParam(required = false)
-                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                        tom: LocalDate?): List<RammevedtakDto> {
-        clientValidator.authorizeClient()
-        return rammevedtakService.hentRammevedtak(RammevedtakService.KONTONUMMER_OM, fnr, fom, tom)
-    }
 }

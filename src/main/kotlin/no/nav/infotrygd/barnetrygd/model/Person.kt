@@ -1,0 +1,37 @@
+package no.nav.infotrygd.barnetrygd.model
+
+import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
+import org.hibernate.annotations.Cascade
+import org.hibernate.annotations.CascadeType
+import javax.persistence.*
+import java.io.Serializable
+
+@Entity
+@Table(name = "BA_PERSON_01")
+data class Person(
+    @Id
+    @Column(name = "ID_BA_PERS", columnDefinition = "DECIMAL")
+    val id: Long,
+
+    @Column(name = "B01_PERSONKEY", columnDefinition = "DECIMAL")
+    val personKey: Long,
+
+    @Column(name = "F_NR", columnDefinition = "VARCHAR2")
+    @Convert(converter = ReversedFoedselNrConverter::class)
+    val fnr: FoedselsNr,
+
+    @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
+    val tkNr: String,
+
+    @OneToMany
+    @JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "B01_PERSONKEY")
+    @Cascade(CascadeType.ALL)
+    val stønader: List<Stønad>,
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "B01_PERSONKEY")
+    @Cascade(CascadeType.ALL)
+    val barn: List<Barn>
+
+): Serializable
