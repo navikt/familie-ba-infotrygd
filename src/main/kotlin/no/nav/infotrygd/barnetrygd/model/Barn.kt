@@ -2,6 +2,7 @@ package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
+import no.nav.infotrygd.barnetrygd.model.converters.ReversedLongFoedselNrConverter
 import javax.persistence.*
 
 @Entity
@@ -22,7 +23,8 @@ data class Barn(
     val tkNr: String,
 
     @Column(name = "B10_BARN_FNR", columnDefinition = "DECIMAL")
-    val barnFnr: Long,
+    @Convert(converter = ReversedLongFoedselNrConverter::class)
+    val barnFnr: FoedselsNr,
 
     @Column(name = "B10_BA_TOM", columnDefinition = "VARCHAR2")
     val barnetrygdTom: String

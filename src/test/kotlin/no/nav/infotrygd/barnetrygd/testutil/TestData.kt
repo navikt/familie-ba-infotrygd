@@ -125,7 +125,7 @@ object TestData {
             fnr = person.fnr,
             tkNr = person.tkNr,
             personKey = person.personKey,
-            barnFnr = barnFnr.asString.toLong(),
+            barnFnr = barnFnr,
             barnetrygdTom = barnetrygdTom
         )
     }

@@ -38,6 +38,6 @@ interface PersonRepository : JpaRepository<Person, Long> {
                     AND b.barnetrygdTom = '000000'
                     AND s.opphørtFom = '000000'
     """)
-    fun findStønadByBarnFnr(barnFnr: Long): List<Stønad>
+    fun findStønadByBarnFnr(barnFnr: FoedselsNr): List<Stønad>
 
 }
