@@ -1,7 +1,7 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: infotrygd-grunnlag-paaroerende-sykdom
+  name: infotrygd-barnetrygd
   namespace: default
   labels:
     team: infotrygd
