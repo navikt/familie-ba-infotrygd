@@ -30,7 +30,7 @@ class BarnetrygdControllerTest {
     @Autowired
     lateinit var personRepository: PersonRepository
 
-    private val uri = "/infotrygd/barnetrygd/personsøk"
+    private val uri = "/infotrygd/barnetrygd/personsok"
 
     @Test
     fun infotrygdSøk() {

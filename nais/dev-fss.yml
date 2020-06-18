@@ -5,8 +5,9 @@ metadata:
   namespace: default
   labels:
     team: infotrygd
+
 spec:
-  image: {{image}}:{{tag}}
+  image: {{ image }}
   port: 8080 # Required. The port number which is exposed by the container and should receive HTTP traffic.
   liveness: # HTTP endpoint that signals 200 OK when the application is running.
     path: /actuator/health
@@ -43,10 +44,37 @@ spec:
       cpu: 500m
       memory: 256Mi
   ingresses: # Optional. List of ingress URLs that will route HTTP traffic to the application.
-  - "https://infotrygd-barnetrygd.nais.preprod.local/"
+    - "https://infotrygd-barnetrygd.nais.preprod.local/"
+    - "https://infotrygd-barnetrygd.dev-fss.nais.io/"
   logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
   logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
   vault:
     enabled: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
-
+  env:
+    - name: APP_DATASOURCE_URL
+      value: jdbc:oracle:thin:@a01dbfl033.adeo.no:1521/cdcq
+    - name: APP_DATASOURCE_PLATFORM
+      value: org.hibernate.dialect.Oracle10gDialect
+    - name: APP_DATASOURCE_DRIVER
+      value: oracle.jdbc.driver.OracleDriver
+    - name: APP_JPA_PLATFORM
+      value: org.hibernate.dialect.Oracle10gDialect
+    - name: APP_DEFAULT_SCHEMA
+      value: REST_READ_Q1
+    - name: APP_DDL_AUTO
+      value: none
+    - name: APP_AZURE_DISCOVERY_URL
+      value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
+    - name: APP_AZURE_AUD
+      value: 32551525-c4dd-44ae-b906-2f8d8a00bb03
+    - name: APP_AZURE_PROXY_URL
+      value: https://webproxy-nais.nav.no:8088
+    - name: APP_STS_DISCOVERY_URL
+      value: https://isso-q.adeo.no/isso/oauth2/.well-known/openid-configuration
+    - name: APP_STS_AUD
+      value: familie-ba-sak,familie-ba-sak-q0,familie-ba-sak-q1
+    - name: APP_STS_PROXY_URL
+      value: ""
+    - name: APP_CLIENT_WHITELIST
+      value: azure/146ccc69-7cd0-4b8e-86a5-144534e53a00

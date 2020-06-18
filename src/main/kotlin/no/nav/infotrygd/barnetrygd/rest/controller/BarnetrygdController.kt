@@ -1,7 +1,7 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
-import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.*
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdHistorikkService
@@ -21,7 +21,11 @@ class BarnetrygdController(
 ) {
 
     @ApiOperation("søker etter oppgitte fødselssnummere og gir svar 'ingenTreff=true/false' ang. barnetrygd")
-    @PostMapping(path = ["/infotrygd/barnetrygd/personsøk"], consumes = ["application/json"])
+    @PostMapping(path = ["/infotrygd/barnetrygd/personsok"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+                         dataType = "InfotrygdSøkRequest",
+                         value = "{\n  \"brukere\": [\n\"01015450301\"\n]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
     fun finnesIInfotrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
         clientValidator.authorizeClient()
 
