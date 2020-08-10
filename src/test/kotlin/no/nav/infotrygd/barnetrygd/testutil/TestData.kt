@@ -21,7 +21,8 @@ object TestData {
     fun barn(
         person: Person,
         barnetrygdTom: String = "000000",
-        barnFnr: FoedselsNr = foedselsNr()
+        barnFnr: FoedselsNr = foedselsNr(),
+        region: String = "X"
     ): Barn {
         return Barn(
             id = nextId(),
@@ -29,7 +30,8 @@ object TestData {
             tkNr = person.tkNr,
             personKey = person.personKey,
             barnFnr = barnFnr,
-            barnetrygdTom = barnetrygdTom
+            barnetrygdTom = barnetrygdTom,
+            region = region
         )
     }
 
@@ -37,29 +39,29 @@ object TestData {
         fnr: FoedselsNr = foedselsNr(),
         tkNr: String = "1000",
         personKey: Long = tkNr.let { it + fnr.asString }.toLong(),
-        stønader: List<Stønad> = listOf(),
-        barn: List<Barn> = listOf()
+        region: String = "X"
     ): Person {
         return Person(
             id = nextId(),
             fnr = fnr,
             tkNr = tkNr,
             personKey = personKey,
-            stønader = stønader,
-            barn = barn
+            region = region
         )
     }
 
     fun stønad(
         mottaker: Person,
-        opphørtFom: String = "000000"
+        opphørtFom: String = "000000",
+        region: String = "X"
     ): Stønad {
         return Stønad(
             id = nextId(),
             personKey = mottaker.personKey,
             fnr = mottaker.fnr,
             tkNr = mottaker.tkNr,
-            opphørtFom = opphørtFom
+            opphørtFom = opphørtFom,
+            region = region
         )
     }
 

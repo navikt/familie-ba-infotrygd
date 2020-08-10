@@ -22,6 +22,9 @@ data class Barn(
     @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
     val tkNr: String,
 
+    @Column(name = "REGION", columnDefinition = "CHAR(1 CHAR)")
+    val region: String,
+
     @Column(name = "B10_BARN_FNR", columnDefinition = "DECIMAL")
     @Convert(converter = ReversedLongFoedselNrConverter::class)
     val barnFnr: FoedselsNr,

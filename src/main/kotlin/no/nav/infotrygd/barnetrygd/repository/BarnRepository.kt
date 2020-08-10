@@ -11,13 +11,14 @@ interface BarnRepository : JpaRepository<Barn, Long> {
 
     @Query("""
         SELECT b FROM Barn b
-        WHERE b.barnFnr = :barnFnr
-    """)
-    fun findByFnr(barnFnr: FoedselsNr): Barn?
-
-    @Query("""
-        SELECT b FROM Barn b
         WHERE b.barnFnr IN :barnFnrList
     """)
     fun findByFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
+    
+    @Query("""
+        SELECT b FROM Barn b
+        WHERE b.barnFnr IN :barnFnrList
+        AND b.barnetrygdTom = '000000'
+    """)
+    fun findActiveByFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
 }

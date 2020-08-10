@@ -1,6 +1,8 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
+import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
 import no.nav.infotrygd.barnetrygd.testutil.TestData
@@ -30,15 +32,23 @@ class BarnetrygdControllerTest {
     @Autowired
     lateinit var personRepository: PersonRepository
 
+    @Autowired
+    lateinit var stønadRepository: StønadRepository
+
+    @Autowired
+    lateinit var barnRepository: BarnRepository
+
     private val uri = "/infotrygd/barnetrygd/personsok"
+    private val uri2 = "/infotrygd/barnetrygd/lopendeSak"
 
     @Test
-    fun infotrygdSøk() {
+    fun `infotrygd historikk søk`() {
         val person = TestData.person()
         val ukjentPerson = TestData.person()
         val barn = TestData.barn(person)
 
-        personRepository.saveAndFlush(person.copy(barn = listOf(barn)))
+        personRepository.saveAndFlush(person)
+        barnRepository.saveAndFlush(barn)
 
         val requestMedPersonSomFinnes = InfotrygdSøkRequest(listOf(person.fnr))
         val requestMedUkjentPerson = InfotrygdSøkRequest(listOf(ukjentPerson.fnr))
@@ -47,11 +57,43 @@ class BarnetrygdControllerTest {
 
         val client = restClient(port)
 
-        val res1 = kallBarnetrygdControllerFor(client, requestMedPersonSomFinnes).responseBody()
-        val res2 = kallBarnetrygdControllerFor(client, requestMedUkjentPerson).responseBody()
-        val res3 = kallBarnetrygdControllerFor(client, requestMedBarnSomFinnes).responseBody()
-        val res4 = kallBarnetrygdControllerFor(client, requestMedUkjentPersonOgBarn).responseBody()
-        val resFraTomRequest = kallBarnetrygdControllerFor(client)
+        val res1 = kallBarnetrygdControllerFor(uri, client, requestMedPersonSomFinnes).responseBody()
+        val res2 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPerson).responseBody()
+        val res3 = kallBarnetrygdControllerFor(uri, client, requestMedBarnSomFinnes).responseBody()
+        val res4 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPersonOgBarn).responseBody()
+        val resFraTomRequest = kallBarnetrygdControllerFor(uri, client)
+
+        Assertions.assertThat(res1.ingenTreff).isFalse()
+        Assertions.assertThat(res2.ingenTreff).isTrue()
+        Assertions.assertThat(res3.ingenTreff).isFalse()
+        Assertions.assertThat(res4.ingenTreff).isTrue()
+        Assertions.assertThat(resFraTomRequest.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
+    }
+
+    @Test
+    fun `infotrygdsøk etter løpende barnetrygd`() {
+        val person = TestData.person()
+        val ukjentPerson = TestData.person()
+        val stønad = TestData.stønad(person)
+        val stønad2 = TestData.stønad(ukjentPerson, opphørtFom = "111111")
+        val barn = TestData.barn(person)
+
+        personRepository.saveAndFlush(person)
+        stønadRepository.saveAll(listOf(stønad, stønad2))
+        barnRepository.saveAndFlush(barn)
+
+        val requestMedPersonMedLøpendeSak = InfotrygdSøkRequest(listOf(person.fnr))
+        val requestMedUkjentPerson = InfotrygdSøkRequest(listOf(ukjentPerson.fnr))
+        val requestMedBarnTilknyttetLøpendeSak = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(barn.barnFnr))
+        val requestMedUkjentPersonOgBarn = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(person.fnr))
+
+        val client = restClient(port)
+
+        val res1 = kallBarnetrygdControllerFor(uri2, client, requestMedPersonMedLøpendeSak).responseBody()
+        val res2 = kallBarnetrygdControllerFor(uri2, client, requestMedUkjentPerson).responseBody()
+        val res3 = kallBarnetrygdControllerFor(uri2, client, requestMedBarnTilknyttetLøpendeSak).responseBody()
+        val res4 = kallBarnetrygdControllerFor(uri2, client, requestMedUkjentPersonOgBarn).responseBody()
+        val resFraTomRequest = kallBarnetrygdControllerFor(uri2, client)
 
         Assertions.assertThat(res1.ingenTreff).isFalse()
         Assertions.assertThat(res2.ingenTreff).isTrue()
@@ -63,18 +105,19 @@ class BarnetrygdControllerTest {
     @Test
     fun noAuth() {
         val client = restClientNoAuth(port)
-        val result = kallBarnetrygdControllerFor(client)
+        val result = kallBarnetrygdControllerFor(uri, client)
         Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
     fun clientAuth() {
         val client = restClient(port, subject = "wrong")
-        val result = kallBarnetrygdControllerFor(client)
+        val result = kallBarnetrygdControllerFor(uri, client)
         Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     private fun kallBarnetrygdControllerFor(
+        uri: String,
         client: WebClient,
         request: InfotrygdSøkRequest = InfotrygdSøkRequest(listOf())
     ): ClientResponse {

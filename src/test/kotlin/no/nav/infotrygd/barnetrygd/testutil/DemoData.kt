@@ -1,5 +1,6 @@
 package no.nav.infotrygd.barnetrygd.testutil
 
+import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -9,7 +10,8 @@ import javax.annotation.PostConstruct
 @Component
 @Profile("demoData")
 class DemoData(
-    private val personRepository: PersonRepository
+    private val personRepository: PersonRepository,
+    private val barnRepository: BarnRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -18,7 +20,8 @@ class DemoData(
         val person = TestData.person()
         val barn = TestData.barn(person)
 
-        personRepository.saveAndFlush(person.copy(barn= listOf(barn)))
+        personRepository.saveAndFlush(person)
+        barnRepository.saveAndFlush(barn)
 
         logger.info("Demo fnr.: ${person.fnr.asString}\nDemo barnFnr.: ${barn.barnFnr.asString}")
     }

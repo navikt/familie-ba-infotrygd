@@ -21,6 +21,9 @@ data class Stønad(
     @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
     val tkNr: String,
 
+    @Column(name = "REGION", columnDefinition = "CHAR(1 CHAR)")
+    val region: String,
+
     @Column(name = "B20_OPPHOERT_VFOM", columnDefinition = "VARCHAR2")
     val opphørtFom: String
 

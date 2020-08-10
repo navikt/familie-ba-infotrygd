@@ -24,14 +24,6 @@ data class Person(
     @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
     val tkNr: String,
 
-    @OneToMany
-    @JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "B01_PERSONKEY")
-    @Cascade(CascadeType.ALL)
-    val stønader: List<Stønad>,
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "B01_PERSONKEY")
-    @Cascade(CascadeType.ALL)
-    val barn: List<Barn>
-
+    @Column(name = "REGION", columnDefinition = "CHAR(1 CHAR)")
+    val region: String
 ): Serializable
