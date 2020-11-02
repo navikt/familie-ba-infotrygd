@@ -1,8 +1,8 @@
 package no.nav.infotrygd.barnetrygd.service
 
 import no.nav.infotrygd.barnetrygd.Profiles
-import no.nav.security.oidc.context.OIDCRequestContextHolder
-import no.nav.security.oidc.context.OIDCValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
@@ -10,10 +10,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
 
+
 @Component
 class ClientValidator(
     private val environment: Environment,
-    private val ctxHolder: OIDCRequestContextHolder?,
+    private val ctxHolder: TokenValidationContextHolder?,
 
     @Value("\${app.security.clientWhitelist}")
     clientWhitelistStr: String
@@ -52,20 +53,25 @@ class ClientValidator(
     }
 
     private fun issuerSubjects(): List<String> {
-        val oidcValidationContext: OIDCValidationContext? = ctxHolder?.oidcValidationContext
-        val allClaims = oidcValidationContext?.allClaims ?: return emptyList()
-        return allClaims
-            .filter { it.value.subject != null }
-            .map { "${it.key}/${it.value.subject!!}" }
+        val oidcValidationContext: TokenValidationContext = ctxHolder?.tokenValidationContext
+            ?: return emptyList()
+
+        return oidcValidationContext.issuers.map {
+            val subject = oidcValidationContext.getClaims(it).subject
+            "$it/$subject"
+        }
     }
 
     private fun azureClientIds() : List<String> {
-        val oidcValidationContext: OIDCValidationContext? = ctxHolder?.oidcValidationContext
-        val allClaims = oidcValidationContext?.allClaims ?: return emptyList()
-        return allClaims
-            .filter { (issuer, _) -> AzureIssuer == issuer }
-            .filter { (_, claims) -> claims.get(AzureV2ClientIdClaim) != null || claims.get(AzureV1ClientIdClaim) != null }
-            .map { (_, claims) -> "${AzureIssuer}/${claims.get(AzureV2ClientIdClaim)?:claims.get(AzureV1ClientIdClaim)!!}" }
+        val oidcValidationContext: TokenValidationContext = ctxHolder?.tokenValidationContext
+            ?: return emptyList()
+
+        return oidcValidationContext.issuers
+            .filter { it == AzureIssuer }
+            .map { oidcValidationContext.getClaims(it) }
+            .filterNotNull()
+            .filter { it.get(AzureV2ClientIdClaim) != null || it.get(AzureV1ClientIdClaim) != null }
+            .map { "${AzureIssuer}/${it.get(AzureV2ClientIdClaim)?:it.get(AzureV1ClientIdClaim)!!}" }
     }
 
     private companion object {

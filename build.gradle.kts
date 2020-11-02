@@ -7,7 +7,7 @@ val mockkVersion = "1.9.3"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "0.2.18"
+val tokenSupportVersion = "1.3.1"
 val jacksonVersion = "2.9.9"
 val swaggerVersion = "2.9.2"
 val oracleusername = "richard.martinsen@nav.no"
@@ -65,9 +65,9 @@ dependencies {
     implementation("io.micrometer:micrometer-core")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("no.nav.security:oidc-spring-support:0.2.18")
     implementation("net.ttddyy:datasource-proxy:1.4.1")
-    testImplementation("no.nav.security:oidc-test-support:0.2.18")
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+    testImplementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

@@ -15,17 +15,19 @@ spring:
     platform: h2
     continue-on-error: true
 
-no.nav.security.oidc.issuer:
-  azure:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    proxyurl: ~
-    cookiename: localhost-idtoken
-  sts:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    proxyurl: ~
-    cookiename: localhost-idtoken
+no.nav.security.jwt:
+  expirythreshold: 60 #threshold in minutes until token expires
+  issuer:
+    azure:
+      discoveryurl: http://metadata
+      accepted_audience: aud-localhost
+      proxyurl: ~
+      cookiename: localhost-idtoken
+    sts:
+      discoveryurl: http://metadata
+      accepted_audience: aud-localhost
+      proxyurl: ~
+      cookiename: localhost-idtoken
 
 app:
   security:

@@ -33,15 +33,17 @@ management:
 #oidc...
 http.proxy.parametername: notused
 
-no.nav.security.oidc.issuer:
-  azure:
-    discoveryurl: ${APP_AZURE_DISCOVERY_URL}
-    accepted_audience: ${APP_AZURE_AUD}
-    proxyurl: ${APP_AZURE_PROXY_URL}
-  sts:
-    discoveryurl: ${APP_STS_DISCOVERY_URL}
-    accepted_audience: ${APP_STS_AUD}
-    proxyurl: ${APP_STS_PROXY_URL}
+no.nav.security.jwt:
+  expirythreshold: 60 #threshold in minutes until token expires
+  issuer:
+    azure:
+      discoveryurl: ${APP_AZURE_DISCOVERY_URL}
+      accepted_audience: ${APP_AZURE_AUD}
+      proxyurl: ${APP_AZURE_PROXY_URL}
+    sts:
+      discoveryurl: ${APP_STS_DISCOVERY_URL}
+      accepted_audience: ${APP_STS_AUD}
+      proxyurl: ${APP_STS_PROXY_URL}
 
 app:
   security:

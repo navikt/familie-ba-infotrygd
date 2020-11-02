@@ -6,7 +6,7 @@ import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
-import no.nav.security.oidc.api.Protected
+import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -32,7 +32,7 @@ class BarnetrygdController(
         request.takeUnless { it.brukere.isEmpty() && it.barn.isNullOrEmpty() } ?:
         return ResponseEntity("Tom personListe", HttpStatus.BAD_REQUEST)
 
-        val finnes = barnetrygdService.finnes(request.brukere, request.barn)
+        val finnes = barnetrygdService.finnes(request.brukere, request.barn?.takeUnless { it.isEmpty() })
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !finnes))
     }
 
@@ -48,7 +48,7 @@ class BarnetrygdController(
         request.takeUnless { it.brukere.isEmpty() && it.barn.isNullOrEmpty() } ?:
                 return ResponseEntity("Tom personListe", HttpStatus.BAD_REQUEST)
 
-        val mottarBarnetrygd = barnetrygdService.mottarBarnetrygd(request.brukere, request.barn)
+        val mottarBarnetrygd = barnetrygdService.mottarBarnetrygd(request.brukere, request.barn?.takeUnless { it.isEmpty() })
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !mottarBarnetrygd))
     }
 }

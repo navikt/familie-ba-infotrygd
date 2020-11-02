@@ -1,11 +1,10 @@
 package no.nav.infotrygd.barnetrygd.service
 
 import com.nimbusds.jwt.JWTClaimsSet
-import com.nimbusds.jwt.PlainJWT
 import no.nav.infotrygd.barnetrygd.Profiles
-import no.nav.security.oidc.context.OIDCClaims
-import no.nav.security.oidc.context.OIDCRequestContextHolder
-import no.nav.security.oidc.context.OIDCValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,6 +15,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.mockito.Mockito.`when`
 import org.springframework.web.server.ResponseStatusException
+
 
 @RunWith(SpringRunner::class)
 @ContextConfiguration(classes = [ClientValidator::class])
@@ -28,10 +28,10 @@ internal class ClientValidatorTest {
     private lateinit var environment: Environment
 
     @MockBean
-    lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
+    lateinit var oidcRequestContextHolder: TokenValidationContextHolder
 
     @MockBean
-    lateinit var oidcValidationContext: OIDCValidationContext
+    lateinit var validationContext: TokenValidationContext
 
     @Autowired
     lateinit var clientValidator : ClientValidator
@@ -39,15 +39,17 @@ internal class ClientValidatorTest {
     private fun setupMocks(issuer: String, claimKey: String, claimValue: String) {
         `when`(environment.acceptsProfiles(Profiles.NOAUTH)).thenReturn(false)
 
-        `when`(oidcValidationContext.allClaims).thenReturn(mapOf(
-            issuer to OIDCClaims(PlainJWT(JWTClaimsSet.parse("""
-                {
-                    "$claimKey": "$claimValue"
-                }
-            """.trimIndent())))
-        ))
+        `when`(validationContext.issuers).thenReturn(listOf(issuer))
 
-        `when`(oidcRequestContextHolder.oidcValidationContext).thenReturn(oidcValidationContext)
+        val claims = JwtTokenClaims(
+            JWTClaimsSet.Builder()
+                .issuer(issuer)
+                .claim(claimKey, claimValue)
+                .build())
+
+        `when`(validationContext.getClaims(issuer)).thenReturn(claims)
+
+        `when`(oidcRequestContextHolder.tokenValidationContext).thenReturn(validationContext)
     }
 
     @Test
