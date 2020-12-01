@@ -61,13 +61,13 @@ class BarnetrygdControllerTest {
         val res2 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPerson).responseBody()
         val res3 = kallBarnetrygdControllerFor(uri, client, requestMedBarnSomFinnes).responseBody()
         val res4 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPersonOgBarn).responseBody()
-        val resFraTomRequest = kallBarnetrygdControllerFor(uri, client)
+        val resFraTomRequest = kallBarnetrygdControllerFor(uri, client).responseBody()
 
         Assertions.assertThat(res1.ingenTreff).isFalse()
         Assertions.assertThat(res2.ingenTreff).isTrue()
         Assertions.assertThat(res3.ingenTreff).isFalse()
         Assertions.assertThat(res4.ingenTreff).isTrue()
-        Assertions.assertThat(resFraTomRequest.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
+        Assertions.assertThat(resFraTomRequest.ingenTreff).isTrue()
     }
 
     @Test

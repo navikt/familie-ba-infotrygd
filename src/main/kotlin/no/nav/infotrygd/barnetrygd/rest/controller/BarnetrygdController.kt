@@ -29,8 +29,9 @@ class BarnetrygdController(
     fun finnesIInfotrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
         clientValidator.authorizeClient()
 
-        request.takeUnless { it.brukere.isEmpty() && it.barn.isNullOrEmpty() } ?:
-        return ResponseEntity("Tom personListe", HttpStatus.BAD_REQUEST)
+        if (request.brukere.isEmpty() && request.barn.isNullOrEmpty()) {
+        return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = true))
+        }
 
         val finnes = barnetrygdService.finnes(request.brukere, request.barn?.takeUnless { it.isEmpty() })
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !finnes))
