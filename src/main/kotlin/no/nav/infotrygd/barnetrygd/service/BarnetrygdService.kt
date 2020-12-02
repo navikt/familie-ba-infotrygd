@@ -14,13 +14,13 @@ class BarnetrygdService(
 ) {
 
     fun finnes(brukerFnr: List<FoedselsNr>, barnFnr: List<FoedselsNr>?): Boolean {
-        val personFinnes = personRepository.findByFnrList(brukerFnr).isNotEmpty()
+        val personFinnes = brukerFnr.isNotEmpty() && personRepository.findByFnrList(brukerFnr).isNotEmpty()
         val barnFinnes = barnFnr?.let { barnRepository.findByFnrList(it) }?.isNotEmpty() == true
         return personFinnes || barnFinnes
     }
 
     fun mottarBarnetrygd(brukerFnr: List<FoedselsNr>, barnFnr: List<FoedselsNr>?): Boolean {
-        val personMottarBarnetrygd = personRepository.findByFnrList(brukerFnr)
+        val personMottarBarnetrygd = brukerFnr.isNotEmpty() && personRepository.findByFnrList(brukerFnr)
             .flatMap { stonadRepository.findByPersonKeyAndRegion(it.personKey, it.region) }
             .isNotEmpty()
         val mottasBarnetrygdForBarn = barnFnr?.let {
