@@ -2,6 +2,7 @@ package no.nav.infotrygd.barnetrygd.service
 
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
@@ -27,11 +28,14 @@ internal class BarnetrygdServiceTest {
     @Autowired
     private lateinit var barnRepository: BarnRepository
 
+    @Autowired
+    private lateinit var sakRepository: SakRepository
+
     private lateinit var barnetrygdService: BarnetrygdService
 
     @Before
     fun setup() {
-        barnetrygdService = BarnetrygdService(personRepository, stonadRepository, barnRepository)
+        barnetrygdService = BarnetrygdService(personRepository, stonadRepository, barnRepository, sakRepository)
     }
 
     @Test

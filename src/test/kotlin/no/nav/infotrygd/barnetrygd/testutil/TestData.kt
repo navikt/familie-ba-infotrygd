@@ -65,5 +65,16 @@ object TestData {
         )
     }
 
+    fun sak(person: Person): Sak {
+        return Sak(
+            idSak = nextId(),
+            s01Personkey = person.personKey,
+            mottattdato = LocalDate.now(),
+            regDato = LocalDate.now(),
+            fNr = person.fnr,
+            region = person.region,
+        )
+    }
+
     private val fnrGenerator = FoedselsnummerGenerator()
 }

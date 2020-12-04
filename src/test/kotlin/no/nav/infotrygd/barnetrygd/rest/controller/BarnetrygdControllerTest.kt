@@ -2,6 +2,7 @@ package no.nav.infotrygd.barnetrygd.rest.controller
 
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
@@ -38,8 +39,12 @@ class BarnetrygdControllerTest {
     @Autowired
     lateinit var barnRepository: BarnRepository
 
-    private val uri = "/infotrygd/barnetrygd/personsok"
-    private val uri2 = "/infotrygd/barnetrygd/lopendeSak"
+    @Autowired
+    lateinit var sakRepository: SakRepository
+
+    private val personUri = "/infotrygd/barnetrygd/personsok"
+    private val stønadUri = "/infotrygd/barnetrygd/lopendeSak"
+    private val sakUri = "/infotrygd/barnetrygd/sak"
 
     @Test
     fun `infotrygd historikk søk`() {
@@ -57,11 +62,12 @@ class BarnetrygdControllerTest {
 
         val client = restClient(port)
 
-        val res1 = kallBarnetrygdControllerFor(uri, client, requestMedPersonSomFinnes).responseBody()
-        val res2 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPerson).responseBody()
-        val res3 = kallBarnetrygdControllerFor(uri, client, requestMedBarnSomFinnes).responseBody()
-        val res4 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPersonOgBarn).responseBody()
-        val resFraTomRequest = kallBarnetrygdControllerFor(uri, client).responseBody()
+        val responseType = InfotrygdSøkResponse::class.java
+        val res1 = kallBarnetrygdControllerFor(personUri, client, requestMedPersonSomFinnes).castTo(responseType)
+        val res2 = kallBarnetrygdControllerFor(personUri, client, requestMedUkjentPerson).castTo(responseType)
+        val res3 = kallBarnetrygdControllerFor(personUri, client, requestMedBarnSomFinnes).castTo(responseType)
+        val res4 = kallBarnetrygdControllerFor(personUri, client, requestMedUkjentPersonOgBarn).castTo(responseType)
+        val resFraTomRequest = kallBarnetrygdControllerFor(personUri, client).castTo(responseType)
 
         Assertions.assertThat(res1.ingenTreff).isFalse()
         Assertions.assertThat(res2.ingenTreff).isTrue()
@@ -89,11 +95,12 @@ class BarnetrygdControllerTest {
 
         val client = restClient(port)
 
-        val res1 = kallBarnetrygdControllerFor(uri2, client, requestMedPersonMedLøpendeSak).responseBody()
-        val res2 = kallBarnetrygdControllerFor(uri2, client, requestMedUkjentPerson).responseBody()
-        val res3 = kallBarnetrygdControllerFor(uri2, client, requestMedBarnTilknyttetLøpendeSak).responseBody()
-        val res4 = kallBarnetrygdControllerFor(uri2, client, requestMedUkjentPersonOgBarn).responseBody()
-        val resFraTomRequest = kallBarnetrygdControllerFor(uri2, client).responseBody()
+        val type = InfotrygdSøkResponse::class.java
+        val res1 = kallBarnetrygdControllerFor(stønadUri, client, requestMedPersonMedLøpendeSak).castTo(type)
+        val res2 = kallBarnetrygdControllerFor(stønadUri, client, requestMedUkjentPerson).castTo(type)
+        val res3 = kallBarnetrygdControllerFor(stønadUri, client, requestMedBarnTilknyttetLøpendeSak).castTo(type)
+        val res4 = kallBarnetrygdControllerFor(stønadUri, client, requestMedUkjentPersonOgBarn).castTo(type)
+        val resFraTomRequest = kallBarnetrygdControllerFor(stønadUri, client).castTo(type)
 
         Assertions.assertThat(res1.ingenTreff).isFalse()
         Assertions.assertThat(res2.ingenTreff).isTrue()
@@ -103,16 +110,31 @@ class BarnetrygdControllerTest {
     }
 
     @Test
+    fun bar() {
+        val person = TestData.person()
+        personRepository.saveAndFlush(person)
+        sakRepository.saveAndFlush(TestData.sak(person))
+
+        val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
+
+        val client = restClient(port)
+
+        val res = kallBarnetrygdControllerFor(sakUri, client, søkPåPersonMedSak).castTo(SakResponse::class.java)
+        Assertions.assertThat(res).extracting { it.saksListe.size }.isEqualTo(1)
+
+    }
+
+    @Test
     fun noAuth() {
         val client = restClientNoAuth(port)
-        val result = kallBarnetrygdControllerFor(uri, client)
+        val result = kallBarnetrygdControllerFor(personUri, client)
         Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
     fun clientAuth() {
         val client = restClient(port, subject = "wrong")
-        val result = kallBarnetrygdControllerFor(uri, client)
+        val result = kallBarnetrygdControllerFor(personUri, client)
         Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
@@ -130,6 +152,6 @@ class BarnetrygdControllerTest {
     }
 }
 
-private fun ClientResponse.responseBody(): InfotrygdSøkResponse {
-    return this.bodyToMono(InfotrygdSøkResponse::class.java).block()!!
+private fun <T> ClientResponse.castTo(type: Class<T>): T {
+    return this.bodyToMono(type).block()!!
 }

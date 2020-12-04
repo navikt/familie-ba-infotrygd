@@ -1,8 +1,10 @@
 package no.nav.infotrygd.barnetrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.infotrygd.barnetrygd.model.Sak
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import org.springframework.stereotype.Service
 
@@ -10,7 +12,8 @@ import org.springframework.stereotype.Service
 class BarnetrygdService(
     private val personRepository: PersonRepository,
     private val stonadRepository: StønadRepository,
-    private val barnRepository: BarnRepository
+    private val barnRepository: BarnRepository,
+    private val sakRepository: SakRepository,
 ) {
 
     fun finnes(brukerFnr: List<FoedselsNr>, barnFnr: List<FoedselsNr>?): Boolean {
@@ -29,5 +32,9 @@ class BarnetrygdService(
         }?.isNotEmpty() == true
 
         return personMottarBarnetrygd || mottasBarnetrygdForBarn
+    }
+
+    fun finnSakerPåPerson(fnr: List<FoedselsNr>): Set<Sak> {
+        return fnr.flatMap { sakRepository.findSakerPåPersonByFnr(it) }.toSet()
     }
 }

@@ -4,6 +4,8 @@ import io.micrometer.core.annotation.Timed
 import io.swagger.annotations.*
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
+import no.nav.infotrygd.barnetrygd.rest.api.RestSak
+import no.nav.infotrygd.barnetrygd.rest.api.toRestSak
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
@@ -52,4 +54,14 @@ class BarnetrygdController(
         val mottarBarnetrygd = barnetrygdService.mottarBarnetrygd(request.brukere, request.barn?.takeUnless { it.isEmpty() })
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !mottarBarnetrygd))
     }
+
+    @PostMapping(path = ["/infotrygd/barnetrygd/sak"], consumes = ["application/json"])
+    fun søkOppSakerPåPerson(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
+        val saker = barnetrygdService.finnSakerPåPerson(request.brukere)
+        return ResponseEntity.ok(SakResponse(saksListe = saker.map { it.toRestSak() }))
+    }
 }
+
+ data class SakResponse(
+     val saksListe: List<RestSak>
+ )
