@@ -66,7 +66,6 @@ fun Sak.toRestSak(): RestSak {
         kapittelnr = this.kapittelnr,
         valg = this.valg,
         Undervalg1 = this.undervalg1,
-        Undervalg2 = this.undervalg2,
         DublettFeil = this.dublettFeil,
         Type = this.type,
         Innstilling = this.innstilling,

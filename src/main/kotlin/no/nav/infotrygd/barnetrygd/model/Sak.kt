@@ -39,9 +39,6 @@ data class Sak(
     @Column(name = "S10_UNDERVALG_1", columnDefinition = "CHAR(1)")
     val undervalg1: String? = null,
 
-    @Column(name = "S10_UNDERVALG_2", columnDefinition = "CHAR(1)")
-    val undervalg2: String? = null,
-
     @Column(name = "S10_DUBLETT_FEIL", columnDefinition = "CHAR(1)")
     val dublettFeil: String? = null,
 
