@@ -1,6 +1,7 @@
 package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.infotrygd.barnetrygd.model.converters.CharConverter
 import no.nav.infotrygd.barnetrygd.model.converters.NavLocalDateConverter
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
 import java.time.LocalDate
@@ -36,7 +37,8 @@ data class Sak(
     @Column(name = "S10_VALG", columnDefinition = "CHAR(2)")
     val valg: String? = null,
 
-    @Column(name = "S10_UNDERVALG_1", columnDefinition = "CHAR(1)")
+    @Column(name = "S10_UNDERVALG_1", columnDefinition = "CHAR")
+    @Convert(converter = CharConverter::class)
     val undervalg1: String? = null,
 
     @Column(name = "S10_DUBLETT_FEIL", columnDefinition = "CHAR(1)")
