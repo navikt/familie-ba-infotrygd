@@ -65,7 +65,6 @@ fun Sak.toRestSak(): RestSak {
         mottattdato = this.mottattdato,
         kapittelnr = this.kapittelnr,
         valg = this.valg,
-        Undervalg1 = this.undervalg1,
         DublettFeil = this.dublettFeil,
         Type = this.type,
         Innstilling = this.innstilling,

@@ -37,10 +37,6 @@ data class Sak(
     @Column(name = "S10_VALG", columnDefinition = "CHAR(2)")
     val valg: String? = null,
 
-    @Column(name = "S10_UNDERVALG_1", columnDefinition = "CHAR")
-    @Convert(converter = CharConverter::class)
-    val undervalg1: String? = null,
-
     @Column(name = "S10_DUBLETT_FEIL", columnDefinition = "CHAR(1)")
     val dublettFeil: String? = null,
 
