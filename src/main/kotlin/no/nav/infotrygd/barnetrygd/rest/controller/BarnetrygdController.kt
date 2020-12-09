@@ -4,8 +4,8 @@ import io.micrometer.core.annotation.Timed
 import io.swagger.annotations.*
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
-import no.nav.infotrygd.barnetrygd.rest.api.RestSak
-import no.nav.infotrygd.barnetrygd.rest.api.toRestSak
+import no.nav.infotrygd.barnetrygd.rest.api.SakDto
+import no.nav.infotrygd.barnetrygd.rest.api.toSakDto
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
@@ -62,12 +62,12 @@ class BarnetrygdController(
         val saker = barnetrygdService.finnSakerPåPerson(request.brukere)
         val sakerPåBarn = request.barn?.let { barnetrygdService.finnSakerPåBarn(it) } ?: emptyList()
 
-        return ResponseEntity.ok(SakResponse(saker = saker.map { it.toRestSak() },
-                                             sakerTilknyttetBarna = sakerPåBarn.map { it.toRestSak() }))
+        return ResponseEntity.ok(SakResponse(saker = saker.map { it.toSakDto() },
+                                             sakerTilknyttetBarna = sakerPåBarn.map { it.toSakDto() }))
     }
 }
 
  data class SakResponse(
-     val saker: List<RestSak>,
-     val sakerTilknyttetBarna: List<RestSak> = emptyList(),
+     val saker: List<SakDto>,
+     val sakerTilknyttetBarna: List<SakDto> = emptyList(),
  )

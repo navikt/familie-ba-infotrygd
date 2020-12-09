@@ -1,9 +1,10 @@
 package no.nav.infotrygd.barnetrygd.rest.api
 
+import io.swagger.annotations.ApiModelProperty
 import no.nav.infotrygd.barnetrygd.model.Sak
 import java.time.LocalDate
 
-data class RestSak(
+data class SakDto(
     val s01Personkey: Long? = null,
     val s05Saksblokk: String? = null,
     val saksnr: String? = null,
@@ -53,11 +54,33 @@ data class RestSak(
     val fNr: String? = null,
     val kildeIs: String? = null,
     val region: String? = null,
-    val idSak: Long? = null,
+    val sakId: Long? = null,
+
+    @ApiModelProperty(notes = """
+        IP: - Saksbehandlingen kan starte med Statuskode IP (Ikke påbegynt). Da er det kun registrert en sakslinje uten at vedtaksbehandling er startet.
+        UB: - Saksbehandling startet - når sak med status UB - Under Behandling - lagres, rapporteres hendelsen BehandlingOpprettet
+        SG: - Saksbehandler 1 har fullført og sendt til saksbehandler 2 for godkjenning
+        UK: - Underkjent av saksbehandler 2 med retur til saksbehandler 1
+        FB: - FerdigBehandlet
+        FI: - ferdig iverksatt
+        RF: - returnert feilsendt
+        RM: - returnert midlertidig
+        RT: - returnert til
+        ST: - sendt til
+        VD: - videresendt Direktoratet
+        VI: - venter på iverksetting
+        VT: - videresendt Trygderetten
+        
+        Kolonne: S15_STATUS.
+    """,
+        allowableValues = "IP,UB,SG,UK,FB,FI,RF,RM,RT,ST,VD,VI,VT"
+    )
+    val status: String,         // S15_STATUS
+
 )
 
-fun Sak.toRestSak(): RestSak {
-    return RestSak(
+fun Sak.toSakDto(): SakDto {
+    return SakDto(
         s01Personkey = this.personKey,
         s05Saksblokk = this.saksblokk,
         saksnr = this.saksnummer,
@@ -105,6 +128,7 @@ fun Sak.toRestSak(): RestSak {
         fNr = this.fnr.asString,
         kildeIs = this.kildeIs,
         region = this.region,
-        idSak = this.id
+        sakId = this.id,
+        status = this.status.kode
     )
 }

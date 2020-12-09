@@ -75,11 +75,11 @@ data class Sak(
     val nivaa: String? = null,
 
     @Column(name = "S10_INNSTILLDATO", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
+    @Convert(converter = NavReversedLocalDateConverter::class)
     val innstilldato: LocalDate? = null,
 
     @Column(name = "S10_GRUNNBL_DATO", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
+    @Convert(converter = NavReversedLocalDateConverter::class)
     val grunnblDato: LocalDate? = null,
 
     @Column(name = "S10_AARSAKSKODE", columnDefinition = "CHAR")
@@ -109,7 +109,7 @@ data class Sak(
     val innstilling2: String? = null,
 
     @Column(name = "S10_INNSTILLDATO2", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
+    @Convert(converter = NavReversedLocalDateConverter::class)
     val innstilldato2: LocalDate? = null,
 
     @Column(name = "S10_ANNEN_INSTANS", columnDefinition = "CHAR(1)")
