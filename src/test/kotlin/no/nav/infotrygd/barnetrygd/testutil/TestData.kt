@@ -4,6 +4,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.infotrygd.barnetrygd.model.*
+import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
 import no.nav.infotrygd.barnetrygd.nextId
 import java.time.LocalDate
 
@@ -66,13 +67,35 @@ object TestData {
     }
 
     fun sak(person: Person): Sak {
+        val saksblokk = "A"
+        val saksnummer = "01"
+        val region = "2"
         return Sak(
-            idSak = nextId(),
-            s01Personkey = person.personKey,
+            id = nextId(),
+            personKey = person.personKey,
+            saksblokk = saksblokk,
+            saksnummer = saksnummer,
             mottattdato = LocalDate.now(),
             regDato = LocalDate.now(),
-            fNr = person.fnr,
+            fnr = person.fnr,
             region = person.region,
+            kapittelNr = "BA",
+            valg = "OR",
+            type = "S",
+            resultat = "I",
+            vedtaksdato = LocalDate.now(),
+            iverksattdato = LocalDate.now(),
+            statushistorikk = listOf(
+                Status(
+                    id = nextId(),
+                    region = region,
+                    personKey = person.personKey,
+                    saksblokk = saksblokk,
+                    saksnummer = saksnummer,
+                    lopeNr = nextId() % 99,
+                    status = SakStatus.IKKE_BEHANDLET
+                )
+            )
         )
     }
 

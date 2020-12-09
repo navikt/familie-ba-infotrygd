@@ -58,12 +58,12 @@ data class RestSak(
 
 fun Sak.toRestSak(): RestSak {
     return RestSak(
-        s01Personkey = this.s01Personkey,
-        s05Saksblokk = this.s05Saksblokk,
-        saksnr = this.saksnr,
+        s01Personkey = this.personKey,
+        s05Saksblokk = this.saksblokk,
+        saksnr = this.saksnummer,
         regDato = this.regDato,
         mottattdato = this.mottattdato,
-        kapittelnr = this.kapittelnr,
+        kapittelnr = this.kapittelNr,
         valg = this.valg,
         DublettFeil = this.dublettFeil,
         Type = this.type,
@@ -102,9 +102,9 @@ fun Sak.toRestSak(): RestSak {
         ReellEnhet = this.reellEnhet,
         ModEndret = this.modEndret,
         tkNr = this.tkNr,
-        fNr = this.fNr.asString,
+        fNr = this.fnr.asString,
         kildeIs = this.kildeIs,
         region = this.region,
-        idSak = this.idSak
+        idSak = this.id
     )
 }

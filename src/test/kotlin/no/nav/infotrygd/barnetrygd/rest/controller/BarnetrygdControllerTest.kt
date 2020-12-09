@@ -44,7 +44,7 @@ class BarnetrygdControllerTest {
 
     private val personUri = "/infotrygd/barnetrygd/personsok"
     private val stønadUri = "/infotrygd/barnetrygd/lopendeSak"
-    private val sakUri = "/infotrygd/barnetrygd/sak"
+    private val sakUri = "/infotrygd/barnetrygd/saker"
 
     @Test
     fun `infotrygd historikk søk`() {
@@ -60,14 +60,12 @@ class BarnetrygdControllerTest {
         val requestMedBarnSomFinnes = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(barn.barnFnr))
         val requestMedUkjentPersonOgBarn = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(person.fnr))
 
-        val client = restClient(port)
-
         val responseType = InfotrygdSøkResponse::class.java
-        val res1 = kallBarnetrygdControllerFor(personUri, client, requestMedPersonSomFinnes).castTo(responseType)
-        val res2 = kallBarnetrygdControllerFor(personUri, client, requestMedUkjentPerson).castTo(responseType)
-        val res3 = kallBarnetrygdControllerFor(personUri, client, requestMedBarnSomFinnes).castTo(responseType)
-        val res4 = kallBarnetrygdControllerFor(personUri, client, requestMedUkjentPersonOgBarn).castTo(responseType)
-        val resFraTomRequest = kallBarnetrygdControllerFor(personUri, client).castTo(responseType)
+        val res1 = post(requestMedPersonSomFinnes, personUri).castTo(responseType)
+        val res2 = post(requestMedUkjentPerson, personUri).castTo(responseType)
+        val res3 = post(requestMedBarnSomFinnes, personUri).castTo(responseType)
+        val res4 = post(requestMedUkjentPersonOgBarn, personUri).castTo(responseType)
+        val resFraTomRequest = post(uri = personUri).castTo(responseType)
 
         Assertions.assertThat(res1.ingenTreff).isFalse()
         Assertions.assertThat(res2.ingenTreff).isTrue()
@@ -93,14 +91,12 @@ class BarnetrygdControllerTest {
         val requestMedBarnTilknyttetLøpendeSak = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(barn.barnFnr))
         val requestMedUkjentPersonOgBarn = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(person.fnr))
 
-        val client = restClient(port)
-
-        val type = InfotrygdSøkResponse::class.java
-        val res1 = kallBarnetrygdControllerFor(stønadUri, client, requestMedPersonMedLøpendeSak).castTo(type)
-        val res2 = kallBarnetrygdControllerFor(stønadUri, client, requestMedUkjentPerson).castTo(type)
-        val res3 = kallBarnetrygdControllerFor(stønadUri, client, requestMedBarnTilknyttetLøpendeSak).castTo(type)
-        val res4 = kallBarnetrygdControllerFor(stønadUri, client, requestMedUkjentPersonOgBarn).castTo(type)
-        val resFraTomRequest = kallBarnetrygdControllerFor(stønadUri, client).castTo(type)
+        val responseType = InfotrygdSøkResponse::class.java
+        val res1 = post(requestMedPersonMedLøpendeSak, stønadUri).castTo(responseType)
+        val res2 = post(requestMedUkjentPerson, stønadUri).castTo(responseType)
+        val res3 = post(requestMedBarnTilknyttetLøpendeSak, stønadUri).castTo(responseType)
+        val res4 = post(requestMedUkjentPersonOgBarn, stønadUri).castTo(responseType)
+        val resFraTomRequest = post(uri = stønadUri).castTo(responseType)
 
         Assertions.assertThat(res1.ingenTreff).isFalse()
         Assertions.assertThat(res2.ingenTreff).isTrue()
@@ -117,31 +113,31 @@ class BarnetrygdControllerTest {
 
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
 
-        val client = restClient(port)
+        val res = post(søkPåPersonMedSak, sakUri).castTo(SakResponse::class.java)
+        val tomRequest = post(uri = sakUri).castTo(SakResponse::class.java)
 
-        val res = kallBarnetrygdControllerFor(sakUri, client, søkPåPersonMedSak).castTo(SakResponse::class.java)
-        Assertions.assertThat(res).extracting { it.saksListe.size }.isEqualTo(1)
-
+        Assertions.assertThat(res).extracting { it.saker.size }.isEqualTo(1)
+        Assertions.assertThat(tomRequest.saker).isEmpty()
     }
 
     @Test
     fun noAuth() {
         val client = restClientNoAuth(port)
-        val result = kallBarnetrygdControllerFor(personUri, client)
+        val result = post(uri = personUri, client = client)
         Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
     fun clientAuth() {
         val client = restClient(port, subject = "wrong")
-        val result = kallBarnetrygdControllerFor(personUri, client)
+        val result = post(uri = personUri, client = client)
         Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
-    private fun kallBarnetrygdControllerFor(
+    private fun post(
+        request: InfotrygdSøkRequest = InfotrygdSøkRequest(listOf()),
         uri: String,
-        client: WebClient,
-        request: InfotrygdSøkRequest = InfotrygdSøkRequest(listOf())
+        client: WebClient = restClient(port),
     ): ClientResponse {
         return client.post()
             .uri(uri)

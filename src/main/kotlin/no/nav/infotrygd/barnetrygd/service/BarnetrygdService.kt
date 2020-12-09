@@ -35,6 +35,10 @@ class BarnetrygdService(
     }
 
     fun finnSakerPåPerson(fnr: List<FoedselsNr>): Set<Sak> {
-        return fnr.flatMap { sakRepository.findSakerPåPersonByFnr(it) }.toSet()
+        return fnr.flatMap { sakRepository.findBarnetrygdsakerByFnr(it) }.toSet()
+    }
+
+    fun finnSakerPåBarn(barnFnr: List<FoedselsNr>): Set<Sak> {
+        return barnFnr.let { sakRepository.findBarnetrygdsakerByBarnFnr(it).toSet() }
     }
 }

@@ -11,11 +11,21 @@ interface SakRepository : JpaRepository<Sak, Long> {
 
     @Query(
         """
-        SELECT s FROM Sak s, Person p
-        WHERE s.s01Personkey = p.personKey
-        AND s.region = p.region
-        AND p.fnr = :fnr
+        SELECT sak FROM Sak sak
+           INNER JOIN Barn barn 
+                   ON (sak.personKey = barn.personKey and 
+                       sak.region = barn.region)
+           WHERE barn.barnFnr IN :barnFnr
+             AND sak.kapittelNr = 'BA' 
+             AND sak.type IN ('S', 'R', 'K', 'A')
     """
     )
-    fun findSakerPåPersonByFnr(fnr: FoedselsNr): List<Sak>
+    fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
+
+    @Query("""
+        SELECT s FROM Sak s 
+            WHERE s.fnr = :fnr 
+              AND s.kapittelNr = 'BA' 
+              AND s.type IN ('S', 'R', 'K', 'A')""")
+    fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
 }

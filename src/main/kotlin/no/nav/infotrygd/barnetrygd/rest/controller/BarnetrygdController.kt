@@ -38,7 +38,7 @@ class BarnetrygdController(
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !finnes))
     }
 
-    @ApiOperation("Avgjør hvorvidt det finens en løpende sak på søker eller barn i Infotrygd.")
+    @ApiOperation("Avgjør hvorvidt det finnes en løpende sak på søker eller barn i Infotrygd.")
     @PostMapping(path = ["/infotrygd/barnetrygd/lopendeSak"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
@@ -55,13 +55,19 @@ class BarnetrygdController(
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !mottarBarnetrygd))
     }
 
-    @PostMapping(path = ["/infotrygd/barnetrygd/sak"], consumes = ["application/json"])
-    fun søkOppSakerPåPerson(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
+    @PostMapping(path = ["/infotrygd/barnetrygd/saker"], consumes = ["application/json"])
+    fun findSakerByFnr(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
+        clientValidator.authorizeClient()
+
         val saker = barnetrygdService.finnSakerPåPerson(request.brukere)
-        return ResponseEntity.ok(SakResponse(saksListe = saker.map { it.toRestSak() }))
+        val sakerPåBarn = request.barn?.let { barnetrygdService.finnSakerPåBarn(it) } ?: emptyList()
+
+        return ResponseEntity.ok(SakResponse(saker = saker.map { it.toRestSak() },
+                                             sakerTilknyttetBarna = sakerPåBarn.map { it.toRestSak() }))
     }
 }
 
  data class SakResponse(
-     val saksListe: List<RestSak>
+     val saker: List<RestSak>,
+     val sakerTilknyttetBarna: List<RestSak> = emptyList(),
  )

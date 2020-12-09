@@ -1,9 +1,11 @@
 package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.infotrygd.barnetrygd.model.converters.CharConverter
-import no.nav.infotrygd.barnetrygd.model.converters.NavLocalDateConverter
-import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
+import no.nav.infotrygd.barnetrygd.model.converters.*
+import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
+import org.hibernate.annotations.Cascade
+import org.hibernate.annotations.CascadeType
+import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
 
@@ -11,43 +13,63 @@ import javax.persistence.*
 @Table(name = "SA_SAK_10")
 data class Sak(
     @Id
-    @Column(name = "ID_SAK", columnDefinition = "DECIMAL")
-    val idSak: Long,
+    @Column(name = "ID_SAK", columnDefinition = "DECIMAL", nullable = false)
+    val id: Long,
+
+    @Column(name = "REGION", columnDefinition = "CHAR")
+    val region: String,
+
+    @Column(name = "F_NR", columnDefinition = "CHAR")
+    @Convert(converter = ReversedFoedselNrConverter::class)
+    val fnr: FoedselsNr,
 
     @Column(name = "S01_PERSONKEY", columnDefinition = "DECIMAL")
-    val s01Personkey: Long? = null,
+    val personKey: Long,
 
-    @Column(name = "S05_SAKSBLOKK", columnDefinition = "CHAR(1)")
-    val s05Saksblokk: String? = null,
+    @Column(name = "S05_SAKSBLOKK", columnDefinition = "CHAR")
+    val saksblokk: String,
 
-    @Column(name = "S10_SAKSNR", columnDefinition = "CHAR(2)")
-    val saksnr: String? = null,
+    @Column(name = "S10_SAKSNR", columnDefinition = "CHAR")
+    val saksnummer: String,
+
+    @Column(name = "S10_KAPITTELNR", columnDefinition = "CHAR")
+    val kapittelNr: String,
+
+    @Column(name = "S10_VALG", columnDefinition = "CHAR")
+    @Convert(converter = Char2Converter::class)
+    val valg: String,
+
+    @Column(name = "S10_TYPE", columnDefinition = "CHAR")
+    @Convert(converter = Char2Converter::class)
+    val type: String,
+
+    @Column(name = "S10_RESULTAT", columnDefinition = "CHAR")
+    @Convert(converter = Char2Converter::class)
+    val resultat: String?,
+
+    @Column(name = "S10_VEDTAKSDATO", columnDefinition = "DECIMAL")
+    @Convert(converter = NavReversedLocalDateConverter::class)
+    val vedtaksdato: LocalDate?,
+
+    @Column(name = "S10_IVERKSATTDATO", columnDefinition = "DECIMAL")
+    @Convert(converter = NavReversedLocalDateConverter::class)
+    val iverksattdato: LocalDate?,
 
     @Column(name = "S10_REG_DATO", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
-    val regDato: LocalDate,
+    @Convert(converter = NavReversedLocalDateConverter::class)
+    val regDato: LocalDate?,
 
     @Column(name = "S10_MOTTATTDATO", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
-    val mottattdato: LocalDate,
+    @Convert(converter = NavReversedLocalDateConverter::class)
+    val mottattdato: LocalDate?,
 
-    @Column(name = "S10_KAPITTELNR", columnDefinition = "CHAR(2)")
-    val kapittelnr: String? = null,
-
-    @Column(name = "S10_VALG", columnDefinition = "CHAR(2)")
-    val valg: String? = null,
-
-    @Column(name = "S10_DUBLETT_FEIL", columnDefinition = "CHAR(1)")
+    @Column(name = "S10_DUBLETT_FEIL", columnDefinition = "CHAR")
+    @Convert(converter = CharConverter::class)
     val dublettFeil: String? = null,
 
-    @Column(name = "S10_TYPE", columnDefinition = "CHAR(2)")
-    val type: String? = null,
-
-    @Column(name = "S10_INNSTILLING", columnDefinition = "CHAR(2)")
+    @Column(name = "S10_INNSTILLING", columnDefinition = "CHAR")
+    @Convert(converter = Char2Converter::class)
     val innstilling: String? = null,
-
-    @Column(name = "S10_RESULTAT", columnDefinition = "CHAR(2)")
-    val resultat: String? = null,
 
     @Column(name = "S10_NIVAA", columnDefinition = "CHAR(3)")
     val nivaa: String? = null,
@@ -56,19 +78,12 @@ data class Sak(
     @Convert(converter = NavLocalDateConverter::class)
     val innstilldato: LocalDate? = null,
 
-    @Column(name = "S10_VEDTAKSDATO", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
-    val vedtaksdato: LocalDate? = null,
-
-    @Column(name = "S10_IVERKSATTDATO", columnDefinition = "DECIMAL")
-    @Convert(converter = NavLocalDateConverter::class)
-    val iverksattdato: LocalDate? = null,
-
     @Column(name = "S10_GRUNNBL_DATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavLocalDateConverter::class)
     val grunnblDato: LocalDate? = null,
 
-    @Column(name = "S10_AARSAKSKODE", columnDefinition = "CHAR(2)")
+    @Column(name = "S10_AARSAKSKODE", columnDefinition = "CHAR")
+    @Convert(converter = Char2Converter::class)
     val aarsakskode: String? = null,
 
     @Column(name = "S10_TELLEPUNKT", columnDefinition = "CHAR(3)")
@@ -151,16 +166,38 @@ data class Sak(
     @Column(name = "S10_MOD_ENDRET", columnDefinition = "CHAR(1)")
     val modEndret: String? = null,
 
-    @Column(name = "F_NR",  columnDefinition = "CHAR(11)")
-    @Convert(converter = ReversedFoedselNrConverter::class)
-    val fNr: FoedselsNr,
+    @Column(name = "KILDE_IS", columnDefinition = "VARCHAR2")
+    val kildeIs: String? = null,
 
     @Column(name = "TK_NR", columnDefinition = "CHAR(4)")
     val tkNr: String? = null,
 
-    @Column(name = "KILDE_IS", columnDefinition = "VARCHAR2")
-    val kildeIs: String? = null,
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumns(value = [
+        JoinColumn(name = "REGION", referencedColumnName = "REGION"),
+        JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "S01_PERSONKEY"),
+        JoinColumn(name = "S05_SAKSBLOKK", referencedColumnName = "S05_SAKSBLOKK"),
+        JoinColumn(name = "S10_SAKSNR", referencedColumnName = "S10_SAKSNR")
+    ])
+    @Cascade(value = [CascadeType.ALL])
+    val statushistorikk: List<Status>
+) : Serializable {
+    val status: SakStatus
+        get() = statushistorikk.minBy { it.lopeNr }?.status ?: SakStatus.IKKE_BEHANDLET
 
-    @Column(name = "REGION", columnDefinition = "CHAR(1)")
-    val region: String? = null,
-)
+    fun innenforPeriode(fom: LocalDate, tom: LocalDate?): Boolean {
+        if(tom != null) {
+            require(fom == tom || fom.isBefore(tom)) { "Tom-dato kan ikke være før fom-dato." }
+        }
+
+        if(tom != null && tom.isBefore(regDato)) {
+            return false
+        }
+
+        if(fom.isAfter(regDato)) {
+            return false
+        }
+
+        return true
+    }
+}
