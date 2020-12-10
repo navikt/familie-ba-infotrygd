@@ -9,6 +9,13 @@ import org.springframework.stereotype.Repository
 @Repository
 interface SakRepository : JpaRepository<Sak, Long> {
 
+    @Query("""
+        SELECT s FROM Sak s 
+            WHERE s.fnr = :fnr 
+              AND s.kapittelNr = 'BA' 
+              AND s.type IN ('S', 'R', 'K', 'A')""")
+    fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
+
     @Query(
         """
         SELECT sak FROM Sak sak
@@ -21,11 +28,4 @@ interface SakRepository : JpaRepository<Sak, Long> {
     """
     )
     fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
-
-    @Query("""
-        SELECT s FROM Sak s 
-            WHERE s.fnr = :fnr 
-              AND s.kapittelNr = 'BA' 
-              AND s.type IN ('S', 'R', 'K', 'A')""")
-    fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
 }

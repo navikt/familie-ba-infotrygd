@@ -4,6 +4,11 @@ import io.swagger.annotations.ApiModelProperty
 import no.nav.infotrygd.barnetrygd.model.Sak
 import java.time.LocalDate
 
+data class SakResult(
+    val bruker: List<SakDto>,
+    val barn: List<SakDto>,
+)
+
 data class SakDto(
     val s01Personkey: Long? = null,
     val s05Saksblokk: String? = null,

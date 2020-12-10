@@ -2,10 +2,7 @@ package no.nav.infotrygd.barnetrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
 import io.swagger.annotations.*
-import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
-import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
-import no.nav.infotrygd.barnetrygd.rest.api.SakDto
-import no.nav.infotrygd.barnetrygd.rest.api.toSakDto
+import no.nav.infotrygd.barnetrygd.rest.api.*
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
@@ -21,29 +18,13 @@ class BarnetrygdController(
     private val clientValidator: ClientValidator
 ) {
 
-    @ApiOperation("søker etter oppgitte fødselssnummere og gir svar 'ingenTreff=true/false' ang. barnetrygd")
-    @PostMapping(path = ["/infotrygd/barnetrygd/personsok"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-            dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\n\"01015450301\"\n]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
-    fun finnesIInfotrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
-        clientValidator.authorizeClient()
-
-        if (request.brukere.isEmpty() && request.barn.isNullOrEmpty()) {
-            return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = true))
-        }
-
-        val finnes = barnetrygdService.finnes(request.brukere, request.barn?.takeUnless { it.isEmpty() })
-        return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !finnes))
-    }
-
     @ApiOperation("Avgjør hvorvidt det finnes en løpende sak på søker eller barn i Infotrygd.")
     @PostMapping(path = ["/infotrygd/barnetrygd/lopendeSak"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
                          dataType = "InfotrygdSøkRequest",
                          value = "{\n  \"brukere\": [\n\"01015450301\"\n]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
+    @Deprecated("/infotrygd/barnetrygd/stonad gjør samme jobben, men returnerer resultatet istedenfor å trekke konklusjon. Det kan gjøres client-side")
     fun harLopendeBarnetrygdSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
         clientValidator.authorizeClient()
 
@@ -55,19 +36,27 @@ class BarnetrygdController(
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !mottarBarnetrygd))
     }
 
-    @PostMapping(path = ["/infotrygd/barnetrygd/saker"], consumes = ["application/json"])
-    fun findSakerByFnr(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
+    @ApiOperation("Utrekk fra tabellen \"BA_STOENAD_20\".")
+    @PostMapping(path = ["/infotrygd/barnetrygd/stonad"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+            dataType = "InfotrygdSøkRequest",
+            value = "{\n  \"brukere\": [\"01015450301\"]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
+    fun stønad(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<StønadResult> {
         clientValidator.authorizeClient()
+        return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findStønadByPerson(request.brukere),
+                                              barn = barnetrygdService.findStønadByBarn(request.barn ?: emptyList())))
+    }
 
-        val saker = barnetrygdService.finnSakerPåPerson(request.brukere)
-        val sakerPåBarn = request.barn?.let { barnetrygdService.finnSakerPåBarn(it) } ?: emptyList()
-
-        return ResponseEntity.ok(SakResponse(saker = saker.map { it.toSakDto() },
-                                             sakerTilknyttetBarna = sakerPåBarn.map { it.toSakDto() }))
+    @ApiOperation("Utrekk fra tabellen \"SA_SAK_10\".")
+    @PostMapping(path = ["/infotrygd/barnetrygd/saker"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+            dataType = "InfotrygdSøkRequest",
+            value = "{\n  \"brukere\": [\"01015450301\"]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
+    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<SakResult> {
+        clientValidator.authorizeClient()
+        return ResponseEntity.ok(SakResult(bruker = barnetrygdService.findSakerByBrukerFnr(request.brukere),
+                                           barn = barnetrygdService.findSakerByBarnFnr(request.barn ?: emptyList())))
     }
 }
-
- data class SakResponse(
-     val saker: List<SakDto>,
-     val sakerTilknyttetBarna: List<SakDto> = emptyList(),
- )

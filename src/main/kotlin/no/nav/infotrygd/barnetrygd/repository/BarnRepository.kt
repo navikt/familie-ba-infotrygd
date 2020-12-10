@@ -20,5 +20,5 @@ interface BarnRepository : JpaRepository<Barn, Long> {
         WHERE b.barnFnr IN :barnFnrList
         AND b.barnetrygdTom = '000000'
     """)
-    fun findActiveByFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
+    fun findBarnetrygdBarnInFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
 }
