@@ -19,12 +19,16 @@ data class Sak(
     @Column(name = "REGION", columnDefinition = "CHAR")
     val region: String,
 
-    @Column(name = "F_NR", columnDefinition = "CHAR")
-    @Convert(converter = ReversedFoedselNrConverter::class)
-    val fnr: FoedselsNr,
-
     @Column(name = "S01_PERSONKEY", columnDefinition = "DECIMAL")
     val personKey: Long,
+
+    @ManyToOne
+    @JoinColumns(value = [
+        JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "S01_PERSONKEY", insertable= false, updatable = false),
+        JoinColumn(name = "REGION", referencedColumnName = "REGION", insertable= false, updatable = false),
+    ])
+    @Cascade(value = [CascadeType.MERGE])
+    val person: Person,
 
     @Column(name = "S05_SAKSBLOKK", columnDefinition = "CHAR")
     val saksblokk: String,
@@ -183,21 +187,24 @@ data class Sak(
     val statushistorikk: List<Status>
 ) : Serializable {
     val status: SakStatus
-        get() = statushistorikk.minBy { it.lopeNr }?.status ?: SakStatus.IKKE_BEHANDLET
+        get() = statushistorikk.minByOrNull { it.lopeNr }?.status ?: SakStatus.IKKE_BEHANDLET
 
-    fun innenforPeriode(fom: LocalDate, tom: LocalDate?): Boolean {
-        if(tom != null) {
-            require(fom == tom || fom.isBefore(tom)) { "Tom-dato kan ikke være før fom-dato." }
-        }
+    @Entity
+    @Table(name = "SA_PERSON_01")
+    data class Person(
+        @Id
+        @Column(name = "ID_PERS", nullable = false, columnDefinition = "DECIMAL")
+        val id: Long,
 
-        if(tom != null && tom.isBefore(regDato)) {
-            return false
-        }
+        @Column(name = "REGION", columnDefinition = "CHAR")
+        val region: String,
 
-        if(fom.isAfter(regDato)) {
-            return false
-        }
+        @Column(name = "S01_PERSONKEY", columnDefinition = "DECIMAL")
+        val personKey: Long,
 
-        return true
-    }
+        @Column(name = "F_NR", columnDefinition = "CHAR")
+        @Convert(converter = ReversedFoedselNrConverter::class)
+        val fnr: FoedselsNr,
+
+    ): Serializable
 }

@@ -73,11 +73,11 @@ object TestData {
         return Sak(
             id = nextId(),
             personKey = person.personKey,
+            person = Sak.Person(nextId(), person.region, person.personKey, person.fnr),
             saksblokk = saksblokk,
             saksnummer = saksnummer,
             mottattdato = LocalDate.now(),
             regDato = LocalDate.now(),
-            fnr = person.fnr,
             region = person.region,
             kapittelNr = "BA",
             valg = "OR",

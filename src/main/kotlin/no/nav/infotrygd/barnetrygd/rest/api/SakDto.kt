@@ -130,7 +130,7 @@ fun Sak.toSakDto(): SakDto {
         ReellEnhet = this.reellEnhet,
         ModEndret = this.modEndret,
         tkNr = this.tkNr,
-        fNr = this.fnr.asString,
+        fNr = this.person.fnr.asString,
         kildeIs = this.kildeIs,
         region = this.region,
         sakId = this.id,

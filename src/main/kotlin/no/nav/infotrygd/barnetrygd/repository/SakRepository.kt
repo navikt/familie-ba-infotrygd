@@ -11,7 +11,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
 
     @Query("""
         SELECT s FROM Sak s 
-            WHERE s.fnr = :fnr 
+            WHERE s.person.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
               AND s.type IN ('S', 'R', 'K', 'A')""")
     fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>

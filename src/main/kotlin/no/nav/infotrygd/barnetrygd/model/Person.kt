@@ -2,8 +2,6 @@ package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
-import org.hibernate.annotations.Cascade
-import org.hibernate.annotations.CascadeType
 import javax.persistence.*
 import java.io.Serializable
 
