@@ -36,7 +36,7 @@ class BarnetrygdController(
         return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !mottarBarnetrygd))
     }
 
-    @ApiOperation("Utrekk fra tabellen \"BA_STOENAD_20\".")
+    @ApiOperation("Uttrekk fra tabellen \"BA_STOENAD_20\".")
     @PostMapping(path = ["/infotrygd/barnetrygd/stonad"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
@@ -48,7 +48,7 @@ class BarnetrygdController(
                                               barn = barnetrygdService.findStønadByBarn(request.barn ?: emptyList())))
     }
 
-    @ApiOperation("Utrekk fra tabellen \"SA_SAK_10\".")
+    @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")
     @PostMapping(path = ["/infotrygd/barnetrygd/saker"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
