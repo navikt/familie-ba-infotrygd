@@ -32,15 +32,13 @@ class BarnetrygdService(
         return personMottarBarnetrygd || mottasBarnetrygdForBarn
     }
 
-    fun findStønadByPerson(brukerFnr: List<FoedselsNr>): List<StønadDto> {
-        return if (brukerFnr.isEmpty()) emptyList() else personRepository.findByFnrList(brukerFnr)
-            .flatMap { stonadRepository.findByPersonKeyAndRegion(it.personKey, it.region) }.distinct()
+    fun findLøpendeStønadByBrukerFnr(brukerFnr: List<FoedselsNr>): List<StønadDto> {
+        return if (brukerFnr.isEmpty()) emptyList() else stonadRepository.findLøpendeStønadByFnr(brukerFnr).distinct()
             .map { it.toStønadDto() }
     }
 
-    fun findStønadByBarn(barnFnr: List<FoedselsNr>): List<StønadDto>  {
-        return if (barnFnr.isEmpty()) emptyList() else barnRepository.findBarnetrygdBarnInFnrList(barnFnr)
-            .flatMap { stonadRepository.findByPersonKeyAndRegion(it.personKey, it.region) }.distinct()
+    fun findLøpendeStønadByBarnFnr(barnFnr: List<FoedselsNr>): List<StønadDto>  {
+        return if (barnFnr.isEmpty()) emptyList() else stonadRepository.findLøpendeStønadByBarnFnr(barnFnr).distinct()
             .map { it.toStønadDto() }
     }
 

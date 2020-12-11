@@ -43,7 +43,7 @@ class SakRepositoryTest {
     }
 
     @Test
-    fun `findBarnetrygdsakerByFnr negativ`() {
+    fun `findBarnetrygdsakerByFnr med person uten barnetrygdsak`() {
         val person = personRepository.saveAndFlush(TestData.person())
         sakRepository.saveAndFlush(TestData.sak(person).copy(kapittelNr = "FA"))
 
@@ -69,7 +69,7 @@ class SakRepositoryTest {
     }
 
     @Test
-    fun `findBarnetrygdsakerByBarnFnr negativ`() {
+    fun `findBarnetrygdsakerByBarnFnr query med tom liste og barn som ikke finnes gir tomt resultat`() {
         val person = personRepository.saveAndFlush(TestData.person())
         barnRepository.saveAndFlush(TestData.barn(person))
         sakRepository.saveAndFlush(TestData.sak(person))

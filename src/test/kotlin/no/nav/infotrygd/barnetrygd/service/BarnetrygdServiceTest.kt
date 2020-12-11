@@ -49,7 +49,7 @@ internal class BarnetrygdServiceTest {
         personRepository.saveAll(listOf(person, person2))
         stonadRepository.saveAll(listOf(stønad, stønad2))
 
-        val stænadResult = barnetrygdService.findStønadByPerson(listOf(person.fnr, person2.fnr))
+        val stænadResult = barnetrygdService.findLøpendeStønadByBrukerFnr(listOf(person.fnr, person2.fnr))
 
         assertThat(stænadResult).hasSize(1)
         assertThat(stænadResult).first().isEqualToComparingFieldByField(stønad.toStønadDto())
@@ -63,7 +63,7 @@ internal class BarnetrygdServiceTest {
         personRepository.saveAndFlush(person)
         stonadRepository.saveAndFlush(stønad)
 
-        val stønadResult = barnetrygdService.findStønadByPerson(listOf(person.fnr))
+        val stønadResult = barnetrygdService.findLøpendeStønadByBrukerFnr(listOf(person.fnr))
         assertThat(stønadResult).isEmpty()
     }
 
@@ -75,9 +75,9 @@ internal class BarnetrygdServiceTest {
 
         stonadRepository.saveAll(person.map { TestData.stønad(it) })
 
-        val stønadResult = barnetrygdService.findStønadByBarn(barn.map { it.barnFnr })
+        val stønadResult = barnetrygdService.findLøpendeStønadByBarnFnr(barn.map { it.barnFnr })
         assertThat(stønadResult).hasSize(1)
-        val stønadResultBarn2 = barnetrygdService.findStønadByBarn(listOf(barn[1].barnFnr))
+        val stønadResultBarn2 = barnetrygdService.findLøpendeStønadByBarnFnr(listOf(barn[1].barnFnr))
         assertThat(stønadResultBarn2).hasSize(0)
     }
 }

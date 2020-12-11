@@ -44,8 +44,8 @@ class BarnetrygdController(
             value = "{\n  \"brukere\": [\"01015450301\"]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
     fun stønad(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<StønadResult> {
         clientValidator.authorizeClient()
-        return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findStønadByPerson(request.brukere),
-                                              barn = barnetrygdService.findStønadByBarn(request.barn ?: emptyList())))
+        return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findLøpendeStønadByBrukerFnr(request.brukere),
+                                              barn = barnetrygdService.findLøpendeStønadByBarnFnr(request.barn ?: emptyList())))
     }
 
     @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")
