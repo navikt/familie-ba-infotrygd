@@ -8,7 +8,7 @@ import no.nav.infotrygd.barnetrygd.rest.api.*
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import no.nav.infotrygd.barnetrygd.testutil.restClient
 import no.nav.infotrygd.barnetrygd.testutil.restClientNoAuth
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,48 +47,45 @@ class BarnetrygdControllerTest {
 
     @Test
     fun `infotrygdsøk etter løpende barnetrygd`() {
-        val person = TestData.person()
-        val ukjentPerson = TestData.person()
-        val stønad = TestData.stønad(person)
-        val stønad2 = TestData.stønad(ukjentPerson, opphørtFom = "111111")
-        val barn = TestData.barn(person)
+        val (person, opphørPerson) = personRepository.saveAll(listOf(1,2).map { TestData.person() })
+        val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
-        personRepository.saveAndFlush(person)
-        stønadRepository.saveAll(listOf(stønad, stønad2))
-        barnRepository.saveAndFlush(barn)
+        stønadRepository.saveAll(listOf(TestData.stønad(person), TestData.stønad(opphørPerson, opphørtFom = "111111")))
 
-        val requestMedPersonMedLøpendeSak = InfotrygdSøkRequest(listOf(person.fnr))
-        val requestMedUkjentPerson = InfotrygdSøkRequest(listOf(ukjentPerson.fnr))
-        val requestMedBarnTilknyttetLøpendeSak = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(barn.barnFnr))
-        val requestMedUkjentPersonOgBarn = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(person.fnr))
+        val requestMedPersonMedLøpendeStønad = InfotrygdSøkRequest(listOf(person.fnr))
+        val requestMedPersonMedOpphørtStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr))
+        val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr), listOf(barn.barnFnr))
+        val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr))
 
         val responseType = StønadResult::class.java
-        val res1 = post(requestMedPersonMedLøpendeSak, uri["stønad"]).castTo(responseType)
-        val res2 = post(requestMedUkjentPerson, uri["stønad"]).castTo(responseType)
-        val res3 = post(requestMedBarnTilknyttetLøpendeSak, uri["stønad"]).castTo(responseType)
-        val res4 = post(requestMedUkjentPersonOgBarn, uri["stønad"]).castTo(responseType)
-        val resFraTomRequest = post(uri = uri["stønad"]).castTo(responseType)
 
-        Assertions.assertThat(res1.bruker).isNotEmpty
-        Assertions.assertThat(res2).extracting("bruker", "barn").containsOnly(emptyList<StønadDto>())
-        Assertions.assertThat(res3.barn).isNotEmpty
-        Assertions.assertThat(res4).extracting("bruker", "barn").containsOnly(emptyList<StønadDto>())
-        Assertions.assertThat(resFraTomRequest).extracting("bruker", "barn").containsOnly(emptyList<StønadDto>())
+        assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"]).pakkUt(responseType).bruker)
+            .isNotEmpty
+        assertThat(post(requestMedPersonMedOpphørtStønad, uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+            .containsOnly(emptyList<StønadDto>())
+        assertThat(post(requestMedBarnTilknyttetLøpendeStønad, uri["stønad"]).pakkUt(responseType).barn)
+            .isNotEmpty
+        assertThat(post(requestMedBarnSomIkkeFinnes, uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+            .containsOnly(emptyList<StønadDto>())
+        assertThat(post(uri = uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+            .containsOnly(emptyList<StønadDto>())
     }
 
     @Test
-    fun bar() {
-        val person = TestData.person()
-        personRepository.saveAndFlush(person)
-        sakRepository.saveAndFlush(TestData.sak(person))
+    fun `infotrygdsøk etter saker by fnr`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val barn = barnRepository.saveAndFlush(TestData.barn(person))
+        val sak = sakRepository.saveAndFlush(TestData.sak(person))
 
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
+        val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr))
 
-        val res = post(søkPåPersonMedSak, uri["sak"]).castTo(SakResult::class.java)
-        val tomRequest = post(uri = uri["sak"]).castTo(SakResult::class.java)
-
-        Assertions.assertThat(res).extracting { it.bruker.size }.isEqualTo(1)
-        Assertions.assertThat(tomRequest.bruker).isEmpty()
+        assertThat(post(søkPåPersonMedSak, uri["sak"]).pakkUt(SakResult::class.java)).extracting { it.bruker }
+            .isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+        assertThat(post(søkPåBarnTilknyttetSak, uri["sak"]).pakkUt(SakResult::class.java)).extracting { it.barn }
+            .isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+        assertThat(post(uri = uri["sak"]).pakkUt(SakResult::class.java).bruker) // søk med tom request
+            .isEmpty()
     }
 
     @Test
@@ -96,7 +93,7 @@ class BarnetrygdControllerTest {
         uri.values.forEach {
             val client = restClientNoAuth(port)
             val result = post(uri = it, client = client)
-            Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+            assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
     }
 
@@ -105,7 +102,7 @@ class BarnetrygdControllerTest {
         uri.values.forEach {
             val client = restClient(port, subject = "wrong")
             val result = post(uri = it, client = client)
-            Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+            assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
     }
 
@@ -123,6 +120,6 @@ class BarnetrygdControllerTest {
     }
 }
 
-private fun <T> ClientResponse.castTo(type: Class<T>): T {
+private fun <T> ClientResponse.pakkUt(type: Class<T>): T {
     return this.bodyToMono(type).block()!!
 }
