@@ -13,7 +13,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
         SELECT s FROM Sak s 
             WHERE s.person.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
-              AND s.type IN ('S', 'R', 'K', 'A')""")
+              AND s.type IN ('S', 'R', 'K', 'A')""")  // søknad, revurdering, klage, anke
     fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
 
     @Query(
@@ -24,8 +24,6 @@ interface SakRepository : JpaRepository<Sak, Long> {
                        sak.region = barn.region)
            WHERE barn.barnFnr IN :barnFnr
              AND sak.kapittelNr = 'BA' 
-             AND sak.type IN ('S', 'R', 'K', 'A')
-    """
-    )
+             AND sak.type IN ('S', 'R', 'K', 'A')""") // søknad, revurdering, klage, anke
     fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
 }

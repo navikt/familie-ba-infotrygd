@@ -23,7 +23,7 @@ class BarnetrygdController(
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
                          dataType = "InfotrygdSøkRequest",
-                         value = "{\n  \"brukere\": [\n\"01015450301\"\n]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
+                         value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
     @Deprecated("/infotrygd/barnetrygd/stonad gjør samme jobben, men returnerer resultatet istedenfor å trekke konklusjon. Det kan gjøres client-side")
     fun harLopendeBarnetrygdSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
         clientValidator.authorizeClient()
@@ -41,7 +41,7 @@ class BarnetrygdController(
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\"01015450301\"]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
+            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
     fun stønad(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<StønadResult> {
         clientValidator.authorizeClient()
         return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findLøpendeStønadByBrukerFnr(request.brukere),
@@ -53,7 +53,7 @@ class BarnetrygdController(
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\"01015450301\"]," + "\n  \"barn\": [\n\"01015450300\",\n\"01015450572\"\n]\n}"))
+            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
     fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<SakResult> {
         clientValidator.authorizeClient()
         return ResponseEntity.ok(SakResult(bruker = barnetrygdService.findSakerByBrukerFnr(request.brukere),
