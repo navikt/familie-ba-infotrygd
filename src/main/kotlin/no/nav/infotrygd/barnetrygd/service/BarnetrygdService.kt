@@ -32,14 +32,18 @@ class BarnetrygdService(
         return personMottarBarnetrygd || mottasBarnetrygdForBarn
     }
 
-    fun findLøpendeStønadByBrukerFnr(brukerFnr: List<FoedselsNr>): List<StønadDto> {
-        return if (brukerFnr.isEmpty()) emptyList() else stonadRepository.findLøpendeStønadByFnr(brukerFnr).distinct()
-            .map { it.toStønadDto() }
+    fun findStønadByBrukerFnr(brukerFnr: List<FoedselsNr>, historikk: Boolean? = false): List<StønadDto> {
+        return if (brukerFnr.isEmpty()) emptyList() else when (historikk) {
+            true -> stonadRepository.findStønadByFnr(brukerFnr)
+            else -> stonadRepository.findLøpendeStønadByFnr(brukerFnr)
+        }.distinct().map { it.toStønadDto() }
     }
 
-    fun findLøpendeStønadByBarnFnr(barnFnr: List<FoedselsNr>): List<StønadDto>  {
-        return if (barnFnr.isEmpty()) emptyList() else stonadRepository.findLøpendeStønadByBarnFnr(barnFnr).distinct()
-            .map { it.toStønadDto() }
+    fun findStønadByBarnFnr(barnFnr: List<FoedselsNr>, historikk: Boolean? = false): List<StønadDto>  {
+        return if (barnFnr.isEmpty()) emptyList() else when (historikk) {
+            true -> stonadRepository.findStønadByBarnFnr(barnFnr)
+            else -> stonadRepository.findLøpendeStønadByBarnFnr(barnFnr)
+        }.distinct().map { it.toStønadDto() }
     }
 
     fun findSakerByBrukerFnr(brukerFnr: List<FoedselsNr>): List<SakDto> {

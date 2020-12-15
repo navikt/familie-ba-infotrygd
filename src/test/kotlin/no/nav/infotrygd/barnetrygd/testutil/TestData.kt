@@ -53,15 +53,20 @@ object TestData {
 
     fun stønad(
         mottaker: Person,
+        sak: Sak? = null,
         opphørtFom: String = "000000",
-        region: String = "X"
+        opphørsgrunn: String? = "M",
+        region: String = "X",
     ): Stønad {
         return Stønad(
             id = nextId(),
             personKey = mottaker.personKey,
+            sakNr = sak?.saksnummer ?: "  ",
+            saksblokk = sak?.saksblokk ?: " ",
             fnr = mottaker.fnr,
             tkNr = mottaker.tkNr,
             opphørtFom = opphørtFom,
+            opphørsgrunn = opphørsgrunn,
             region = region
         )
     }

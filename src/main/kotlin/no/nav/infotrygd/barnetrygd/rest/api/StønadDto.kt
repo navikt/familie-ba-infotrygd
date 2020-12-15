@@ -9,8 +9,10 @@ data class StønadResult(
 )
 
 data class StønadDto(
-    val id: Long,
-    val fnr: String,
+    val stønadId: Long,
+    val sakNr: String,
+    val saksblokk: String,
+    val fNr: String,
     val tkNr: String,
     val region: String,
     val opphørtFom: String?,
@@ -19,11 +21,13 @@ data class StønadDto(
 
 fun Stønad.toStønadDto(): StønadDto {
     return StønadDto(
-        id = this.id,
-        fnr = this.fnr.asString,
+        stønadId = this.id,
+        sakNr = this.sakNr,
+        saksblokk = this.saksblokk,
+        fNr = this.fnr.asString,
         tkNr = this.tkNr,
         region = this.region,
         opphørtFom = this.opphørtFom,
-        opphørsgrunn = null, // TODO legg til i entitet
+        opphørsgrunn = this.opphørsgrunn,
     )
 }

@@ -42,10 +42,12 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
             value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    fun stønad(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<StønadResult> {
+    fun stønad(@RequestBody request: InfotrygdSøkRequest,
+               @RequestParam(required = false) historikk: Boolean?): ResponseEntity<StønadResult> {
         clientValidator.authorizeClient()
-        return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findLøpendeStønadByBrukerFnr(request.brukere),
-                                              barn = barnetrygdService.findLøpendeStønadByBarnFnr(request.barn ?: emptyList())))
+
+        return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findStønadByBrukerFnr(request.brukere, historikk),
+                                              barn = barnetrygdService.findStønadByBarnFnr(request.barn ?: emptyList(), historikk)))
     }
 
     @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")

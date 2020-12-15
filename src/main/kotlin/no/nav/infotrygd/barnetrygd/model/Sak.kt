@@ -51,6 +51,16 @@ data class Sak(
     @Convert(converter = Char2Converter::class)
     val resultat: String?,
 
+    @OneToOne
+    @JoinColumns(value = [
+        JoinColumn(name = "REGION", referencedColumnName = "REGION", insertable = false, updatable = false),
+        JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "B01_PERSONKEY", insertable = false, updatable = false),
+        JoinColumn(name = "S05_SAKSBLOKK", referencedColumnName = "B20_BLOKK", insertable = false, updatable = false),
+        JoinColumn(name = "S10_SAKSNR", referencedColumnName = "B20_SAK_NR", insertable = false, updatable = false)
+    ])
+    @Cascade(value = [CascadeType.MERGE])
+    val vedtak: Stønad? = null,
+
     @Column(name = "S10_VEDTAKSDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavReversedLocalDateConverter::class)
     val vedtaksdato: LocalDate?,

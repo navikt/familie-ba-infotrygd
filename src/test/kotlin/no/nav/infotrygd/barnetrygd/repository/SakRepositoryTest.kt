@@ -33,13 +33,13 @@ class SakRepositoryTest {
     @Test
     fun findBarnetrygdsakerByFnr() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val sak = sakRepository.saveAndFlush(TestData.sak(person))
+        val sak = sakRepository.saveAndFlush(TestData.sak(person).let { it.copy(vedtak = TestData.stønad(person, it)) })
 
-        val saksliste = sakRepository.findBarnetrygdsakerByFnr(person.fnr)
-
-        assertThat(saksliste).hasSize(1)
-        assertThat(saksliste).extracting("personKey").first().isEqualTo(person.personKey)
-        assertThat(saksliste).extracting("status").first().isEqualTo(sak.status)
+        sakRepository.findBarnetrygdsakerByFnr(person.fnr).also {
+            assertThat(it).extracting("personKey").first().isEqualTo(person.personKey)
+            assertThat(it).usingRecursiveFieldByFieldElementComparator().isEqualTo(listOf(sak))
+            assertThat(it).extracting("vedtak").doesNotContainNull()
+        }
     }
 
     @Test
