@@ -2,13 +2,13 @@ package no.nav.infotrygd.barnetrygd.rest.controller
 
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
-import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
-import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse
+import no.nav.infotrygd.barnetrygd.rest.api.*
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import no.nav.infotrygd.barnetrygd.testutil.restClient
 import no.nav.infotrygd.barnetrygd.testutil.restClientNoAuth
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,91 +38,81 @@ class BarnetrygdControllerTest {
     @Autowired
     lateinit var barnRepository: BarnRepository
 
-    private val uri = "/infotrygd/barnetrygd/personsok"
-    private val uri2 = "/infotrygd/barnetrygd/lopendeSak"
+    @Autowired
+    lateinit var sakRepository: SakRepository
 
-    @Test
-    fun `infotrygd historikk søk`() {
-        val person = TestData.person()
-        val ukjentPerson = TestData.person()
-        val barn = TestData.barn(person)
-
-        personRepository.saveAndFlush(person)
-        barnRepository.saveAndFlush(barn)
-
-        val requestMedPersonSomFinnes = InfotrygdSøkRequest(listOf(person.fnr))
-        val requestMedUkjentPerson = InfotrygdSøkRequest(listOf(ukjentPerson.fnr))
-        val requestMedBarnSomFinnes = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(barn.barnFnr))
-        val requestMedUkjentPersonOgBarn = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(person.fnr))
-
-        val client = restClient(port)
-
-        val res1 = kallBarnetrygdControllerFor(uri, client, requestMedPersonSomFinnes).responseBody()
-        val res2 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPerson).responseBody()
-        val res3 = kallBarnetrygdControllerFor(uri, client, requestMedBarnSomFinnes).responseBody()
-        val res4 = kallBarnetrygdControllerFor(uri, client, requestMedUkjentPersonOgBarn).responseBody()
-        val resFraTomRequest = kallBarnetrygdControllerFor(uri, client).responseBody()
-
-        Assertions.assertThat(res1.ingenTreff).isFalse()
-        Assertions.assertThat(res2.ingenTreff).isTrue()
-        Assertions.assertThat(res3.ingenTreff).isFalse()
-        Assertions.assertThat(res4.ingenTreff).isTrue()
-        Assertions.assertThat(resFraTomRequest.ingenTreff).isTrue()
-    }
+    private val uri = mapOf("stønad" to "/infotrygd/barnetrygd/stonad",
+                            "sak" to "/infotrygd/barnetrygd/saker",
+                            "deprecated" to "/infotrygd/barnetrygd/lopendeSak")
 
     @Test
     fun `infotrygdsøk etter løpende barnetrygd`() {
-        val person = TestData.person()
-        val ukjentPerson = TestData.person()
-        val stønad = TestData.stønad(person)
-        val stønad2 = TestData.stønad(ukjentPerson, opphørtFom = "111111")
-        val barn = TestData.barn(person)
+        val (person, opphørPerson) = personRepository.saveAll(listOf(1,2).map { TestData.person() })
+        val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
-        personRepository.saveAndFlush(person)
-        stønadRepository.saveAll(listOf(stønad, stønad2))
-        barnRepository.saveAndFlush(barn)
+        stønadRepository.saveAll(listOf(TestData.stønad(person), TestData.stønad(opphørPerson, opphørtFom = "111111")))
 
-        val requestMedPersonMedLøpendeSak = InfotrygdSøkRequest(listOf(person.fnr))
-        val requestMedUkjentPerson = InfotrygdSøkRequest(listOf(ukjentPerson.fnr))
-        val requestMedBarnTilknyttetLøpendeSak = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(barn.barnFnr))
-        val requestMedUkjentPersonOgBarn = InfotrygdSøkRequest(listOf(ukjentPerson.fnr), listOf(person.fnr))
+        val requestMedPersonMedLøpendeStønad = InfotrygdSøkRequest(listOf(person.fnr))
+        val requestMedPersonMedOpphørtStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr))
+        val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr), listOf(barn.barnFnr))
+        val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr))
 
-        val client = restClient(port)
+        val responseType = StønadResult::class.java
 
-        val res1 = kallBarnetrygdControllerFor(uri2, client, requestMedPersonMedLøpendeSak).responseBody()
-        val res2 = kallBarnetrygdControllerFor(uri2, client, requestMedUkjentPerson).responseBody()
-        val res3 = kallBarnetrygdControllerFor(uri2, client, requestMedBarnTilknyttetLøpendeSak).responseBody()
-        val res4 = kallBarnetrygdControllerFor(uri2, client, requestMedUkjentPersonOgBarn).responseBody()
-        val resFraTomRequest = kallBarnetrygdControllerFor(uri2, client).responseBody()
+        assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"]).pakkUt(responseType).bruker)
+            .isNotEmpty
+        assertThat(post(requestMedPersonMedOpphørtStønad, uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+            .containsOnly(emptyList<StønadDto>())
+        assertThat(post(requestMedBarnTilknyttetLøpendeStønad, uri["stønad"]).pakkUt(responseType).barn)
+            .isNotEmpty
+        assertThat(post(requestMedBarnSomIkkeFinnes, uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+            .containsOnly(emptyList<StønadDto>())
+        assertThat(post(uri = uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+            .containsOnly(emptyList<StønadDto>())
+    }
 
-        Assertions.assertThat(res1.ingenTreff).isFalse()
-        Assertions.assertThat(res2.ingenTreff).isTrue()
-        Assertions.assertThat(res3.ingenTreff).isFalse()
-        Assertions.assertThat(res4.ingenTreff).isTrue()
-        Assertions.assertThat(resFraTomRequest.ingenTreff).isTrue()
+    @Test
+    fun `infotrygdsøk etter saker by fnr`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val barn = barnRepository.saveAndFlush(TestData.barn(person))
+        val sak = sakRepository.saveAndFlush(TestData.sak(person))
+
+        val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
+        val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr))
+
+        assertThat(post(søkPåPersonMedSak, uri["sak"]).pakkUt(SakResult::class.java)).extracting { it.bruker }
+            .isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+        assertThat(post(søkPåBarnTilknyttetSak, uri["sak"]).pakkUt(SakResult::class.java)).extracting { it.barn }
+            .isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+        assertThat(post(uri = uri["sak"]).pakkUt(SakResult::class.java).bruker) // søk med tom request
+            .isEmpty()
     }
 
     @Test
     fun noAuth() {
-        val client = restClientNoAuth(port)
-        val result = kallBarnetrygdControllerFor(uri, client)
-        Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        uri.values.forEach {
+            val client = restClientNoAuth(port)
+            val result = post(uri = it, client = client)
+            assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
     }
 
     @Test
     fun clientAuth() {
-        val client = restClient(port, subject = "wrong")
-        val result = kallBarnetrygdControllerFor(uri, client)
-        Assertions.assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        uri.values.forEach {
+            val client = restClient(port, subject = "wrong")
+            val result = post(uri = it, client = client)
+            assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
     }
 
-    private fun kallBarnetrygdControllerFor(
-        uri: String,
-        client: WebClient,
-        request: InfotrygdSøkRequest = InfotrygdSøkRequest(listOf())
+    private fun post(
+        request: InfotrygdSøkRequest = InfotrygdSøkRequest(listOf()),
+        uri: String?,
+        client: WebClient = restClient(port),
     ): ClientResponse {
         return client.post()
-            .uri(uri)
+            .uri(uri!!)
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(request)
             .exchange()
@@ -130,6 +120,6 @@ class BarnetrygdControllerTest {
     }
 }
 
-private fun ClientResponse.responseBody(): InfotrygdSøkResponse {
-    return this.bodyToMono(InfotrygdSøkResponse::class.java).block()!!
+private fun <T> ClientResponse.pakkUt(type: Class<T>): T {
+    return this.bodyToMono(type).block()!!
 }

@@ -76,4 +76,4 @@ spec:
     - name: APP_STS_PROXY_URL
       value: ""
     - name: APP_CLIENT_WHITELIST
-      value: azure/0412f3eb-b22a-4d3f-99aa-319321eb340f
+      value: azure/0412f3eb-b22a-4d3f-99aa-319321eb340f,azure/984d4731-b95d-4f87-8154-d8f153f0ebee

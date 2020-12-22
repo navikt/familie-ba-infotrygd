@@ -4,6 +4,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.infotrygd.barnetrygd.model.*
+import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
 import no.nav.infotrygd.barnetrygd.nextId
 import java.time.LocalDate
 
@@ -52,16 +53,54 @@ object TestData {
 
     fun stønad(
         mottaker: Person,
+        sak: Sak? = null,
         opphørtFom: String = "000000",
-        region: String = "X"
+        opphørsgrunn: String? = "M",
+        region: String = "X",
     ): Stønad {
         return Stønad(
             id = nextId(),
             personKey = mottaker.personKey,
+            sakNr = sak?.saksnummer ?: "  ",
+            saksblokk = sak?.saksblokk ?: " ",
             fnr = mottaker.fnr,
             tkNr = mottaker.tkNr,
             opphørtFom = opphørtFom,
+            opphørsgrunn = opphørsgrunn,
             region = region
+        )
+    }
+
+    fun sak(person: Person): Sak {
+        val saksblokk = "A"
+        val saksnummer = "01"
+        val region = "2"
+        return Sak(
+            id = nextId(),
+            personKey = person.personKey,
+            person = Sak.Person(nextId(), person.region, person.personKey, person.fnr),
+            saksblokk = saksblokk,
+            saksnummer = saksnummer,
+            mottattdato = LocalDate.now(),
+            regDato = LocalDate.now(),
+            region = person.region,
+            kapittelNr = "BA",
+            valg = "OR",
+            type = "S",
+            resultat = "I",
+            vedtaksdato = LocalDate.now(),
+            iverksattdato = LocalDate.now(),
+            statushistorikk = listOf(
+                Status(
+                    id = nextId(),
+                    region = region,
+                    personKey = person.personKey,
+                    saksblokk = saksblokk,
+                    saksnummer = saksnummer,
+                    lopeNr = nextId() % 99,
+                    status = SakStatus.IKKE_BEHANDLET
+                )
+            )
         )
     }
 

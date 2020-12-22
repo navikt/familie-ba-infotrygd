@@ -25,7 +25,8 @@ open class AbstractNavLocalDateConverter(datePattern: String) : AttributeConvert
                 med manglende input-validering. I disse tilfellene så har vi ikke informasjon om dato
                 så vi returnerer et tomt resultat.
              */
-            logger.warn("Kunne ikke lese dato: '$dbData'")
+            logger.warn("Kunne ikke lese dato: '$dbData'. \nFiltrert stacktrace:" +
+                    "${e.stackTrace.filter { it.className.contains("no.nav.infotrygd.barnetrygd") }.toList()} ")
             null;
         }
     }

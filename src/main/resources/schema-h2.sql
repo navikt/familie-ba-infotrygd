@@ -380,6 +380,17 @@ Create table INFOTRYGD_Q0.T_INNTEKT (
     TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL);
 
 
+Create table INFOTRYGD_Q0.SA_PERSON_01 (
+    S01_PERSONKEY                  NUMBER(15)          , -- NOT NULL,
+    TK_NR                          CHAR(4)             , -- NOT NULL,
+    F_NR                           CHAR(11)            , -- NOT NULL,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp  , -- NOT NULL,
+    ENDRET_I_KILDE                 TIMESTAMP(6)        DEFAULT current_timestamp  , -- NOT NULL,
+    KILDE_IS                       VARCHAR2(12)        DEFAULT ' '  , -- NOT NULL,
+    REGION                         CHAR(1)             DEFAULT ' '  , -- NOT NULL,
+    ID_PERS                        NUMBER              DEFAULT NOT NULL
+);
+
 --------------------------------------------------
 -- Create Table INFOTRYGD_Q0.SA_SAK_10
 --------------------------------------------------
