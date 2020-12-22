@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.*
 @Protected
 @RestController
 @Timed(value = "infotrygd_historikk_barnetrygd_controller", percentiles = [0.5, 0.95])
+@RequestMapping("/infotrygd/barnetrygd")
 class BarnetrygdController(
     private val barnetrygdService: BarnetrygdService,
     private val clientValidator: ClientValidator
 ) {
 
     @ApiOperation("Avgjør hvorvidt det finnes en løpende sak på søker eller barn i Infotrygd.")
-    @PostMapping(path = ["/infotrygd/barnetrygd/lopendeSak"], consumes = ["application/json"])
+    @PostMapping(path = ["lopendeSak"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
                          dataType = "InfotrygdSøkRequest",
@@ -37,7 +38,7 @@ class BarnetrygdController(
     }
 
     @ApiOperation("Uttrekk fra tabellen \"BA_STOENAD_20\".")
-    @PostMapping(path = ["/infotrygd/barnetrygd/stonad"], consumes = ["application/json"])
+        @PostMapping(path = ["stonad"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
@@ -51,7 +52,7 @@ class BarnetrygdController(
     }
 
     @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")
-    @PostMapping(path = ["/infotrygd/barnetrygd/saker"], consumes = ["application/json"])
+    @PostMapping(path = ["saker"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
