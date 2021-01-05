@@ -5,6 +5,8 @@ import no.nav.infotrygd.barnetrygd.model.converters.*
 import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
 import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
@@ -51,15 +53,16 @@ data class Sak(
     @Convert(converter = Char2Converter::class)
     val resultat: String?,
 
-    @OneToOne
+    @OneToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     @JoinColumns(value = [
-        JoinColumn(name = "REGION", referencedColumnName = "REGION", insertable = false, updatable = false),
-        JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "B01_PERSONKEY", insertable = false, updatable = false),
-        JoinColumn(name = "S05_SAKSBLOKK", referencedColumnName = "B20_BLOKK", insertable = false, updatable = false),
-        JoinColumn(name = "S10_SAKSNR", referencedColumnName = "B20_SAK_NR", insertable = false, updatable = false)
+        JoinColumn(name = "REGION", referencedColumnName = "REGION"),
+        JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "S01_PERSONKEY"),
+        JoinColumn(name = "B20_BLOKK", referencedColumnName = "S05_SAKSBLOKK"),
+        JoinColumn(name = "B20_SAK_NR", referencedColumnName = "S10_SAKSNR")
     ])
     @Cascade(value = [CascadeType.MERGE])
-    val vedtak: Stønad? = null,
+    val vedtak: List<Stønad>,
 
     @Column(name = "S10_VEDTAKSDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavReversedLocalDateConverter::class)

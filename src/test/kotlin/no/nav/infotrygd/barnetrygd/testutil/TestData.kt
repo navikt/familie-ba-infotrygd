@@ -88,6 +88,7 @@ object TestData {
             valg = "OR",
             type = "S",
             resultat = "I",
+            vedtak = emptyList(),
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
             statushistorikk = listOf(
@@ -101,7 +102,7 @@ object TestData {
                     status = SakStatus.IKKE_BEHANDLET
                 )
             )
-        )
+        ).let { it.copy(vedtak = listOf(stønad(mottaker = person, sak = it))) }
     }
 
     private val fnrGenerator = FoedselsnummerGenerator()

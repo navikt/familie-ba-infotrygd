@@ -33,7 +33,7 @@ class SakRepositoryTest {
     @Test
     fun findBarnetrygdsakerByFnr() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val sak = sakRepository.saveAndFlush(TestData.sak(person).let { it.copy(vedtak = TestData.stønad(person, it)) })
+        val sak = sakRepository.saveAndFlush(TestData.sak(person).let { it.copy(vedtak = listOf(TestData.stønad(person, it))) })
 
         sakRepository.findBarnetrygdsakerByFnr(person.fnr).also {
             assertThat(it).extracting("personKey").first().isEqualTo(person.personKey)

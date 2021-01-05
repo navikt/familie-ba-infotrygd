@@ -22,7 +22,9 @@ data class SakDto(
     val innstilling: String? = null,
     val resultat: String? = null,
     val vedtaksdato: LocalDate? = null,
+    @Deprecated("Kan være en liste med stønader. Bruk stønadList")
     val vedtak: StønadDto? = null,
+    val stønadList: List<StønadDto> = emptyList(),
     val nivå: String? = null,
     val innstilldato: LocalDate? = null,
     val iverksattdato: LocalDate? = null,
@@ -97,7 +99,9 @@ fun Sak.toSakDto(): SakDto {
         innstilling = this.innstilling,
         resultat = this.resultat,
         vedtaksdato = this.vedtaksdato,
-        vedtak = this.vedtak?.toStønadDto(),
+        vedtak = this.vedtak.firstOrNull { it.opphørsgrunn == "5" }?.toStønadDto() ?: this.vedtak.firstOrNull()
+            ?.toStønadDto(),
+        stønadList = this.vedtak.map { it.toStønadDto() },
         nivå = this.nivaa,
         innstilldato = this.innstilldato,
         iverksattdato = this.iverksattdato,
