@@ -25,7 +25,7 @@ class DemoData(
     fun init() {
         val person = TestData.person()
         val barn = TestData.barn(person)
-        val sak = TestData.sak(person).let { it.copy(vedtak = listOf(TestData.stønad(person, it))) }
+        val sak = TestData.sak(person).let { it.copy(stønadList = listOf(TestData.stønad(person, it))) }
 
         personRepository.saveAndFlush(person)
         barnRepository.saveAndFlush(barn)
