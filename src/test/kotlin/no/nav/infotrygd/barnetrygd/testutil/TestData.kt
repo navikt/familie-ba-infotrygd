@@ -86,6 +86,7 @@ object TestData {
             region = person.region,
             kapittelNr = "BA",
             valg = "OR",
+            undervalg = "OS",
             type = "S",
             resultat = "I",
             stønadList = emptyList(),

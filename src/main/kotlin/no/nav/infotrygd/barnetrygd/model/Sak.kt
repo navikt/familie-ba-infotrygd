@@ -49,6 +49,10 @@ data class Sak(
     @Convert(converter = Char2Converter::class)
     val type: String,
 
+    @Column(name = "S10_UNDERVALG", columnDefinition = "CHAR")
+    @Convert(converter = Char2Converter::class)
+    val undervalg: String,
+
     @Column(name = "S10_RESULTAT", columnDefinition = "CHAR")
     @Convert(converter = Char2Converter::class)
     val resultat: String?,
@@ -79,6 +83,10 @@ data class Sak(
     @Column(name = "S10_MOTTATTDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavReversedLocalDateConverter::class)
     val mottattdato: LocalDate?,
+
+    @Column(name = "S10_NIVAA", columnDefinition = "CHAR")
+    @Convert(converter = Char3Converter::class)
+    val nivaa: String? = null,
 
     @Column(name = "S10_AARSAKSKODE", columnDefinition = "CHAR")
     @Convert(converter = Char2Converter::class)

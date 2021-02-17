@@ -23,6 +23,9 @@ abstract class AbstractCharConverter(private val size: Int) : AttributeConverter
 class BrukerIdConverter : AbstractCharConverter(7)
 
 @Converter
+class Char3Converter: AbstractCharConverter(3)
+
+@Converter
 class Char2Converter : AbstractCharConverter(2)
 
 @Converter

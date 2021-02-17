@@ -11,13 +11,17 @@ data class SakResult(
 
 data class SakDto(
     val saksnr: String? = null,
+    val saksblokk: String? = null,
     val regDato: LocalDate? = null,
     val mottattdato: LocalDate? = null,
     val kapittelnr: String? = null,
     val valg: String? = null,
+    val undervalg: String? = null,
     val type: String? = null,
+    val nivå: String? = null,
     val resultat: String? = null,
     val vedtaksdato: LocalDate? = null,
+    val iverksattdato: LocalDate? = null,
     val stønadList: List<StønadDto> = emptyList(),
     val årsakskode: String? = null,
     val behenEnhet: String? = null,
@@ -48,17 +52,21 @@ data class SakDto(
 fun Sak.toSakDto(): SakDto {
     return SakDto(
         saksnr = this.saksnummer,
+        saksblokk = this.saksblokk,
         regDato = this.regDato,
         mottattdato = this.mottattdato,
         kapittelnr = this.kapittelNr,
         valg = this.valg,
+        undervalg = this.undervalg,
         type = this.type,
+        nivå = this.nivaa,
         resultat = this.resultat,
         vedtaksdato = this.vedtaksdato,
+        iverksattdato = this.iverksattdato,
         stønadList = this.stønadList.distinct().map { it.toStønadDto() },
         årsakskode = this.aarsakskode,
         behenEnhet = this.behenEnhet,
         regAvEnhet = this.regAvEnhet,
-        status = this.status.kode
+        status = this.status.kode,
     )
 }
