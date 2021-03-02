@@ -12,7 +12,7 @@ val jacksonVersion = "2.9.9"
 val swaggerVersion = "2.9.2"
 val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
-val navFoedselsnummerVersion = "1.0-SNAPSHOT.5"
+val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 
 val mainClass = "no.nav.infotrygd.barnetrygd.Main"
 
