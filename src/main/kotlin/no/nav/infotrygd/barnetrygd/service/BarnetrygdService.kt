@@ -1,14 +1,14 @@
 package no.nav.infotrygd.barnetrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.infotrygd.barnetrygd.model.toSakDto
+import no.nav.infotrygd.barnetrygd.model.toStønadDto
+import no.nav.familie.ba.sak.infotrygd.Sak as SakDto
+import no.nav.familie.ba.sak.infotrygd.Stønad as StønadDto
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
 import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
-import no.nav.infotrygd.barnetrygd.rest.api.SakDto
-import no.nav.infotrygd.barnetrygd.rest.api.StønadDto
-import no.nav.infotrygd.barnetrygd.rest.api.toSakDto
-import no.nav.infotrygd.barnetrygd.rest.api.toStønadDto
 import org.springframework.stereotype.Service
 
 @Service

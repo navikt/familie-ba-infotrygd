@@ -55,8 +55,8 @@ class SakRepositoryTest {
     @Test
     fun findBarnetrygdsakerByBarnFnr() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val barn = barnRepository.saveAndFlush(TestData.barn(person))
         val sak = sakRepository.saveAndFlush(TestData.sak(person))
+        val barn = sak.stønadList[0].barn.first()
 
         val result = sakRepository.findBarnetrygdsakerByBarnFnr(listOf(barn.barnFnr))
 
@@ -71,7 +71,6 @@ class SakRepositoryTest {
     @Test
     fun `findBarnetrygdsakerByBarnFnr query med tom liste og barn som ikke finnes gir tomt resultat`() {
         val person = personRepository.saveAndFlush(TestData.person())
-        barnRepository.saveAndFlush(TestData.barn(person))
         sakRepository.saveAndFlush(TestData.sak(person))
 
         listOf(listOf(person.fnr), listOf()).forEach {

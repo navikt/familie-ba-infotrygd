@@ -24,8 +24,8 @@ class DemoData(
     @PostConstruct
     fun init() {
         val person = TestData.person()
-        val barn = TestData.barn(person)
         val sak = TestData.sak(person).let { it.copy(stønadList = listOf(TestData.stønad(person, it))) }
+        val barn = sak.stønadList[0].barn.first()
 
         personRepository.saveAndFlush(person)
         barnRepository.saveAndFlush(barn)

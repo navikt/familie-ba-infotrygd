@@ -2,7 +2,12 @@ package no.nav.infotrygd.barnetrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
 import io.swagger.annotations.*
-import no.nav.infotrygd.barnetrygd.rest.api.*
+import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.sak.infotrygd.InfotrygdSøkRequest
+import no.nav.familie.ba.sak.infotrygd.InfotrygdSøkResponse
+import no.nav.familie.ba.sak.infotrygd.Sak
+import no.nav.familie.ba.sak.infotrygd.Stønad
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
@@ -30,11 +35,14 @@ class BarnetrygdController(
         clientValidator.authorizeClient()
 
         if (request.brukere.isEmpty() && request.barn.isNullOrEmpty()) {
-            return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = true))
+            return ResponseEntity.ok(InfotrygdSøkResponseGammel(ingenTreff = true))
         }
 
-        val mottarBarnetrygd = barnetrygdService.mottarBarnetrygd(request.brukere, request.barn?.takeUnless { it.isEmpty() })
-        return ResponseEntity.ok(InfotrygdSøkResponse(ingenTreff = !mottarBarnetrygd))
+        val brukere = request.brukere.map { FoedselsNr(it) }
+        val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
+
+        val mottarBarnetrygd = barnetrygdService.mottarBarnetrygd(brukere, barn)
+        return ResponseEntity.ok(InfotrygdSøkResponseGammel(ingenTreff = !mottarBarnetrygd))
     }
 
     @ApiOperation("Uttrekk fra tabellen \"BA_STOENAD_20\".")
@@ -44,11 +52,16 @@ class BarnetrygdController(
             dataType = "InfotrygdSøkRequest",
             value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
     fun stønad(@RequestBody request: InfotrygdSøkRequest,
-               @RequestParam(required = false) historikk: Boolean?): ResponseEntity<StønadResult> {
+               @RequestParam(required = false) historikk: Boolean?): ResponseEntity<InfotrygdSøkResponse<Stønad>> {
         clientValidator.authorizeClient()
 
-        return ResponseEntity.ok(StønadResult(bruker = barnetrygdService.findStønadByBrukerFnr(request.brukere, historikk),
-                                              barn = barnetrygdService.findStønadByBarnFnr(request.barn ?: emptyList(), historikk)))
+        val brukere = request.brukere.map { FoedselsNr(it) }
+        val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
+
+        return ResponseEntity.ok(
+            InfotrygdSøkResponse(bruker = barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
+                barn = barnetrygdService.findStønadByBarnFnr(barn ?: emptyList(), historikk))
+        )
     }
 
     @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")
@@ -57,9 +70,13 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
             value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<SakResult> {
+    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<Sak>> {
         clientValidator.authorizeClient()
-        return ResponseEntity.ok(SakResult(bruker = barnetrygdService.findSakerByBrukerFnr(request.brukere),
-                                           barn = barnetrygdService.findSakerByBarnFnr(request.barn ?: emptyList())))
+
+        val brukere = request.brukere.map { FoedselsNr(it) }
+        val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
+
+        return ResponseEntity.ok(InfotrygdSøkResponse(bruker = barnetrygdService.findSakerByBrukerFnr(brukere),
+                                           barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
     }
 }

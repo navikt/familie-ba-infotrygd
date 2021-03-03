@@ -1,5 +1,10 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
+import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ba.sak.infotrygd.InfotrygdSøkResponse
+import no.nav.familie.ba.sak.infotrygd.Sak
+import no.nav.infotrygd.barnetrygd.model.toSakDto
+import no.nav.familie.ba.sak.infotrygd.Stønad as StønadDto
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
 import no.nav.infotrygd.barnetrygd.repository.SakRepository
@@ -57,7 +62,7 @@ class BarnetrygdControllerTest {
         val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr), listOf(barn.barnFnr))
         val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr))
 
-        val responseType = StønadResult::class.java
+        val responseType = InfotrygdSøkResponse::class.java
 
         assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"]).pakkUt(responseType).bruker)
             .isNotEmpty
@@ -74,17 +79,21 @@ class BarnetrygdControllerTest {
     @Test
     fun `infotrygdsøk etter saker by fnr`() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val barn = barnRepository.saveAndFlush(TestData.barn(person))
         val sak = sakRepository.saveAndFlush(TestData.sak(person))
+        val barn = sak.stønadList[0].barn.first()
 
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
         val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr))
 
-        assertThat(post(søkPåPersonMedSak, uri["sak"]).pakkUt(SakResult::class.java)).extracting { it.bruker }
-            .isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
-        assertThat(post(søkPåBarnTilknyttetSak, uri["sak"]).pakkUt(SakResult::class.java)).extracting { it.barn }
-            .isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
-        assertThat(post(uri = uri["sak"]).pakkUt(SakResult::class.java).bruker) // søk med tom request
+        assertThat(post(søkPåPersonMedSak, uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting {
+                it -> it.bruker.map { objectMapper.convertValue(it, Sak::class.java) }
+        }.isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+
+        assertThat(post(søkPåBarnTilknyttetSak, uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting {
+                it -> it.barn.map { objectMapper.convertValue(it, Sak::class.java) }
+        }.isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+
+        assertThat(post(uri = uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java).bruker) // søk med tom request
             .isEmpty()
     }
 

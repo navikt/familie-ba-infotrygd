@@ -21,6 +21,8 @@ object TestData {
 
     fun barn(
         person: Person,
+        iverksatt: String = "010101",
+        virkningFom: String = "010101",
         barnetrygdTom: String = "000000",
         barnFnr: FoedselsNr = foedselsNr(),
         region: String = "X"
@@ -32,7 +34,9 @@ object TestData {
             personKey = person.personKey,
             barnFnr = barnFnr,
             barnetrygdTom = barnetrygdTom,
-            region = region
+            region = region,
+            iverksatt = iverksatt,
+            virkningFom = virkningFom,
         )
     }
 
@@ -54,6 +58,11 @@ object TestData {
     fun stønad(
         mottaker: Person,
         sak: Sak? = null,
+        barn: List<Barn>? = null,
+        status: String = "01",
+        iverksattFom: String = "010101",
+        virkningFom: String = "010101",
+        opphørtIver: String = "000000",
         opphørtFom: String = "000000",
         opphørsgrunn: String? = "M",
         region: String = "X",
@@ -63,11 +72,17 @@ object TestData {
             personKey = mottaker.personKey,
             sakNr = sak?.saksnummer ?: "  ",
             saksblokk = sak?.saksblokk ?: " ",
+            status = status,
+            tekstkode = "99",
+            iverksattFom = iverksattFom,
+            virkningFom = virkningFom,
             fnr = mottaker.fnr,
             tkNr = mottaker.tkNr,
+            opphørtIver = opphørtIver,
             opphørtFom = opphørtFom,
             opphørsgrunn = opphørsgrunn,
-            region = region
+            region = region,
+            barn = barn ?: listOf(barn(mottaker,  iverksattFom,  virkningFom))
         )
     }
 

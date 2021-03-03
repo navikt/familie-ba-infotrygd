@@ -3,6 +3,7 @@ package no.nav.infotrygd.barnetrygd.model
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.*
 import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
+import no.nav.familie.ba.sak.infotrygd.Sak as SakDto
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import org.hibernate.annotations.Fetch
@@ -135,4 +136,26 @@ data class Sak(
         val fnr: FoedselsNr,
 
     ): Serializable
+}
+
+fun Sak.toSakDto(): SakDto {
+    return SakDto(
+        saksnr = this.saksnummer,
+        saksblokk = this.saksblokk,
+        regDato = this.regDato,
+        mottattdato = this.mottattdato,
+        kapittelnr = this.kapittelNr,
+        valg = this.valg,
+        undervalg = this.undervalg,
+        type = this.type,
+        nivå = this.nivaa,
+        resultat = this.resultat,
+        vedtaksdato = this.vedtaksdato,
+        iverksattdato = this.iverksattdato,
+        stønadList = this.stønadList.distinct().map { it.toStønadDto() },
+        årsakskode = this.aarsakskode,
+        behenEnhet = this.behenEnhet,
+        regAvEnhet = this.regAvEnhet,
+        status = this.status.kode,
+    )
 }

@@ -1,10 +1,10 @@
 package no.nav.infotrygd.barnetrygd.service
 
+import no.nav.infotrygd.barnetrygd.model.toStønadDto
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
 import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
-import no.nav.infotrygd.barnetrygd.rest.api.toStønadDto
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

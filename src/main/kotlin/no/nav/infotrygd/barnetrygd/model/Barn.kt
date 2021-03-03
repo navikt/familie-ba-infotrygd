@@ -1,6 +1,7 @@
 package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.sak.infotrygd.Barn as BarnDto
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedLongFoedselNrConverter
 import javax.persistence.*
@@ -30,5 +31,19 @@ data class Barn(
     val barnFnr: FoedselsNr,
 
     @Column(name = "B10_BA_TOM", columnDefinition = "VARCHAR2")
-    val barnetrygdTom: String
+    val barnetrygdTom: String,
+
+    @Column(name = "B10_BA_IVER", columnDefinition = "VARCHAR2")
+    val iverksatt: String,
+
+    @Column(name = "B10_BA_VFOM", columnDefinition = "VARCHAR2")
+    val virkningFom: String,
+
 )
+
+fun Barn.toBarnDto(): BarnDto {
+    return BarnDto(
+        barnFnr = barnFnr.asString,
+        barnetrygdTom = barnetrygdTom,
+    )
+}
