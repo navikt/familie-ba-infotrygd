@@ -1,10 +1,10 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
+import no.nav.familie.kontrakter.ba.infotrygd.Sak
+import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ba.sak.infotrygd.InfotrygdSøkResponse
-import no.nav.familie.ba.sak.infotrygd.Sak
 import no.nav.infotrygd.barnetrygd.model.toSakDto
-import no.nav.familie.ba.sak.infotrygd.Stønad as StønadDto
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
 import no.nav.infotrygd.barnetrygd.repository.SakRepository

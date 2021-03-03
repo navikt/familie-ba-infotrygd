@@ -3,7 +3,7 @@ package no.nav.infotrygd.barnetrygd.model
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.*
 import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
-import no.nav.familie.ba.sak.infotrygd.Sak as SakDto
+import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import org.hibernate.annotations.Fetch

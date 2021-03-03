@@ -1,7 +1,7 @@
 package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.ba.sak.infotrygd.Stønad as StønadDto
+import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.infotrygd.barnetrygd.model.converters.CharConverter
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
 import org.hibernate.annotations.Cascade

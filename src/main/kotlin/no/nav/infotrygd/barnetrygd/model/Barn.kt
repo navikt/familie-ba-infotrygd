@@ -1,10 +1,10 @@
 package no.nav.infotrygd.barnetrygd.model
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.ba.sak.infotrygd.Barn as BarnDto
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedLongFoedselNrConverter
 import javax.persistence.*
+import no.nav.familie.kontrakter.ba.infotrygd.Barn as BarnDto
 
 @Entity
 @Table(name = "BA_BARN_10")
