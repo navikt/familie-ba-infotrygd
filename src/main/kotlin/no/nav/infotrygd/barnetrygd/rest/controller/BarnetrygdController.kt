@@ -1,18 +1,20 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
-import io.swagger.annotations.*
+import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
+import io.swagger.annotations.ApiOperation
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.ba.sak.infotrygd.InfotrygdSøkRequest
-import no.nav.familie.ba.sak.infotrygd.InfotrygdSøkResponse
-import no.nav.familie.ba.sak.infotrygd.Sak
-import no.nav.familie.ba.sak.infotrygd.Stønad
-import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
+import no.nav.familie.kontrakter.ba.infotrygd.Sak
+import no.nav.familie.kontrakter.ba.infotrygd.Stønad
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
 
 
 @Protected

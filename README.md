@@ -10,4 +10,6 @@ Tabeller og kolonner som er i bruk: http://localhost:8080/tables
 Confluence:
 - https://confluence.adeo.no/display/MODNAV/Databaser
 
+#### Tilgang til repoer fra Github
 
+For at gradle skal kunne hente repositories fra github, må gpr.key=\<token\> settes i ~/.gradle/gradle.properties. Token må lages i Github, med tilgangen read:packages påskrudd. 
