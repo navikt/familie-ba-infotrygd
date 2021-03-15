@@ -1,7 +1,6 @@
-package no.nav.infotrygd.barnetrygd.model
+package no.nav.infotrygd.barnetrygd.model.dl1
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.infotrygd.barnetrygd.model.converters.CharConverter
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
 import org.hibernate.annotations.Cascade
@@ -68,18 +67,3 @@ data class Stønad(
     val barn: List<Barn> = emptyList(),
 
 ) : Serializable
-
-fun Stønad.toStønadDto(): StønadDto {
-    return StønadDto(
-        stønadId = this.id,
-        sakNr = this.sakNr,
-        status = status,
-        tekstkode = tekstkode,
-        iverksattFom = iverksattFom,
-        virkningFom = virkningFom,
-        opphørtIver = opphørtIver,
-        opphørtFom = this.opphørtFom,
-        opphørsgrunn = this.opphørsgrunn,
-        barn = barn.map { it.toBarnDto() },
-    )
-}

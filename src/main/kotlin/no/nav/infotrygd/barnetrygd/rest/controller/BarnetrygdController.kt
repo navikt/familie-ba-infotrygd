@@ -7,8 +7,8 @@ import io.swagger.annotations.ApiOperation
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
-import no.nav.familie.kontrakter.ba.infotrygd.Sak
-import no.nav.familie.kontrakter.ba.infotrygd.Stønad
+import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
+import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
@@ -54,7 +54,7 @@ class BarnetrygdController(
             dataType = "InfotrygdSøkRequest",
             value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
     fun stønad(@RequestBody request: InfotrygdSøkRequest,
-               @RequestParam(required = false) historikk: Boolean?): ResponseEntity<InfotrygdSøkResponse<Stønad>> {
+               @RequestParam(required = false) historikk: Boolean?): ResponseEntity<InfotrygdSøkResponse<StønadDto>> {
         clientValidator.authorizeClient()
 
         val brukere = request.brukere.map { FoedselsNr(it) }
@@ -72,7 +72,7 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
             value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<Sak>> {
+    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         clientValidator.authorizeClient()
 
         val brukere = request.brukere.map { FoedselsNr(it) }

@@ -1,7 +1,8 @@
 package no.nav.infotrygd.barnetrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.infotrygd.barnetrygd.model.Stønad
+import no.nav.infotrygd.barnetrygd.model.db2.Vedtak
+import no.nav.infotrygd.barnetrygd.model.dl1.Stønad
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -57,4 +58,5 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND s.opphørtFom = '000000'
     """)
     fun findLøpendeStønadByBarnFnr(barnFnr: List<FoedselsNr>): List<Stønad>
+
 }

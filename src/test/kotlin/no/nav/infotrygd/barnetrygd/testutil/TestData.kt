@@ -3,7 +3,10 @@ package no.nav.infotrygd.barnetrygd.testutil
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
-import no.nav.infotrygd.barnetrygd.model.*
+import no.nav.infotrygd.barnetrygd.model.db2.Delytelse
+import no.nav.infotrygd.barnetrygd.model.db2.LøpeNrFnr
+import no.nav.infotrygd.barnetrygd.model.db2.Vedtak
+import no.nav.infotrygd.barnetrygd.model.dl1.*
 import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
 import no.nav.infotrygd.barnetrygd.nextId
 import java.time.LocalDate
@@ -55,6 +58,16 @@ object TestData {
         )
     }
 
+    fun vedtak(sak: Sak): Vedtak {
+        return Vedtak(
+            1L,
+            sak.saksnummer.toLong(),
+            sak.saksblokk,
+            1L,
+            Delytelse(1L, LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M")
+        )
+    }
+
     fun stønad(
         mottaker: Person,
         sak: Sak? = null,
@@ -70,8 +83,8 @@ object TestData {
         return Stønad(
             id = nextId(),
             personKey = mottaker.personKey,
-            sakNr = sak?.saksnummer ?: "  ",
-            saksblokk = sak?.saksblokk ?: " ",
+            sakNr = sak?.saksnummer ?: "01",
+            saksblokk = sak?.saksblokk ?: "1",
             status = status,
             tekstkode = "99",
             iverksattFom = iverksattFom,
@@ -82,7 +95,7 @@ object TestData {
             opphørtFom = opphørtFom,
             opphørsgrunn = opphørsgrunn,
             region = region,
-            barn = barn ?: listOf(barn(mottaker,  iverksattFom,  virkningFom))
+            barn = barn ?: listOf(barn(mottaker,  iverksattFom,  virkningFom)),
         )
     }
 

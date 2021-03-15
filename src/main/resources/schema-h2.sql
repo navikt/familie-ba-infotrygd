@@ -312,7 +312,7 @@ Create table INFOTRYGD_Q0.T_VEDTAK_SP_FA_BS (
 Create table INFOTRYGD_Q0.T_DELYTELSE (
     VEDTAK_ID                      NUMBER              NOT NULL,
     TYPE_DELYTELSE                 CHAR(2)             NOT NULL,
-    TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL,
+    TIDSPUNKT_REG                  TIMESTAMP(6)        , --NOT NULL,
     FOM                            DATE                , -- NOT NULL,
     TOM                            DATE ,
     BELOP                          NUMBER(11, 2)       , -- NOT NULL,

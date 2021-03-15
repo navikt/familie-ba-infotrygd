@@ -1,4 +1,4 @@
-package no.nav.infotrygd.barnetrygd.model
+package no.nav.infotrygd.barnetrygd.model.dl1
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter

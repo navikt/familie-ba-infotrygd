@@ -1,7 +1,7 @@
 package no.nav.infotrygd.barnetrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.infotrygd.barnetrygd.model.Person
+import no.nav.infotrygd.barnetrygd.model.dl1.Person
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository

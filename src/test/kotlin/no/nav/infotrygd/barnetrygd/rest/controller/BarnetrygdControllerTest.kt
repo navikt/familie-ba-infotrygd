@@ -4,12 +4,9 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.infotrygd.barnetrygd.model.toSakDto
-import no.nav.infotrygd.barnetrygd.repository.BarnRepository
-import no.nav.infotrygd.barnetrygd.repository.PersonRepository
-import no.nav.infotrygd.barnetrygd.repository.SakRepository
-import no.nav.infotrygd.barnetrygd.repository.StønadRepository
+import no.nav.infotrygd.barnetrygd.repository.*
 import no.nav.infotrygd.barnetrygd.rest.api.*
+import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import no.nav.infotrygd.barnetrygd.testutil.restClient
 import no.nav.infotrygd.barnetrygd.testutil.restClientNoAuth
@@ -45,6 +42,9 @@ class BarnetrygdControllerTest {
 
     @Autowired
     lateinit var sakRepository: SakRepository
+
+    @Autowired
+    lateinit var barnetrygdService: BarnetrygdService
 
     private val uri = mapOf("stønad" to "/infotrygd/barnetrygd/stonad",
                             "sak" to "/infotrygd/barnetrygd/saker",
@@ -87,11 +87,11 @@ class BarnetrygdControllerTest {
 
         assertThat(post(søkPåPersonMedSak, uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting {
                 it -> it.bruker.map { objectMapper.convertValue(it, Sak::class.java) }
-        }.isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+        }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
         assertThat(post(søkPåBarnTilknyttetSak, uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting {
                 it -> it.barn.map { objectMapper.convertValue(it, Sak::class.java) }
-        }.isEqualToComparingFieldByFieldRecursively(listOf(sak.toSakDto()))
+        }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
         assertThat(post(uri = uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java).bruker) // søk med tom request
             .isEmpty()

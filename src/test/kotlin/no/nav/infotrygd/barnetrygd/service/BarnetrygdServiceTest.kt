@@ -1,10 +1,6 @@
 package no.nav.infotrygd.barnetrygd.service
 
-import no.nav.infotrygd.barnetrygd.model.toStønadDto
-import no.nav.infotrygd.barnetrygd.repository.BarnRepository
-import no.nav.infotrygd.barnetrygd.repository.PersonRepository
-import no.nav.infotrygd.barnetrygd.repository.SakRepository
-import no.nav.infotrygd.barnetrygd.repository.StønadRepository
+import no.nav.infotrygd.barnetrygd.repository.*
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -32,11 +28,20 @@ internal class BarnetrygdServiceTest {
     @Autowired
     private lateinit var sakRepository: SakRepository
 
+    @Autowired
+    private lateinit var vedtakRepository: VedtakRepository
+
     private lateinit var barnetrygdService: BarnetrygdService
 
     @Before
     fun setup() {
-        barnetrygdService = BarnetrygdService(personRepository, stonadRepository, barnRepository, sakRepository)
+        barnetrygdService = BarnetrygdService(
+            personRepository,
+            stonadRepository,
+            barnRepository,
+            sakRepository,
+            vedtakRepository,
+        )
     }
 
     @Test
@@ -49,10 +54,10 @@ internal class BarnetrygdServiceTest {
         personRepository.saveAll(listOf(person, person2))
         stonadRepository.saveAll(listOf(stønad, stønad2))
 
-        val stænadResult = barnetrygdService.findStønadByBrukerFnr(listOf(person.fnr, person2.fnr))
+        val stønadResult = barnetrygdService.findStønadByBrukerFnr(listOf(person.fnr, person2.fnr))
 
-        assertThat(stænadResult).hasSize(1)
-        assertThat(stænadResult).first().isEqualToComparingFieldByField(stønad.toStønadDto())
+        assertThat(stønadResult).hasSize(1)
+        assertThat(stønadResult).first().isEqualToComparingFieldByField(barnetrygdService.hentDelytelseOgKonverterTilDto(stønad))
     }
 
     @Test
