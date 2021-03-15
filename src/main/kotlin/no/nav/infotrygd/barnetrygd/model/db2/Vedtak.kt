@@ -24,8 +24,8 @@ data class Vedtak(
     @Column(name = "PERSON_LOPENR", columnDefinition = "DECIMAL")
     val løpenummer: Long,
 
-    @OneToOne
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
     @Cascade(value = [CascadeType.MERGE])
-    val delytelse: Delytelse,
+    val delytelse: Set<Delytelse>,
 )

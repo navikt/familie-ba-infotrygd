@@ -64,7 +64,7 @@ object TestData {
             sak.saksnummer.toLong(),
             sak.saksblokk,
             1L,
-            Delytelse(1L, LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M")
+            setOf(Delytelse(1L, LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M"))
         )
     }
 
