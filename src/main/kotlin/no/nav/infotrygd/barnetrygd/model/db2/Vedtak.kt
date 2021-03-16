@@ -27,5 +27,5 @@ data class Vedtak(
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
     @Cascade(value = [CascadeType.MERGE])
-    val delytelse: Set<Delytelse>,
+    val delytelse: List<Delytelse>,
 )
