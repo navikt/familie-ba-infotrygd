@@ -13,3 +13,4 @@ Confluence:
 #### Tilgang til repoer fra Github
 
 For at gradle skal kunne hente repositories fra github, må gpr.key=\<token\> settes i ~/.gradle/gradle.properties. Token må lages i Github, med tilgangen read:packages påskrudd. 
+
