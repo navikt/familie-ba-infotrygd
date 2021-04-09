@@ -66,7 +66,7 @@ spec:
     - name: APP_AZURE_DISCOVERY_URL
       value: https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/v2.0/.well-known/openid-configuration
     - name: APP_AZURE_AUD
-      value: fadafa61-0d49-43d4-b256-8a589b215da5
+      value: 92a348c5-149e-42aa-b56f-207414785aaa
     - name: APP_AZURE_PROXY_URL
       value: https://webproxy-nais.nav.no:8088
     - name: APP_STS_DISCOVERY_URL
