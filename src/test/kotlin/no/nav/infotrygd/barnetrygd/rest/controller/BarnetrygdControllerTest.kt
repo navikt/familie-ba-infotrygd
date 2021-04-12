@@ -48,7 +48,8 @@ class BarnetrygdControllerTest {
 
     private val uri = mapOf("stønad" to "/infotrygd/barnetrygd/stonad",
                             "sak" to "/infotrygd/barnetrygd/saker",
-                            "deprecated" to "/infotrygd/barnetrygd/lopendeSak")
+                            "deprecated" to "/infotrygd/barnetrygd/lopendeSak",
+                            "lopende-barnetrygd" to "/infotrygd/barnetrygd/lopende-barnetrygd")
 
     @Test
     fun `infotrygdsøk etter løpende barnetrygd`() {
@@ -62,17 +63,17 @@ class BarnetrygdControllerTest {
         val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr), listOf(barn.barnFnr))
         val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr))
 
-        val responseType = InfotrygdSøkResponse::class.java
-
-        assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"]).pakkUt(responseType).bruker)
+        assertThat(post(requestMedPersonMedLøpendeStønad, uri["lopende-barnetrygd"]).pakkUt(InfotrygdLøpendeBarnetrygdResponse::class.java)
+            .harLøpendeBarnetrygd).isTrue
+        assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java).bruker)
             .isNotEmpty
-        assertThat(post(requestMedPersonMedOpphørtStønad, uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+        assertThat(post(requestMedPersonMedOpphørtStønad, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
             .containsOnly(emptyList<StønadDto>())
-        assertThat(post(requestMedBarnTilknyttetLøpendeStønad, uri["stønad"]).pakkUt(responseType).barn)
+        assertThat(post(requestMedBarnTilknyttetLøpendeStønad, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java).barn)
             .isNotEmpty
-        assertThat(post(requestMedBarnSomIkkeFinnes, uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+        assertThat(post(requestMedBarnSomIkkeFinnes, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
             .containsOnly(emptyList<StønadDto>())
-        assertThat(post(uri = uri["stønad"]).pakkUt(responseType)).extracting("bruker", "barn")
+        assertThat(post(uri = uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
             .containsOnly(emptyList<StønadDto>())
     }
 

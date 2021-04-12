@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
@@ -32,7 +33,7 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
                          dataType = "InfotrygdSøkRequest",
                          value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    @Deprecated("/infotrygd/barnetrygd/stonad gjør samme jobben, men returnerer resultatet istedenfor å trekke konklusjon. Det kan gjøres client-side")
+    @Deprecated("Bruk /lopende-barnetrygd")
     fun harLopendeBarnetrygdSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
         clientValidator.authorizeClient()
 
@@ -47,6 +48,22 @@ class BarnetrygdController(
         return ResponseEntity.ok(InfotrygdSøkResponseGammel(ingenTreff = !mottarBarnetrygd))
     }
 
+    @ApiOperation("Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
+    @PostMapping(path = ["lopende-barnetrygd"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+            dataType = "InfotrygdSøkRequest",
+            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
+    fun harLopendeBarnetrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
+        clientValidator.authorizeClient()
+
+        val harLøpendeBarnetrygd = hentStønaderPåBrukereOgBarn(request.brukere, request.barn, false).let {
+            it.first.isNotEmpty() || it.second.isNotEmpty()
+        }
+
+        return ResponseEntity.ok(InfotrygdLøpendeBarnetrygdResponse(harLøpendeBarnetrygd))
+    }
+
     @ApiOperation("Uttrekk fra tabellen \"BA_STOENAD_20\".")
         @PostMapping(path = ["stonad"], consumes = ["application/json"])
     @ApiImplicitParams(
@@ -57,13 +74,9 @@ class BarnetrygdController(
                @RequestParam(required = false) historikk: Boolean?): ResponseEntity<InfotrygdSøkResponse<StønadDto>> {
         clientValidator.authorizeClient()
 
-        val brukere = request.brukere.map { FoedselsNr(it) }
-        val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
-
-        return ResponseEntity.ok(
-            InfotrygdSøkResponse(bruker = barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
-                barn = barnetrygdService.findStønadByBarnFnr(barn ?: emptyList(), historikk))
-        )
+        return hentStønaderPåBrukereOgBarn(request.brukere, request.barn, historikk).let {
+            ResponseEntity.ok(InfotrygdSøkResponse(bruker = it.first, barn = it.second))
+        }
     }
 
     @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")
@@ -80,5 +93,15 @@ class BarnetrygdController(
 
         return ResponseEntity.ok(InfotrygdSøkResponse(bruker = barnetrygdService.findSakerByBrukerFnr(brukere),
                                            barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
+    }
+
+    private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
+                                            barn: List<String>?,
+                                            historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {
+        val brukere = brukere.map { FoedselsNr(it) }
+        val barn = barn?.map { FoedselsNr(it) } ?: emptyList()
+
+        return Pair(barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
+                    barnetrygdService.findStønadByBarnFnr(barn, historikk))
     }
 }
