@@ -4,6 +4,10 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.infotrygd.barnetrygd.model.db2.Beslutning
+import no.nav.infotrygd.barnetrygd.model.db2.Endring
+import no.nav.infotrygd.barnetrygd.model.db2.LøpeNrFnr
+import no.nav.infotrygd.barnetrygd.model.db2.StønadDb2
 import no.nav.infotrygd.barnetrygd.repository.*
 import no.nav.infotrygd.barnetrygd.rest.api.*
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
@@ -44,12 +48,28 @@ class BarnetrygdControllerTest {
     lateinit var sakRepository: SakRepository
 
     @Autowired
+    lateinit var vedtakRepository: VedtakRepository
+
+    @Autowired
+    lateinit var løpeNrFnrRepository: LøpeNrFnrRepository
+
+    @Autowired
+    lateinit var stønadDb2Repository: StønadDb2Repository
+
+    @Autowired
+    lateinit var endringRepository: EndringRepository
+
+    @Autowired
+    lateinit var beslutningRepository: BeslutningRepository
+
+    @Autowired
     lateinit var barnetrygdService: BarnetrygdService
 
     private val uri = mapOf("stønad" to "/infotrygd/barnetrygd/stonad",
                             "sak" to "/infotrygd/barnetrygd/saker",
                             "deprecated" to "/infotrygd/barnetrygd/lopendeSak",
-                            "lopende-barnetrygd" to "/infotrygd/barnetrygd/lopende-barnetrygd")
+                            "lopende-barnetrygd" to "/infotrygd/barnetrygd/lopende-barnetrygd",
+                            "aapen-sak" to "/infotrygd/barnetrygd/aapen-sak")
 
     @Test
     fun `infotrygdsøk etter løpende barnetrygd`() {
@@ -96,6 +116,30 @@ class BarnetrygdControllerTest {
 
         assertThat(post(uri = uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java).bruker) // søk med tom request
             .isEmpty()
+    }
+
+    @Test
+    fun `aapen-sak skal svare true når det finnes sak med vedtak uten beslutning, deretter false etter beslutning`() {
+        val person = personRepository.saveAndFlush(TestData.person()).also {
+            løpeNrFnrRepository.saveAndFlush(LøpeNrFnr(1, it.fnr.asString))
+        }
+        val sak = TestData.sak(person).let { it.copy(stønadList = listOf(TestData.stønad(person, it))) }.also {
+            sakRepository.saveAndFlush(it)
+        }
+        val vedtak = vedtakRepository.saveAndFlush(TestData.vedtak(sak)).also {
+            stønadDb2Repository.saveAndFlush(StønadDb2(it.stønadId, "BA", 1))
+            endringRepository.saveAndFlush(Endring(it.vedtakId, "  "))
+        }
+
+        val søkRequest = InfotrygdSøkRequest(listOf(person.fnr))
+
+        assertThat(post(søkRequest, uri["aapen-sak"]).pakkUt(InfotrygdÅpenSakResponse::class.java).harÅpenSak)
+            .isTrue
+
+        beslutningRepository.saveAndFlush(Beslutning(1, vedtak.vedtakId, "J"))
+
+        assertThat(post(søkRequest, uri["aapen-sak"]).pakkUt(InfotrygdÅpenSakResponse::class.java).harÅpenSak)
+            .isFalse
     }
 
     @Test

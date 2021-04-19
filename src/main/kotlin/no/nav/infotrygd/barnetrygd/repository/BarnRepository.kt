@@ -15,4 +15,10 @@ interface BarnRepository : JpaRepository<Barn, Long> {
         AND b.barnetrygdTom = '000000'
     """)
     fun findBarnetrygdBarnInFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
+
+    @Query("""
+        SELECT b FROM Barn b
+        WHERE b.barnFnr IN :barnFnrList
+    """)
+    fun findBarnByFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
 }

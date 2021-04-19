@@ -58,12 +58,15 @@ object TestData {
         )
     }
 
-    fun vedtak(sak: Sak): Vedtak {
+    fun vedtak(sak: Sak, kodeRutine: String = "BA", kodeResultat: String = "  "): Vedtak {
         return Vedtak(
+            1L,
             1L,
             sak.saksnummer.toLong(),
             sak.saksblokk,
             1L,
+            kodeRutine,
+            kodeResultat,
             listOf(Delytelse(1L, LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M"))
         )
     }

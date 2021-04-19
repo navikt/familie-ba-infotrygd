@@ -8,6 +8,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
@@ -62,6 +63,20 @@ class BarnetrygdController(
         }
 
         return ResponseEntity.ok(InfotrygdLøpendeBarnetrygdResponse(harLøpendeBarnetrygd))
+    }
+
+    @ApiOperation("Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
+    @PostMapping(path = ["aapen-sak"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+            dataType = "InfotrygdSøkRequest",
+            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
+    fun harÅoenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
+        clientValidator.authorizeClient()
+
+        return barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
+            ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
+        }
     }
 
     @ApiOperation("Uttrekk fra tabellen \"BA_STOENAD_20\".")

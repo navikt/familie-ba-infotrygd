@@ -19,4 +19,26 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
     fun hentVedtak(fnr: String,
                    saksnummer: Long,
                    saksblokk: String): List<Vedtak>
+
+    @Query(
+        """
+        SELECT count(*) FROM LøpeNrFnr l, StønadDb2 s, Vedtak v, Endring e
+        WHERE l.personnummer = :fnr
+        AND s.løpenummer = l.personLøpenummer
+        AND s.kodeRutine = 'BA'
+        AND v.løpenummer = s.løpenummer
+        AND v.stønadId = s.stønadId
+        AND v.kodeRutine = s.kodeRutine
+        AND v.kodeResultat <> 'HB'
+        AND e.vedtakId = v.vedtakId
+        AND e.kode <> 'UA'
+        AND e.kode <> 'AN'
+        AND NOT EXISTS (SELECT 1 FROM Beslutning b
+                        WHERE b.vedtakId = v.vedtakId
+                        AND b.godkjent2 = 'J')
+        AND EXISTS (SELECT 1 FROM Delytelse d
+                    WHERE d.vedtakId = v.vedtakId)
+    """
+    )
+    fun tellAntallÅpneSakerPåPerson(fnr: String): Long
 }
