@@ -14,6 +14,7 @@ import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
@@ -27,6 +28,7 @@ class BarnetrygdController(
     private val barnetrygdService: BarnetrygdService,
     private val clientValidator: ClientValidator
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation("Avgjør hvorvidt det finnes en løpende sak på søker eller barn i Infotrygd.")
     @PostMapping(path = ["lopendeSak"], consumes = ["application/json"])
@@ -74,8 +76,12 @@ class BarnetrygdController(
     fun harÅoenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
         clientValidator.authorizeClient()
 
-        return barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
-            ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
+        return try {
+            barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
+                ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
+            }
+        } catch(e: Exception) {
+            ResponseEntity.ok(InfotrygdÅpenSakResponse(false))
         }
     }
 
