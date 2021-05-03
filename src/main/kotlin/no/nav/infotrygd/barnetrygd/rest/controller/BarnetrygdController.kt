@@ -81,7 +81,7 @@ class BarnetrygdController(
                 ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
             }
         } catch(e: Exception) {
-            ResponseEntity.ok(InfotrygdÅpenSakResponse(false))
+            ResponseEntity.ok(InfotrygdÅpenSakResponse(false, feilmelding = e.stackTraceToString()))
         }
     }
 
