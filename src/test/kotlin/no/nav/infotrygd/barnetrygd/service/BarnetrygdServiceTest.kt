@@ -1,8 +1,11 @@
 package no.nav.infotrygd.barnetrygd.service
 
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.infotrygd.barnetrygd.repository.*
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
+import org.hibernate.exception.SQLGrammarException
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
+import java.sql.SQLException
 
 @RunWith(SpringRunner::class)
 @DataJpaTest
@@ -84,5 +88,15 @@ internal class BarnetrygdServiceTest {
         assertThat(stønadResult).hasSize(1)
         val stønadResultBarn2 = barnetrygdService.findStønadByBarnFnr(listOf(barn[1].barnFnr))
         assertThat(stønadResultBarn2).hasSize(0)
+    }
+
+    @Test
+    fun `tellAntallÅpneSaker skal ikke involvere barnRepository når "barn"-listen er tom`() {
+        val barnRepositoryMock = mockk<BarnRepository>()
+        every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
+                SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
+        val barnetrygdService = BarnetrygdService(mockk(), mockk(), barnRepositoryMock, mockk(), mockk())
+
+        assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }
 }

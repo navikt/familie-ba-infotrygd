@@ -92,12 +92,13 @@ class BarnetrygdService(
     }
 
     fun tellAntallÅpneSaker(brukere: List<String>, barn: List<String>?): Long {
-        val personerViaBarn = barn?.let { barnList ->
-            barnRepository.findBarnByFnrList(barnList.map { FoedselsNr(it) })
-                .map { it.fnr.asString }
-        } ?: emptyList()
+        val personer = brukere.toMutableSet()
 
-        return brukere.toMutableSet().also { it.addAll(personerViaBarn) }
-            .map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
+        if (!barn.isNullOrEmpty()) {
+            val personerViaBarn = barnRepository.findBarnByFnrList(barn.map { FoedselsNr(it) })
+                .map { it.fnr.asString }
+            personer.addAll(personerViaBarn)
+        }
+        return personer.map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
     }
 }

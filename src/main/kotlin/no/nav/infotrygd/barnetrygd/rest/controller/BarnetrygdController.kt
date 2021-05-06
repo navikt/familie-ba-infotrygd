@@ -73,15 +73,11 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdSøkRequest",
             value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    fun harÅoenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
+    fun harÅpenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
         clientValidator.authorizeClient()
 
-        return try {
-            barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
-                ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
-            }
-        } catch(e: Exception) {
-            ResponseEntity.ok(InfotrygdÅpenSakResponse(false, feilmelding = e.stackTraceToString()))
+        return barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
+            ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
         }
     }
 

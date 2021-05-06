@@ -131,7 +131,7 @@ class BarnetrygdControllerTest {
             endringRepository.saveAndFlush(Endring(it.vedtakId, "  "))
         }
 
-        val søkRequest = InfotrygdSøkRequest(listOf(person.fnr))
+        val søkRequest = InfotrygdSøkRequest(listOf(person.fnr), emptyList())
 
         assertThat(post(søkRequest, uri["aapen-sak"]).pakkUt(InfotrygdÅpenSakResponse::class.java).harÅpenSak)
             .isTrue
