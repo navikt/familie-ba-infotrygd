@@ -2,6 +2,8 @@ package no.nav.infotrygd.barnetrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.dl1.Stønad
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -57,5 +59,16 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND s.opphørtFom = '000000'
     """)
     fun findLøpendeStønadByBarnFnr(barnFnr: List<FoedselsNr>): List<Stønad>
+
+
+
+    @Query("""
+        SELECT s.fnr FROM Stønad s
+           INNER JOIN Person p
+                   ON (s.personKey = p.personKey and
+                       s.region = p.region)
+        AND s.opphørtFom = '000000'
+    """)
+    fun findLøpendeStønader(page: Pageable): List<FoedselsNr>
 
 }

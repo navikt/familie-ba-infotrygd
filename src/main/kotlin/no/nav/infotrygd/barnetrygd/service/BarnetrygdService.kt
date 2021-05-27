@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.infotrygd.barnetrygd.model.db2.toDelytelseDto
 import no.nav.infotrygd.barnetrygd.model.dl1.*
 import no.nav.infotrygd.barnetrygd.repository.*
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -100,5 +101,12 @@ class BarnetrygdService(
             personer.addAll(personerViaBarn)
         }
         return personer.map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
+    }
+
+    fun hentLøpendeStønader(valg: String, undervalg: String, page: Int): Set<String> {
+        val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
+
+        return sakRepository.findBarnetrygdsakerByFnrValgUndervalg(løpendeStønaderFnr, valg, undervalg).map { it.person.fnr.asString }.toSet()
+
     }
 }

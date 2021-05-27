@@ -112,6 +112,16 @@ class BarnetrygdController(
                                            barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
     }
 
+
+
+    @GetMapping(path = ["liste-lopende-sak"])
+    fun hentLøpendeBarnetrygdFnr(@RequestParam("valg") valg: String, @RequestParam("undervalg") undervalg: String, @RequestParam("page") page: Int = 0): ResponseEntity<Set<String>> {
+        clientValidator.authorizeClient()
+
+        return ResponseEntity.ok(barnetrygdService.hentLøpendeStønader(valg, undervalg, page))
+    }
+
+
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,
                                             historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {
