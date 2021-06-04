@@ -2,14 +2,23 @@ package no.nav.infotrygd.barnetrygd.rest.controller
 
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
-import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.infotrygd.barnetrygd.model.db2.Beslutning
 import no.nav.infotrygd.barnetrygd.model.db2.Endring
 import no.nav.infotrygd.barnetrygd.model.db2.LøpeNrFnr
 import no.nav.infotrygd.barnetrygd.model.db2.StønadDb2
-import no.nav.infotrygd.barnetrygd.repository.*
-import no.nav.infotrygd.barnetrygd.rest.api.*
+import no.nav.infotrygd.barnetrygd.repository.BarnRepository
+import no.nav.infotrygd.barnetrygd.repository.BeslutningRepository
+import no.nav.infotrygd.barnetrygd.repository.EndringRepository
+import no.nav.infotrygd.barnetrygd.repository.LøpeNrFnrRepository
+import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakRepository
+import no.nav.infotrygd.barnetrygd.repository.StønadDb2Repository
+import no.nav.infotrygd.barnetrygd.repository.StønadRepository
+import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
+import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.testutil.TestData
 import no.nav.infotrygd.barnetrygd.testutil.restClient
@@ -26,6 +35,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
+import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -100,7 +110,7 @@ class BarnetrygdControllerTest {
     @Test
     fun `infotrygdsøk etter saker by fnr`() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val sak = sakRepository.saveAndFlush(TestData.sak(person))
+        val sak = sakRepository.saveAndFlush(TestData.sak(person, TestData.stønad(person)))
         val barn = sak.stønadList[0].barn.first()
 
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
@@ -123,7 +133,7 @@ class BarnetrygdControllerTest {
         val person = personRepository.saveAndFlush(TestData.person()).also {
             løpeNrFnrRepository.saveAndFlush(LøpeNrFnr(1, it.fnr.asString))
         }
-        val sak = TestData.sak(person).let { it.copy(stønadList = listOf(TestData.stønad(person, it))) }.also {
+        val sak = TestData.sak(person).let { it.copy(stønadList = listOf(TestData.stønad(person, it.saksblokk, it.saksnummer))) }.also {
             sakRepository.saveAndFlush(it)
         }
         val vedtak = vedtakRepository.saveAndFlush(TestData.vedtak(sak)).also {

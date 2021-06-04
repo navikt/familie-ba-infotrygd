@@ -9,14 +9,20 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdÅpenSakResponse
-import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
-import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import java.time.YearMonth
+import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
+import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
 
 
@@ -113,13 +119,36 @@ class BarnetrygdController(
     }
 
 
+    @ApiOperation("Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet dato")
+    @PostMapping(path = ["utvidet"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+                         dataType = "InfotrygdUtvidetBarnetrygdRequest",
+                         value = """{"bruker": "12345678910", "fraDato": "2020-05"}"""))
+    fun utvidet(@RequestBody request: InfotrygdUtvidetBarnetrygdRequest): InfotrygdUtvidetBarnetrygdResponse {
+        clientValidator.authorizeClient()
 
+        val bruker = FoedselsNr(request.bruker)
+
+        return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
+    }
+
+    data class InfotrygdUtvidetBarnetrygdRequest( val bruker: String,
+    val fraDato: YearMonth)
+
+    class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
+    data class UtvidetBarnetrygdPeriode(val stønadstype: BisysStønadstype, val fomMåned: YearMonth, val tomMåned: YearMonth?, val beløp: Double)
+    enum class BisysStønadstype { UTVIDET, SMÅBARNSTILLEGG }
+
+
+    @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
     @GetMapping(path = ["liste-lopende-sak"])
     fun hentLøpendeBarnetrygdFnr(@RequestParam("valg") valg: String, @RequestParam("undervalg") undervalg: String, @RequestParam("page") page: Int = 0): ResponseEntity<Set<String>> {
         clientValidator.authorizeClient()
 
         return ResponseEntity.ok(barnetrygdService.hentLøpendeStønader(valg, undervalg, page))
     }
+
 
 
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
