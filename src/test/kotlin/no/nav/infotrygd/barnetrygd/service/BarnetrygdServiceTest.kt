@@ -162,6 +162,29 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
+    fun `finn utvidet barnetrygd for stønad med status 2 skal bruke hardkodede beløp 970 (før mars 2019) og 1054`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        leggTilUtgåttUtvidetBarnetrygdSak(person, stønadStatus = "2", beløp = 42.00, iverksattFom = "798097") // februar 2019
+        leggTilUtgåttUtvidetBarnetrygdSak(person, stønadStatus = "2", beløp = 42.00, iverksattFom = "798096") // mars 2019
+
+        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 1))
+
+        assertThat(response.perioder).hasSize(2)
+        assertThat(response.perioder).contains(
+            BarnetrygdController.UtvidetBarnetrygdPeriode(
+                BarnetrygdController.BisysStønadstype.UTVIDET,
+                YearMonth.of(2019, 2), YearMonth.of(2020, 4), 970.00
+            )
+        )
+        assertThat(response.perioder).contains(
+            BarnetrygdController.UtvidetBarnetrygdPeriode(
+                BarnetrygdController.BisysStønadstype.UTVIDET,
+                YearMonth.of(2019, 3), YearMonth.of(2020, 4), 1054.00
+            )
+        )
+    }
+
+    @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato i fortiden, som henter aktiv stønad og gammel stønad hvor perioder IKKE slås sammen pga ikke sammenhengende perioder`() {
         val person = settOppLøpendeUtvidetBarnetrygd("0")
 
@@ -246,14 +269,18 @@ internal class BarnetrygdServiceTest {
 
     }
 
-    private fun leggTilUtgåttUtvidetBarnetrygdSak(person: Person, beløp: Double? = null) {
+    private fun leggTilUtgåttUtvidetBarnetrygdSak(person: Person,
+                                                  beløp: Double? = null,
+                                                  stønadStatus: String = "0",
+                                                  iverksattFom: String = "798094",
+                                                  virkningFom: String = iverksattFom) {
         val opphørtStønad = stonadRepository.save(
             TestData.stønad(
                 person,
-                status = "0",
+                status = stønadStatus,
                 opphørtFom = "042020",
-                iverksattFom = "798094",
-                virkningFom = "798094"
+                iverksattFom = iverksattFom,
+                virkningFom = virkningFom
             )
         )
         sakRepository.save(TestData.sak(person, opphørtStønad, valg = "UT", undervalg = "MB"))

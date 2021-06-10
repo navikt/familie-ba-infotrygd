@@ -34,11 +34,14 @@ interface SakRepository : JpaRepository<Sak, Long> {
     @Query(
         """
         SELECT s FROM Sak s 
-            WHERE s.person.fnr IN :fnr 
+            WHERE s.person.personKey = :personKey
               AND s.kapittelNr = 'BA'
               AND s.valg = :valg
               AND s.undervalg = :undervalg
+              AND s.saksblokk = :saksblokk
+              AND s.saksnummer = :saksnummer
+              AND s.region = :region
               AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
     )  // søknad, revurdering, klage, anke, flyttesak
-    fun findBarnetrygdsakerByFnrValgUndervalg(fnr: List<FoedselsNr>, valg: String, undervalg: String): List<Sak>
+    fun findBarnetrygdsakerByStønad(personKey: Long, valg: String, undervalg: String, saksblokk: String, saksnummer:String, region: String): List<Sak>
 }

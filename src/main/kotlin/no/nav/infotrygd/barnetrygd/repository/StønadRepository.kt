@@ -63,12 +63,12 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
 
 
     @Query("""
-        SELECT s.fnr FROM Stønad s
+        SELECT s FROM Stønad s
            INNER JOIN Person p
                    ON (s.personKey = p.personKey and
                        s.region = p.region)
         AND s.opphørtFom = '000000'
     """)
-    fun findLøpendeStønader(page: Pageable): List<FoedselsNr>
+    fun findLøpendeStønader(page: Pageable): List<Stønad>
 
 }

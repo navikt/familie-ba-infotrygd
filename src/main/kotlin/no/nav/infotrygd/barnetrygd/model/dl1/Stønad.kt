@@ -6,7 +6,15 @@ import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.io.Serializable
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Convert
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.JoinColumns
+import javax.persistence.OneToMany
+import javax.persistence.Table
 
 @Entity
 @Table(name = "BA_STOENAD_20")

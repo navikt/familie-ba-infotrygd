@@ -11,8 +11,7 @@ import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 import springfox.documentation.service.SecurityReference
-
-
+import java.time.YearMonth
 
 
 @Configuration
@@ -22,6 +21,7 @@ class SwaggerConfig {
     fun api(): Docket {
         return Docket(DocumentationType.SWAGGER_2)
             .securityContexts(listOf(securityContext()))
+            .directModelSubstitute(YearMonth::class.java, String::class.java)
             .securitySchemes(listOf(
                 ApiKey("JWT", "Authorization", "header")
             ))

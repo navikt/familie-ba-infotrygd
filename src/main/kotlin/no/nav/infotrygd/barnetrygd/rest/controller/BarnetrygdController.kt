@@ -1,8 +1,10 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.micrometer.core.annotation.Timed
 import io.swagger.annotations.ApiImplicitParam
 import io.swagger.annotations.ApiImplicitParams
+import io.swagger.annotations.ApiModelProperty
 import io.swagger.annotations.ApiOperation
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
@@ -13,6 +15,7 @@ import no.nav.infotrygd.barnetrygd.service.BarnetrygdService
 import no.nav.infotrygd.barnetrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 import java.time.YearMonth
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
@@ -119,7 +123,7 @@ class BarnetrygdController(
     }
 
 
-    @ApiOperation("Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet dato")
+    @ApiOperation("Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet måned. Maks 5 år tilbake i tid")
     @PostMapping(path = ["utvidet"], consumes = ["application/json"])
     @ApiImplicitParams(
         ApiImplicitParam(name = "request",
@@ -128,16 +132,19 @@ class BarnetrygdController(
     fun utvidet(@RequestBody request: InfotrygdUtvidetBarnetrygdRequest): InfotrygdUtvidetBarnetrygdResponse {
         clientValidator.authorizeClient()
 
+        if (request.fraDato.isBefore(YearMonth.now().minusYears(5)))
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 5 år tilbake i tid")
+
         val bruker = FoedselsNr(request.bruker)
 
         return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
     }
 
     data class InfotrygdUtvidetBarnetrygdRequest( val bruker: String,
-    val fraDato: YearMonth)
+                                                  @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
 
     class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
-    data class UtvidetBarnetrygdPeriode(val stønadstype: BisysStønadstype, val fomMåned: YearMonth, val tomMåned: YearMonth?, val beløp: Double)
+    data class UtvidetBarnetrygdPeriode(val stønadstype: BisysStønadstype, @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")val fomMåned: YearMonth, @ApiModelProperty(dataType = "java.lang.String", example = "2020-12") val tomMåned: YearMonth?, val beløp: Double)
     enum class BisysStønadstype { UTVIDET, SMÅBARNSTILLEGG }
 
 

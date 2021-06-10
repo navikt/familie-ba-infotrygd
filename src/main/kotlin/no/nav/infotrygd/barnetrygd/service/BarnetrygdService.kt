@@ -13,7 +13,9 @@ import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
 import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController
-import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.BisysStønadstype
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.BisysStønadstype.SMÅBARNSTILLEGG
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.BisysStønadstype.UTVIDET
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.UtvidetBarnetrygdPeriode
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -166,47 +168,55 @@ class BarnetrygdService(
             return BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse(emptyList())
         }
 
-        val listVirksomFom = utvidetBarnetrygdStønader.map { Pair(it.iverksattFom, it.virkningFom) }
 
-        val utbetalinger = utbetalingRepository.hentUtbetalinger(brukerFnr)
-            .filter { Pair(it.startUtbetalingMåned, it.virksomFom) in listVirksomFom }
-            .filter { it.utbetalingstype == "M" }
+        val allePerioder = mutableListOf<UtvidetBarnetrygdPeriode>()
+        utvidetBarnetrygdStønader.forEach {
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
+            allePerioder.addAll(utbetalinger.map { utbetaling ->
+                UtvidetBarnetrygdPeriode(
+                    if (utbetaling.kontonummer == "06040000") SMÅBARNSTILLEGG else UTVIDET,
+                    utbetaling.fom()!!,
+                    utbetaling.tom(),
+                    if (it.status.toInt() == 0) utbetaling.beløp else finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(
+                        utbetaling
+                    )
+                )
+            })
+        }
 
-        val perioder = utbetalinger.filter { it.kontonummer == "06010000" }.groupBy { it.beløp }.flatMap {
-            byggOppUtbetalingsperioder(it, BisysStønadstype.UTVIDET)
-        }.toMutableList()
+        val perioder =
+            allePerioder.filter { it.stønadstype == UTVIDET }.groupBy { it.beløp }.values
+                .flatMap(::slåSammenSammenhengendePerioder).toMutableList()
 
         perioder.addAll(
-            utbetalinger.filter { it.kontonummer == "06040000" }.groupBy { it.beløp }.flatMap {
-            byggOppUtbetalingsperioder(it, BisysStønadstype.SMÅBARNSTILLEGG)
-        })
+            allePerioder.filter { it.stønadstype == SMÅBARNSTILLEGG }.groupBy { it.beløp }.values
+                .flatMap(::slåSammenSammenhengendePerioder)
+        )
 
         return BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse(perioder)
     }
 
-    private fun byggOppUtbetalingsperioder(utbetalingerMedBeløp: Map.Entry<Double, List<Utbetaling>>, stønadstype: BisysStønadstype): List<BarnetrygdController.UtvidetBarnetrygdPeriode> {
-        return utbetalingerMedBeløp.value.sortedByDescending { it.startUtbetalingMåned }
-            .fold(mutableListOf<Utbetaling>()) { sammenslåttePerioder, nesteUtbetaling ->
-                if (sammenslåttePerioder.lastOrNull()?.tom() == nesteUtbetaling.fom()!!.minusMonths(1)) {
-                    sammenslåttePerioder.apply { add(removeLast().copy(utbetalingTom = nesteUtbetaling.utbetalingTom)) }
+    fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
+        return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) 1054.0
+               else 970.00
+    }
+
+    private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
+        return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }
+            .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
+                if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)) {
+                    sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
                 }
                 else sammenslåttePerioder.apply { add(nesteUtbetaling) }
-            }
-            .map {
-                    BarnetrygdController.UtvidetBarnetrygdPeriode(
-                        stønadstype,
-                        it.fom()!!,
-                        it.tom(),
-                        utbetalingerMedBeløp.key
-                    )
             }
     }
 
     fun hentLøpendeStønader(valg: String, undervalg: String, page: Int): Set<String> {
         val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
 
-        return sakRepository.findBarnetrygdsakerByFnrValgUndervalg(løpendeStønaderFnr, valg, undervalg).map { it.person.fnr.asString }.toSet()
-
+        return løpendeStønaderFnr.filter {
+            sakRepository.findBarnetrygdsakerByStønad(it.personKey, valg, undervalg, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+        }.map { it.fnr.asString }.toSet()
     }
 
     companion object {
