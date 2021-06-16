@@ -13,8 +13,8 @@ import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
 import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController
-import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.BisysStønadstype.SMÅBARNSTILLEGG
-import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.BisysStønadstype.UTVIDET
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.UTVIDET
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.UtvidetBarnetrygdPeriode
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
@@ -173,11 +173,12 @@ class BarnetrygdService(
         utvidetBarnetrygdStønader.forEach {
             val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
             allePerioder.addAll(utbetalinger.map { utbetaling ->
+                val erSmåbarnstillegg = utbetaling.kontonummer == "06040000"
                 UtvidetBarnetrygdPeriode(
-                    if (utbetaling.kontonummer == "06040000") SMÅBARNSTILLEGG else UTVIDET,
+                    if (erSmåbarnstillegg) SMÅBARNSTILLEGG else UTVIDET,
                     utbetaling.fom()!!,
                     utbetaling.tom(),
-                    if (it.status.toInt() == 0) utbetaling.beløp else finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(
+                    if (it.status.toInt() == 0 || erSmåbarnstillegg) utbetaling.beløp else finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(
                         utbetaling
                     )
                 )

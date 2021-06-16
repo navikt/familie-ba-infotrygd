@@ -1,6 +1,5 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import io.micrometer.core.annotation.Timed
 import io.swagger.annotations.ApiImplicitParam
 import io.swagger.annotations.ApiImplicitParams
@@ -144,8 +143,8 @@ class BarnetrygdController(
                                                   @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
 
     class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
-    data class UtvidetBarnetrygdPeriode(val stønadstype: BisysStønadstype, @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")val fomMåned: YearMonth, @ApiModelProperty(dataType = "java.lang.String", example = "2020-12") val tomMåned: YearMonth?, val beløp: Double)
-    enum class BisysStønadstype { UTVIDET, SMÅBARNSTILLEGG }
+    data class UtvidetBarnetrygdPeriode(val stønadstype: Stønadstype, @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")val fomMåned: YearMonth, @ApiModelProperty(dataType = "java.lang.String", example = "2020-12") val tomMåned: YearMonth?, val beløp: Double)
+    enum class Stønadstype { UTVIDET, SMÅBARNSTILLEGG }
 
 
     @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")

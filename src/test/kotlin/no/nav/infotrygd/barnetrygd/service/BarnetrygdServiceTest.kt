@@ -127,13 +127,13 @@ internal class BarnetrygdServiceTest {
         assertThat(respnse.perioder).hasSize(2)
         assertThat(respnse.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2020, 5), null, 1054.00
             )
         )
         assertThat(respnse.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.SMÅBARNSTILLEGG,
+                BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00
             )
         )
@@ -149,13 +149,13 @@ internal class BarnetrygdServiceTest {
         assertThat(response.perioder).hasSize(2)
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), null, 1054.00
             )
         )
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.SMÅBARNSTILLEGG,
+                BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00
             )
         )
@@ -172,13 +172,13 @@ internal class BarnetrygdServiceTest {
         assertThat(response.perioder).hasSize(2)
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 2), YearMonth.of(2020, 4), 970.00
             )
         )
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 3), YearMonth.of(2020, 4), 1054.00
             )
         )
@@ -206,19 +206,19 @@ internal class BarnetrygdServiceTest {
         assertThat(response.perioder).hasSize(3)
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2020, 5), null, 1054.00
             )
         )
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), YearMonth.of(2020, 3), 1054.00
             )
         )
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.SMÅBARNSTILLEGG,
+                BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00
             )
         )
@@ -233,21 +233,21 @@ internal class BarnetrygdServiceTest {
         assertThat(response.perioder).hasSize(3)
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2020, 5), null, 1054.00
             )
         )
 
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.UTVIDET,
+                BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), YearMonth.of(2020, 4), 1000.00
             )
         )
 
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.BisysStønadstype.SMÅBARNSTILLEGG,
+                BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00
             )
         )
