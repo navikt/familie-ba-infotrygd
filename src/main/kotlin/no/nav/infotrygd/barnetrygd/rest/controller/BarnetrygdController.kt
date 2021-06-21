@@ -134,12 +134,12 @@ class BarnetrygdController(
         if (request.fraDato.isBefore(YearMonth.now().minusYears(5)))
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 5 år tilbake i tid")
 
-        val bruker = FoedselsNr(request.bruker)
+        val bruker = FoedselsNr(request.personIdent)
 
         return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
     }
 
-    data class InfotrygdUtvidetBarnetrygdRequest( val bruker: String,
+    data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
                                                   @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
 
     class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
