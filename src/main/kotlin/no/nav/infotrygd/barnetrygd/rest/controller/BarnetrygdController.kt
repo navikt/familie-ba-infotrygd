@@ -143,8 +143,19 @@ class BarnetrygdController(
                                                   @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
 
     class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
-    data class UtvidetBarnetrygdPeriode(val stønadstype: Stønadstype, @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")val fomMåned: YearMonth, @ApiModelProperty(dataType = "java.lang.String", example = "2020-12") val tomMåned: YearMonth?, val beløp: Double)
-    enum class Stønadstype { UTVIDET, SMÅBARNSTILLEGG }
+    data class UtvidetBarnetrygdPeriode(val stønadstype: Stønadstype,
+                                        @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")
+                                        val fomMåned: YearMonth,
+                                        @ApiModelProperty(dataType = "java.lang.String", example = "2020-12")
+                                        val tomMåned: YearMonth?,
+                                        val beløp: Double,
+                                        val manueltBeregnet: Boolean,
+    )
+
+    enum class Stønadstype {
+        UTVIDET,
+        SMÅBARNSTILLEGG
+    }
 
 
     @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")

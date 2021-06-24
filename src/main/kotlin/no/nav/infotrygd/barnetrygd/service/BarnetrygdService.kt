@@ -196,7 +196,8 @@ class BarnetrygdService(
                     utbetaling.tom(),
                     if (it.status.toInt() == 0 || erSmåbarnstillegg) utbetaling.beløp else finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(
                         utbetaling
-                    )
+                    ),
+                    it.status.toInt() == 0
                 )
             })
         }
