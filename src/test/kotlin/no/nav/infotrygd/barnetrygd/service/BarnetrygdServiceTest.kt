@@ -120,7 +120,7 @@ internal class BarnetrygdServiceTest {
     @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato nå, som kun henter aktiv stønad`() {
         val person = settOppLøpendeUtvidetBarnetrygd("0")
-        leggTilUtgåttUtvidetBarnetrygdSak(person)
+        leggTilUtgåttUtvidetBarnetrygdSak(person) //2019-05 - 2020-04
 
 
         val respnse = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.now())
@@ -128,7 +128,7 @@ internal class BarnetrygdServiceTest {
         assertThat(respnse.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
-                YearMonth.of(2020, 5), null, 1054.00
+                YearMonth.of(2019, 5), null, 1054.00
             )
         )
         assertThat(respnse.perioder).contains(
@@ -272,7 +272,7 @@ internal class BarnetrygdServiceTest {
     private fun leggTilUtgåttUtvidetBarnetrygdSak(person: Person,
                                                   beløp: Double? = null,
                                                   stønadStatus: String = "0",
-                                                  iverksattFom: String = "798094",
+                                                  iverksattFom: String = (999999 - 201905).toString(),
                                                   virkningFom: String = iverksattFom) {
         val opphørtStønad = stonadRepository.save(
             TestData.stønad(

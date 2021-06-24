@@ -12,7 +12,7 @@ import no.nav.infotrygd.barnetrygd.repository.SakRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
 import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
-import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.UTVIDET
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.UtvidetBarnetrygdPeriode
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -121,23 +120,27 @@ class BarnetrygdService(
         return personer.map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
     }
 
-    fun finnUtvidetBarnetrygd(brukerFnr: FoedselsNr, fraDato: YearMonth): BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse {
-        val utvidetBarnetrygdStønader = mutableListOf<Stønad>()
+    fun finnUtvidetBarnetrygd(
+        brukerFnr: FoedselsNr,
+        fraDato: YearMonth
+    ): InfotrygdUtvidetBarnetrygdResponse {
 
-        stonadRepository.findStønadByFnr(listOf(brukerFnr)).forEach { stønad ->
-            if (stønad.opphørtFom == NULL_DATO) {
-                if (erUtvidetBarnetrygd(stønad)) {
-                    utvidetBarnetrygdStønader.add(stønad)
-                }
-            } else {
-                val opphørtFomYearMonth = YearMonth.parse(stønad.opphørtFom, DateTimeFormatter.ofPattern("MMyyyy"))
-                if (opphørtFomYearMonth.isAfter(fraDato) && erUtvidetBarnetrygd(stønad)) {
-                    utvidetBarnetrygdStønader.add(stønad)
-                }
-            }
-        }
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { erUtvidetBarnetrygd(it) }
 
-        return konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader, brukerFnr)
+        val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader, brukerFnr)
+
+        return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
+            skalFiltreresPåDato(fraDato, it.fomMåned, it.tomMåned)
+        })
+
+
+    }
+
+
+    private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
+        if (fraDato.isBefore(fom)) return true
+
+        return (fraDato.isAfter(fom) || fraDato == fom) && (tom == null || fraDato.isBefore(tom))
     }
 
     private fun erUtvidetBarnetrygd(
@@ -162,10 +165,23 @@ class BarnetrygdService(
     }
 
 
-    private fun konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader: List<Stønad>, brukerFnr: FoedselsNr): BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse  {
-        logger.info("StønadsID med utvidet barnetrygd = ${utvidetBarnetrygdStønader.map { Triple(it.id, it.virkningFom, it.opphørtFom) }}")
+    private fun konverterTilDtoUtvidetBarnetrygd(
+        utvidetBarnetrygdStønader: List<Stønad>,
+        brukerFnr: FoedselsNr
+    ): List<UtvidetBarnetrygdPeriode> {
+        logger.info(
+            "StønadsID med utvidet barnetrygd = ${
+                utvidetBarnetrygdStønader.map {
+                    Triple(
+                        it.id,
+                        it.virkningFom,
+                        it.opphørtFom
+                    )
+                }
+            }"
+        )
         if (utvidetBarnetrygdStønader.isEmpty()) {
-            return BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse(emptyList())
+            return emptyList()
         }
 
 
@@ -194,12 +210,12 @@ class BarnetrygdService(
                 .flatMap(::slåSammenSammenhengendePerioder)
         )
 
-        return BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse(perioder)
+        return perioder
     }
 
     fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
         return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) 1054.0
-               else 970.00
+        else 970.00
     }
 
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
@@ -207,8 +223,7 @@ class BarnetrygdService(
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
                 if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)) {
                     sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
-                }
-                else sammenslåttePerioder.apply { add(nesteUtbetaling) }
+                } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
     }
 
@@ -216,13 +231,13 @@ class BarnetrygdService(
         val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
 
         return løpendeStønaderFnr.filter {
-            sakRepository.findBarnetrygdsakerByStønad(it.personKey, valg, undervalg, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+            sakRepository.findBarnetrygdsakerByStønad(it.personKey, valg, undervalg, it.saksblokk, it.sakNr, it.region)
+                .isNotEmpty()
         }.map { it.fnr.asString }.toSet()
     }
 
     companion object {
 
-        const val NULL_DATO = "000000"
         const val KAPITTEL_BARNETRYGD = "BA"
         const val VALG_UTVIDET_BARNETRYG = "UT"
     }
