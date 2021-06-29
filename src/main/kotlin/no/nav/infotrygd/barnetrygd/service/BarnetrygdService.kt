@@ -127,7 +127,7 @@ class BarnetrygdService(
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { erUtvidetBarnetrygd(it) }
 
-        val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader, brukerFnr)
+        val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
         return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
             skalFiltreresPåDato(fraDato, it.fomMåned, it.tomMåned)
@@ -154,7 +154,7 @@ class BarnetrygdService(
                                 sak.saksnummer == stønad.sakNr &&
                                 sak.kapittelNr == KAPITTEL_BARNETRYGD &&
                                 sak.valg == VALG_UTVIDET_BARNETRYG &&
-                                sak.undervalg in arrayOf("MB", "MD", "ME")
+                                sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
                     }.isNotEmpty()
             }
 
@@ -166,8 +166,7 @@ class BarnetrygdService(
 
 
     private fun konverterTilDtoUtvidetBarnetrygd(
-        utvidetBarnetrygdStønader: List<Stønad>,
-        brukerFnr: FoedselsNr
+        utvidetBarnetrygdStønader: List<Stønad>
     ): List<UtvidetBarnetrygdPeriode> {
         logger.info(
             "StønadsID med utvidet barnetrygd = ${
@@ -189,15 +188,14 @@ class BarnetrygdService(
         utvidetBarnetrygdStønader.forEach {
             val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
             allePerioder.addAll(utbetalinger.map { utbetaling ->
-                val erSmåbarnstillegg = utbetaling.kontonummer == "06040000"
+                val (beløp, manueltBeregnet) = kalkulerBeløp(it, utbetaling)
+
                 UtvidetBarnetrygdPeriode(
-                    if (erSmåbarnstillegg) SMÅBARNSTILLEGG else UTVIDET,
+                    if (utbetaling.erSmåbarnstillegg()) SMÅBARNSTILLEGG else UTVIDET,
                     utbetaling.fom()!!,
                     utbetaling.tom(),
-                    if (it.status.toInt() == 0 || erSmåbarnstillegg) utbetaling.beløp else finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(
-                        utbetaling
-                    ),
-                    it.status.toInt() == 0
+                    beløp,
+                    manueltBeregnet
                 )
             })
         }
@@ -214,9 +212,57 @@ class BarnetrygdService(
         return perioder
     }
 
+    private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Pair<Double, Boolean> {
+        if (utbetaling.erSmåbarnstillegg()) return Pair(utbetaling.beløp, false)
+
+        if (it.status.toInt() != 0) return Pair(finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling), false)
+
+        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.personKey, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+
+
+        if (!erDeltBosted && utbetaling.beløp in LIST_MED_GODKJENTE_UTVIDET_BARNETRYGD_BELØP) {
+            return Pair(utbetaling.beløp, false)
+        } else if( erDeltBosted) {
+            if (utbetaling.beløp in listOf((UTVIDET_BARNETRYGD_ELDRE_SATS/2).toDouble(), (UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS/2).toDouble())) return Pair(utbetaling.beløp, false)
+
+            val antallBarnetrygdbarn = it.barn.count()
+
+
+
+            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med nåværende sats
+            if (utbetaling.beløp.toInt() == (antallBarnetrygdbarn * BARNETRYGD_OVER_6ÅR_SATS + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2) {
+                return Pair(UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()/2, false)
+            }
+
+            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med eldre sats
+            if (utbetaling.beløp.toInt() == (antallBarnetrygdbarn * BARNETRYGD_ELDRE_SATS + UTVIDET_BARNETRYGD_ELDRE_SATS) / 2) {
+                return Pair(UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()/2, false)
+            }
+
+            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med sats 2021-09
+            if (utbetaling.beløp.toInt() == (antallBarnetrygdbarn * BARNETRYGD_UNDER_6ÅR_SATS_FRA_09_2021 + UTVIDET_BARNETRYGD_ELDRE_SATS) / 2) {
+                return Pair(UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()/2, false)
+            }
+
+            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med 1 barn under 6 år og et  barn over 6 år
+            if (utbetaling.beløp.toInt() == (BARNETRYGD_OVER_6ÅR_SATS + BARNETRYGD_UNDER_6ÅR_SATS + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2) {
+                return Pair(UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()/2, false)
+            }
+
+            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med 1 barn under 6 år og et  barn over 6 år fra september 2021
+            if (utbetaling.beløp.toInt() == (BARNETRYGD_UNDER_6ÅR_SATS_FRA_09_2021 + BARNETRYGD_OVER_6ÅR_SATS + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2) {
+                return Pair(UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()/2, false)
+            }
+        }
+
+        logger.info("Klarer ikke beregne utvidet barnetrygdbeløp. Returnerer manueltBeregnet for stønadId=${it.id}")
+
+        return Pair(utbetaling.beløp, true)
+    }
+
     fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
-        return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) 1054.0
-        else 970.00
+        return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
+        else UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()
     }
 
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
@@ -241,5 +287,20 @@ class BarnetrygdService(
 
         const val KAPITTEL_BARNETRYGD = "BA"
         const val VALG_UTVIDET_BARNETRYG = "UT"
+        const val UTVIDET_BARNETRYGD_ELDRE_SATS = 970
+        const val UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS = 1054
+        const val BARNETRYGD_OVER_6ÅR_SATS = 1054
+        const val BARNETRYGD_UNDER_6ÅR_SATS_FRA_09_2021 = 1654
+        const val BARNETRYGD_UNDER_6ÅR_SATS = 1354
+        const val BARNETRYGD_ELDRE_SATS = 970
+        private val LIST_MED_GODKJENTE_UTVIDET_BARNETRYGD_BELØP = listOf(
+            UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble(),
+            UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
+        )
+
+        const val MANUELL_BEREGNING_DELT_BOSTED = "MD"
+        const val MANUELL_BEREGNING_EØS = "ME"
+        const val MANUELL_BEREGNING = "MB"
+
     }
 }

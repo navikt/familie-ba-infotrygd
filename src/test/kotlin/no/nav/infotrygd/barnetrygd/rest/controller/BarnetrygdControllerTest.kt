@@ -84,6 +84,7 @@ class BarnetrygdControllerTest {
     @Test
     fun `infotrygdsøk etter løpende barnetrygd`() {
         val (person, opphørPerson) = personRepository.saveAll(listOf(1,2).map { TestData.person() })
+
         val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
         stønadRepository.saveAll(listOf(TestData.stønad(person), TestData.stønad(opphørPerson, opphørtFom = "111111")))

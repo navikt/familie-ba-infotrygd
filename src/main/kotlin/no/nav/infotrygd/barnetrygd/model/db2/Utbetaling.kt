@@ -51,4 +51,8 @@ data class Utbetaling(
     fun tom(): YearMonth? {
         return stringDatoMMyyyyTilYearMonth(utbetalingTom)
     }
+
+    fun erSmåbarnstillegg(): Boolean {
+        return this.kontonummer == "06040000"
+    }
 }

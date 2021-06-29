@@ -66,7 +66,7 @@ data class Sak(
         JoinColumn(name = "B20_SAK_NR", referencedColumnName = "S10_SAKSNR")
     ])
     @Cascade(value = [CascadeType.MERGE])
-    val stønadList: List<Stønad>,
+    val stønadList: List<Stønad>, //Det er alltid en stønad per sak
 
     @Column(name = "S10_VEDTAKSDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavReversedLocalDateConverter::class)
