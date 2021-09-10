@@ -6,12 +6,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.db2.Utbetaling
 import no.nav.infotrygd.barnetrygd.model.db2.toDelytelseDto
 import no.nav.infotrygd.barnetrygd.model.dl1.*
-import no.nav.infotrygd.barnetrygd.repository.BarnRepository
-import no.nav.infotrygd.barnetrygd.repository.PersonRepository
-import no.nav.infotrygd.barnetrygd.repository.SakRepository
-import no.nav.infotrygd.barnetrygd.repository.StønadRepository
-import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
-import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
+import no.nav.infotrygd.barnetrygd.repository.*
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.UTVIDET
@@ -136,6 +131,11 @@ class BarnetrygdService(
 
     }
 
+    fun finnPersonerMedUtvidetBarnetrygd(år: String): List<TrunkertStønad> {
+        val personerMedUtvidetBa = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(),"00", "02", "03")
+            .filter { erUtvidetBarnetrygd(it) }
+        return personerMedUtvidetBa
+    }
 
     private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
         if (fraDato.isBefore(fom)) return true
@@ -156,6 +156,24 @@ class BarnetrygdService(
                                 sak.valg == VALG_UTVIDET_BARNETRYG &&
                                 sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
                     }.isNotEmpty()
+            }
+
+            2L -> true //Utvidet barnetrygd.
+            3L -> true //Sykt barn (Ikke lenger i bruk, kan forekomme i gamle tilfeller),
+            else -> false
+        }
+    }
+
+    private fun erUtvidetBarnetrygd(
+        stønad: TrunkertStønad
+    ): Boolean {
+        return when (stønad.status.toLong()) {
+            0L -> { //Manuell beregning ved Stønadsklasse BA UT MB/MD/ME.
+                if (stønad.fnr == null) {
+                    logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
+                    return false
+                }
+                sakRepository.erUtvidetBarnetrygd(stønad.personKey, stønad.saksblokk, stønad.sakNr, stønad.region)
             }
 
             2L -> true //Utvidet barnetrygd.

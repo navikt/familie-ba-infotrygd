@@ -44,4 +44,17 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
     )  // søknad, revurdering, klage, anke, flyttesak
     fun findBarnetrygdsakerByStønad(personKey: Long, valg: String, undervalg: String, saksblokk: String, saksnummer:String, region: String): List<Sak>
+
+    @Query(
+        """
+        SELECT CASE WHEN count(s) > 0 THEN true ELSE false END FROM Sak s 
+            WHERE s.person.personKey = :personKey
+              AND s.kapittelNr = 'BA'
+              AND s.valg = 'UT'
+              AND s.undervalg IN ('MD', 'ME', 'MB')
+              AND s.saksblokk = :saksblokk
+              AND s.saksnummer = :saksnummer
+              AND s.region = :region"""
+    )
+    fun erUtvidetBarnetrygd(personKey: Long, saksblokk: String, saksnummer:String, region: String): Boolean
 }

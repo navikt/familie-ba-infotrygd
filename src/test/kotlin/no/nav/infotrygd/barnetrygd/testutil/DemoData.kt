@@ -64,13 +64,13 @@ class DemoData(
         val stønadMedFastsattOpphørtFom = TestData.stønad(mottaker = person,
                                                           opphørtFom = YearMonth.now().plusMonths(6)
                                                               .format(DateTimeFormatter.ofPattern("MMyyyy")),
-                                                          status = "2")
+                                                          status = "02")
 
 
         val person2 = TestData.person()
         val stønadUtenFastsattOpphørtFom = TestData.stønad(mottaker = person2,
                                                            opphørtFom = "000000",
-                                                           status = "0") // må slå opp i SAK-basen for å finne ut om vedtaket er relevant når status er 0:
+                                                           status = "00") // må slå opp i SAK-basen for å finne ut om vedtaket er relevant når status er 0:
 /*
         << Hvis S10-KAPITTELNR, S10-VALG og S10-UNDERVALG i S10-segmentet = henholdsvis BA, UT og MB/MD/ME, er dette et relevant vedtak.
            Dersom det nå ikke er funnet noe relevant vedtak (B20-segment), returneres svar "Data ikke funnet" >>

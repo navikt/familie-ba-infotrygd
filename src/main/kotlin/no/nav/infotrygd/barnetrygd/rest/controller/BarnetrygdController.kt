@@ -1,10 +1,7 @@
 package no.nav.infotrygd.barnetrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiModelProperty
-import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.*
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
@@ -137,6 +134,15 @@ class BarnetrygdController(
         val bruker = FoedselsNr(request.personIdent)
 
         return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
+    }
+
+    @ApiOperation("Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
+    @GetMapping(path =["utvidet"])
+    fun utvidet(@ApiParam("år") @RequestParam("aar") år: String): ResponseEntity<List<String>> {
+        clientValidator.authorizeClient()
+
+        return ResponseEntity.ok(barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år).filter { it.fnr != null }
+            .map { it.fnr!!.asString })
     }
 
     data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
