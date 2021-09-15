@@ -3,17 +3,11 @@ package no.nav.infotrygd.barnetrygd.model.dl1
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.CharConverter
 import no.nav.infotrygd.barnetrygd.model.converters.ReversedFoedselNrConverter
-import org.hibernate.annotations.Cascade
-import org.hibernate.annotations.CascadeType
 import java.io.Serializable
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
-import javax.persistence.FetchType
 import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.JoinColumns
-import javax.persistence.OneToMany
 import javax.persistence.Table
 
 @Entity
@@ -63,15 +57,5 @@ data class Stønad(
 
     @Column(name = "B20_VIRKFOM_SEQ", columnDefinition = "VARCHAR2")
     val virkningFom: String,
-
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumns(value = [
-        JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "B01_PERSONKEY"),
-        JoinColumn(name = "REGION", referencedColumnName = "REGION"),
-        JoinColumn(name = "B10_BA_IVER", referencedColumnName = "B20_IVERFOM_SEQ"),
-        JoinColumn(name = "B10_BA_VFOM", referencedColumnName = "B20_VIRKFOM_SEQ")
-    ])
-    @Cascade(value = [CascadeType.MERGE])
-    val barn: List<Barn> = emptyList(),
 
 ) : Serializable

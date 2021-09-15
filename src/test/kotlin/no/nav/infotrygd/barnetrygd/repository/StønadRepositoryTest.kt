@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @RunWith(SpringRunner::class)
 @DataJpaTest
@@ -20,12 +22,15 @@ class StønadRepositoryTest {
     @Autowired
     lateinit var stønadRepository: StønadRepository
 
+    @Autowired
+    lateinit var personRepository: PersonRepository
+
     lateinit var barnetrygdService: BarnetrygdService
 
     @Before
     fun setUp() {
         stønadRepository.deleteAll()
-        barnetrygdService = BarnetrygdService(mockk(), stønadRepository, mockk(), mockk(), mockk(), mockk())
+        barnetrygdService = BarnetrygdService(mockk(), stønadRepository, mockk(), mockk(), mockk(), mockk(), mockk())
     }
 
     @Test
@@ -44,6 +49,43 @@ class StønadRepositoryTest {
         }
         barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
             assertThat(it).hasSize(1).extracting("fnr").contains(personFraInneværendeÅr.fnr)
+        }
+    }
+
+    @Test
+    fun findSenesteIverksattFomByPersonKey() {
+        val tidligsteIverksattFom = 201701
+        val senesteIverksattFom = 201905
+        val person = TestData.person()
+        stønadRepository.saveAll(listOf(
+            TestData.stønad(person, iverksattFom = (999999-tidligsteIverksattFom).toString()),
+            TestData.stønad(person, iverksattFom = (999999-201902).toString()),
+            TestData.stønad(person, iverksattFom = (999999-senesteIverksattFom).toString())
+        ))
+        barnetrygdService.finnSisteVedtakPåPerson(person.personKey).also {
+            assertThat(it)
+                .isEqualTo(YearMonth.parse("$senesteIverksattFom", DateTimeFormatter.ofPattern("yyyyMM")))
+        }
+    }
+
+    @Test
+    fun `skal hente utvidet barnetrygd stønader en person for et bestemt år`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val person2 = personRepository.saveAndFlush(TestData.person())
+        stønadRepository.saveAll(listOf(
+            TestData.stønad(person, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
+            TestData.stønad(person, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
+            TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
+            TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
+        ))
+        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr, 2019,  "02").also {
+            assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
+        }
+        stønadRepository.findStønadByÅrAndStatusKoderAndFnr( person.fnr, 2020, "02").also {
+            assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
+        }
+        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr,2021, "02").also {
+            assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
         }
     }
 }

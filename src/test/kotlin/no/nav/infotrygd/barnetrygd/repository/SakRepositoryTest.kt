@@ -18,6 +18,12 @@ class SakRepositoryTest {
     lateinit var sakRepository: SakRepository
 
     @Autowired
+    lateinit var sakPersonRepository: SakPersonRepository
+
+    @Autowired
+    lateinit var stønadRepository: StønadRepository
+
+    @Autowired
     lateinit var personRepository: PersonRepository
 
     @Autowired
@@ -33,13 +39,13 @@ class SakRepositoryTest {
     @Test
     fun findBarnetrygdsakerByFnr() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val stønad = TestData.stønad(person)
-        val sak = sakRepository.saveAndFlush(TestData.sak(person, stønad))
+        val stønad = stønadRepository.saveAndFlush(TestData.stønad(person))
+        val sak = sakRepository.saveAndFlush(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
+            .also { sakPersonRepository.saveAndFlush(TestData.sakPerson(person)) }
 
         sakRepository.findBarnetrygdsakerByFnr(person.fnr).also {
             assertThat(it).extracting("personKey").first().isEqualTo(person.personKey)
             assertThat(it).usingRecursiveFieldByFieldElementComparator().isEqualTo(listOf(sak))
-            assertThat(it).extracting("stønadList").isNotEmpty()
         }
     }
 
@@ -56,8 +62,8 @@ class SakRepositoryTest {
     @Test
     fun findBarnetrygdsakerByBarnFnr() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val sak = sakRepository.saveAndFlush(TestData.sak(person, TestData.stønad(person)))
-        val barn = sak.stønadList[0].barn.first()
+        val sak = sakRepository.saveAndFlush(TestData.sak(person))
+        val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
         val result = sakRepository.findBarnetrygdsakerByBarnFnr(listOf(barn.barnFnr))
 

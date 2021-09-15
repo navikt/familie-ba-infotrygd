@@ -6,12 +6,7 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.infotrygd.barnetrygd.model.db2.Delytelse
 import no.nav.infotrygd.barnetrygd.model.db2.Utbetaling
 import no.nav.infotrygd.barnetrygd.model.db2.Vedtak
-import no.nav.infotrygd.barnetrygd.model.dl1.Barn
-import no.nav.infotrygd.barnetrygd.model.dl1.Person
-import no.nav.infotrygd.barnetrygd.model.dl1.Sak
-import no.nav.infotrygd.barnetrygd.model.dl1.Status
-import no.nav.infotrygd.barnetrygd.model.dl1.Stønad
-import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
+import no.nav.infotrygd.barnetrygd.model.dl1.*
 import no.nav.infotrygd.barnetrygd.nextId
 import java.time.LocalDate
 
@@ -30,8 +25,8 @@ object TestData {
 
     fun barn(
         person: Person,
-        iverksatt: String = "010101",
-        virkningFom: String = "010101",
+        iverksatt: String = (999999-202005).toString(),
+        virkningFom: String = (999999-202005).toString(),
         barnetrygdTom: String = "000000",
         barnFnr: FoedselsNr = foedselsNr(),
         region: String = "X"
@@ -81,14 +76,13 @@ object TestData {
         mottaker: Person,
         saksblokk: String = "A",
         saksnummer: String = "01",
-        barn: List<Barn>? = null,
         status: String = "01",
         iverksattFom: String = (999999-202005).toString(),
         virkningFom: String = (999999-202005).toString(),
         opphørtIver: String = "000000",
         opphørtFom: String = "000000",
         opphørsgrunn: String? = "M",
-        region: String = "X",
+        region: String? = null,
     ): Stønad {
         return Stønad(
             id = nextId(),
@@ -104,24 +98,20 @@ object TestData {
             opphørtIver = opphørtIver,
             opphørtFom = opphørtFom,
             opphørsgrunn = opphørsgrunn,
-            region = region,
-            barn = barn ?: listOf(barn(mottaker, iverksattFom, virkningFom)),
+            region = region ?: mottaker.region,
         )
     }
 
-    fun sak(person: Person, stønad: Stønad? = null,
+    fun sak(person: Person,
+            saksblokk: String = "A",
+            saksnummer: String = "01",
             valg: String = "OR",
             undervalg: String = "OS"): Sak {
-        val saksblokk = "A"
-        val saksnummer = "01"
-        val region = "2"
-
         return Sak(
             id = nextId(),
             personKey = person.personKey,
-            person = Sak.Person(nextId(), person.region, person.personKey, person.fnr),
-            saksblokk = stønad?.saksblokk ?: saksblokk,
-            saksnummer = stønad?.sakNr ?: saksnummer,
+            saksblokk = saksblokk,
+            saksnummer = saksnummer,
             mottattdato = LocalDate.now(),
             regDato = LocalDate.now(),
             region = person.region,
@@ -130,20 +120,8 @@ object TestData {
             undervalg = undervalg,
             type = "S",
             resultat = "I",
-            stønadList = stønad?.let { listOf(it) } ?: emptyList(),
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
-            statushistorikk = listOf(
-                Status(
-                    id = nextId(),
-                    region = region,
-                    personKey = person.personKey,
-                    saksblokk = stønad?.saksblokk ?: saksblokk,
-                    saksnummer = stønad?.sakNr ?: saksnummer,
-                    lopeNr = nextId() % 99,
-                    status = SakStatus.IKKE_BEHANDLET
-                )
-            )
         )
     }
 
@@ -163,6 +141,10 @@ object TestData {
             utbetalingId = nextId(),
             utbetalingTom = stønad.opphørtFom
         )
+    }
+
+    fun sakPerson(person: Person): SakPerson {
+        return SakPerson(nextId(), person.region, person.personKey, person.fnr)
     }
 
     private val fnrGenerator = FoedselsnummerGenerator()

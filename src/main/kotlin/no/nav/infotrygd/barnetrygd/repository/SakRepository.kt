@@ -11,8 +11,11 @@ interface SakRepository : JpaRepository<Sak, Long> {
 
     @Query(
         """
-        SELECT s FROM Sak s 
-            WHERE s.person.fnr = :fnr 
+        SELECT s FROM Sak s
+        INNER JOIN SakPerson p
+                ON (s.personKey = p.personKey AND
+                    s.region = p.region)
+            WHERE p.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
               AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
     )  // søknad, revurdering, klage, anke, flyttesak
@@ -22,7 +25,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
         """
         SELECT sak FROM Sak sak
            INNER JOIN Barn barn 
-                   ON (sak.personKey = barn.personKey and 
+                   ON (sak.personKey = barn.personKey AND 
                        sak.region = barn.region)
            WHERE barn.barnFnr IN :barnFnr
              AND sak.kapittelNr = 'BA' 
@@ -34,7 +37,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
     @Query(
         """
         SELECT s FROM Sak s 
-            WHERE s.person.personKey = :personKey
+            WHERE s.personKey = :personKey
               AND s.kapittelNr = 'BA'
               AND s.valg = :valg
               AND s.undervalg = :undervalg
@@ -48,7 +51,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
     @Query(
         """
         SELECT CASE WHEN count(s) > 0 THEN true ELSE false END FROM Sak s 
-            WHERE s.person.personKey = :personKey
+            WHERE s.personKey = :personKey
               AND s.kapittelNr = 'BA'
               AND s.valg = 'UT'
               AND s.undervalg IN ('MD', 'ME', 'MB')

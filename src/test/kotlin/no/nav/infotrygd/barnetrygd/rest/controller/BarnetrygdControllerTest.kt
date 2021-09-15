@@ -7,15 +7,7 @@ import no.nav.infotrygd.barnetrygd.model.db2.Beslutning
 import no.nav.infotrygd.barnetrygd.model.db2.Endring
 import no.nav.infotrygd.barnetrygd.model.db2.LøpeNrFnr
 import no.nav.infotrygd.barnetrygd.model.db2.StønadDb2
-import no.nav.infotrygd.barnetrygd.repository.BarnRepository
-import no.nav.infotrygd.barnetrygd.repository.BeslutningRepository
-import no.nav.infotrygd.barnetrygd.repository.EndringRepository
-import no.nav.infotrygd.barnetrygd.repository.LøpeNrFnrRepository
-import no.nav.infotrygd.barnetrygd.repository.PersonRepository
-import no.nav.infotrygd.barnetrygd.repository.SakRepository
-import no.nav.infotrygd.barnetrygd.repository.StønadDb2Repository
-import no.nav.infotrygd.barnetrygd.repository.StønadRepository
-import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
+import no.nav.infotrygd.barnetrygd.repository.*
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdSøkRequest
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdÅpenSakResponse
@@ -56,6 +48,9 @@ class BarnetrygdControllerTest {
 
     @Autowired
     lateinit var sakRepository: SakRepository
+
+    @Autowired
+    lateinit var sakPersonRepository: SakPersonRepository
 
     @Autowired
     lateinit var vedtakRepository: VedtakRepository
@@ -111,8 +106,9 @@ class BarnetrygdControllerTest {
     @Test
     fun `infotrygdsøk etter saker by fnr`() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val sak = sakRepository.saveAndFlush(TestData.sak(person, TestData.stønad(person)))
-        val barn = sak.stønadList[0].barn.first()
+        val sak = sakRepository.saveAndFlush(TestData.sak(person))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
+        val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
         val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr))
@@ -134,9 +130,8 @@ class BarnetrygdControllerTest {
         val person = personRepository.saveAndFlush(TestData.person()).also {
             løpeNrFnrRepository.saveAndFlush(LøpeNrFnr(1, it.fnr.asString))
         }
-        val sak = TestData.sak(person).let { it.copy(stønadList = listOf(TestData.stønad(person, it.saksblokk, it.saksnummer))) }.also {
-            sakRepository.saveAndFlush(it)
-        }
+        val sak = sakRepository.saveAndFlush(TestData.sak(person))
+
         val vedtak = vedtakRepository.saveAndFlush(TestData.vedtak(sak)).also {
             stønadDb2Repository.saveAndFlush(StønadDb2(it.stønadId, "BA", 1))
             endringRepository.saveAndFlush(Endring(it.vedtakId, "  "))
@@ -151,6 +146,20 @@ class BarnetrygdControllerTest {
 
         assertThat(post(søkRequest, uri["aapen-sak"]).pakkUt(InfotrygdÅpenSakResponse::class.java).harÅpenSak)
             .isFalse
+    }
+
+    @Test
+    fun `skal finne riktig antall personer med utvidet barnetrygd året 2020`() {
+        stønadRepository.saveAll(listOf(
+            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
+            TestData.stønad(TestData.person(), status = "02"), // utvidet barnetrygd fra 2020 (by default)
+            TestData.stønad(TestData.person(), opphørtFom = "122020", status = "02") // utvidet barnetrygd kun 2020
+        ))
+
+        get("/infotrygd/barnetrygd/utvidet?aar=2020")
+            .pakkUt(BarnetrygdController.InfotrygdUtvidetBaPersonerResponse::class.java).also {
+                assertThat(it.brukere).hasSize(2)
+            }
     }
 
     @Test
@@ -182,6 +191,14 @@ class BarnetrygdControllerTest {
             .syncBody(request)
             .exchange()
             .block()!!
+    }
+
+    private fun get(uri: String?): ClientResponse {
+        return restClient(port)
+            .get()
+            .uri(uri!!)
+            .exchange()
+            .block() !!
     }
 }
 

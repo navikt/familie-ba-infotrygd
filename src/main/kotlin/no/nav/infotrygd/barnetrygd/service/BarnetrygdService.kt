@@ -6,11 +6,21 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.db2.Utbetaling
 import no.nav.infotrygd.barnetrygd.model.db2.toDelytelseDto
 import no.nav.infotrygd.barnetrygd.model.dl1.*
-import no.nav.infotrygd.barnetrygd.repository.*
+import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus.IKKE_BEHANDLET
+import no.nav.infotrygd.barnetrygd.repository.BarnRepository
+import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakRepository
+import no.nav.infotrygd.barnetrygd.repository.StatusRepository
+import no.nav.infotrygd.barnetrygd.repository.StønadRepository
+import no.nav.infotrygd.barnetrygd.repository.TrunkertStønad
+import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
+import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
+import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.UTVIDET
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.UtvidetBarnetrygdPeriode
+import no.nav.infotrygd.barnetrygd.utils.DatoUtils
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -26,6 +36,7 @@ class BarnetrygdService(
     private val sakRepository: SakRepository,
     private val vedtakRepository: VedtakRepository,
     private val utbetalingRepository: UtbetalingRepository,
+    private val statusRepository: StatusRepository,
 ) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
@@ -76,13 +87,14 @@ class BarnetrygdService(
             opphørtIver = stønad.opphørtIver,
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
-            barn = stønad.barn.map { it.toBarnDto() },
+            barn = barnRepository.findBarnByStønad(stønad).map { it.toBarnDto() },
             delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.toLong(), stønad.saksblokk)
                 .firstOrNull()?.delytelse?.map { it.toDelytelseDto() } ?: emptyList()
         )
     }
 
     fun konverterTilDto(sak: Sak): SakDto {
+        val status = statusRepository.findStatushistorikkForSak(sak).minByOrNull { it.lopeNr }?.status ?: IKKE_BEHANDLET
         return SakDto(
             saksnr = sak.saksnummer,
             saksblokk = sak.saksblokk,
@@ -95,12 +107,12 @@ class BarnetrygdService(
             nivå = sak.nivaa,
             resultat = sak.resultat,
             vedtaksdato = sak.vedtaksdato,
-            stønad = sak.stønadList.distinct().map { hentDelytelseOgKonverterTilDto(it) }.firstOrNull(),
+            stønad = stonadRepository.findStønadBySak(sak)?.let { hentDelytelseOgKonverterTilDto(it) },
             iverksattdato = sak.iverksattdato,
             årsakskode = sak.aarsakskode,
             behenEnhet = sak.behenEnhet,
             regAvEnhet = sak.regAvEnhet,
-            status = sak.status.kode,
+            status = status.kode,
         )
     }
 
@@ -127,8 +139,17 @@ class BarnetrygdService(
         return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
             skalFiltreresPåDato(fraDato, it.fomMåned, it.tomMåned)
         })
+    }
 
+    fun finnPerioderMedUtvidetBarnetrygdForÅr(brukerFnr: FoedselsNr,
+                                              år: Int
+    ): BarnetrygdController.InfotrygdUtvidetBarnetrygdSkatteetatenResponse {
 
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(brukerFnr, år, "00", "02", "03").filter { erUtvidetBarnetrygd(it) }
+
+        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(utvidetBarnetrygdStønader)
+
+        return BarnetrygdController.InfotrygdUtvidetBarnetrygdSkatteetatenResponse(perioder)
     }
 
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<TrunkertStønad> {
@@ -182,6 +203,44 @@ class BarnetrygdService(
         }
     }
 
+
+    private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(utvidetBarnetrygdStønader: List<Stønad>
+    ): List<BarnetrygdController.UtvidetBarnetrygdPeriodeSkatteetaten>
+    {
+        logger.info(
+            "StønadsID med utvidet barnetrygd = ${
+                utvidetBarnetrygdStønader.map {
+                    Triple(
+                        it.id,
+                        it.virkningFom,
+                        it.opphørtFom
+                    )
+                }
+            }"
+        )
+
+        if (utvidetBarnetrygdStønader.isEmpty()) {
+            return emptyList()
+        }
+
+
+        //TODO slå sammen perioder
+        val allePerioder = mutableListOf<BarnetrygdController.UtvidetBarnetrygdPeriodeSkatteetaten>()
+        utvidetBarnetrygdStønader.forEach {
+            val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.personKey, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+
+
+            allePerioder.add(
+                BarnetrygdController.UtvidetBarnetrygdPeriodeSkatteetaten(
+                    fomMåned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!,
+                    tomMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom), //Leverer siste dato på stønaden eller null hvis løpenden
+                    sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay(),
+                    maxDelingsprosent = if (erDeltBosted) "50" else "100" //TODO venter på avklaring på hva status 1 2 og 3 mappes til i orginal tjenste
+                )
+            )
+        }
+        return allePerioder
+    }
 
     private fun konverterTilDtoUtvidetBarnetrygd(
         utvidetBarnetrygdStønader: List<Stønad>
@@ -243,7 +302,7 @@ class BarnetrygdService(
         } else if( erDeltBosted) {
             if (utbetaling.beløp in listOf((UTVIDET_BARNETRYGD_ELDRE_SATS/2).toDouble(), (UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS/2).toDouble())) return Pair(utbetaling.beløp, false)
 
-            val antallBarnetrygdbarn = it.barn.count()
+            val antallBarnetrygdbarn = barnRepository.findBarnByStønad(it).count()
 
 
 
@@ -299,6 +358,10 @@ class BarnetrygdService(
             sakRepository.findBarnetrygdsakerByStønad(it.personKey, valg, undervalg, it.saksblokk, it.sakNr, it.region)
                 .isNotEmpty()
         }.map { it.fnr.asString }.toSet()
+    }
+
+    fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
+        return stonadRepository.findSenesteIverksattFomByPersonKey(personKey).let { DatoUtils.seqDatoTilYearMonth(it)!! }
     }
 
     companion object {

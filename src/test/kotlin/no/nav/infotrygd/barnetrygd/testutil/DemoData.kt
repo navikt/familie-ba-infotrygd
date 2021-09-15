@@ -39,8 +39,8 @@ class DemoData(
     fun init() {
         val person = TestData.person()
         val stønad = TestData.stønad(person)
-        val sak = TestData.sak(person, stønad)
-        val barn = sak.stønadList[0].barn.first()
+        val sak = TestData.sak(person, stønad.saksblokk, stønad.sakNr)
+        val barn = TestData.barn(person, stønad.iverksattFom, stønad.virkningFom)
 
         personRepository.saveAndFlush(person).also {
             løpeNrFnrRepository.saveAndFlush(LøpeNrFnr(1, it.fnr.asString))
@@ -75,7 +75,7 @@ class DemoData(
         << Hvis S10-KAPITTELNR, S10-VALG og S10-UNDERVALG i S10-segmentet = henholdsvis BA, UT og MB/MD/ME, er dette et relevant vedtak.
            Dersom det nå ikke er funnet noe relevant vedtak (B20-segment), returneres svar "Data ikke funnet" >>
 */
-        val relevantSak = TestData.sak(person2, stønadUtenFastsattOpphørtFom)
+        val relevantSak = TestData.sak(person2, stønadUtenFastsattOpphørtFom.saksblokk, stønadUtenFastsattOpphørtFom.sakNr)
                                   .copy(kapittelNr = "BA", valg = "UT", undervalg = "MB")
 
         personRepository.saveAll(listOf(person, person2))

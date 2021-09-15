@@ -2,11 +2,6 @@ package no.nav.infotrygd.barnetrygd.model.dl1
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.converters.*
-import no.nav.infotrygd.barnetrygd.model.kodeverk.SakStatus
-import org.hibernate.annotations.Cascade
-import org.hibernate.annotations.CascadeType
-import org.hibernate.annotations.Fetch
-import org.hibernate.annotations.FetchMode
 import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
@@ -23,14 +18,6 @@ data class Sak(
 
     @Column(name = "S01_PERSONKEY", columnDefinition = "DECIMAL")
     val personKey: Long,
-
-    @ManyToOne
-    @JoinColumns(value = [
-        JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "S01_PERSONKEY", insertable= false, updatable = false),
-        JoinColumn(name = "REGION", referencedColumnName = "REGION", insertable= false, updatable = false),
-    ])
-    @Cascade(value = [CascadeType.MERGE])
-    val person: Person,
 
     @Column(name = "S05_SAKSBLOKK", columnDefinition = "CHAR")
     val saksblokk: String,
@@ -56,17 +43,6 @@ data class Sak(
     @Column(name = "S10_RESULTAT", columnDefinition = "CHAR")
     @Convert(converter = Char2Converter::class)
     val resultat: String?,
-
-    @OneToMany(fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    @JoinColumns(value = [
-        JoinColumn(name = "REGION", referencedColumnName = "REGION"),
-        JoinColumn(name = "B01_PERSONKEY", referencedColumnName = "S01_PERSONKEY"),
-        JoinColumn(name = "B20_BLOKK", referencedColumnName = "S05_SAKSBLOKK"),
-        JoinColumn(name = "B20_SAK_NR", referencedColumnName = "S10_SAKSNR")
-    ])
-    @Cascade(value = [CascadeType.MERGE])
-    val stønadList: List<Stønad>, //Det er alltid en stønad per sak
 
     @Column(name = "S10_VEDTAKSDATO", columnDefinition = "DECIMAL")
     @Convert(converter = NavReversedLocalDateConverter::class)
@@ -104,35 +80,23 @@ data class Sak(
     @Column(name = "TK_NR", columnDefinition = "CHAR(4)")
     val tkNr: String? = null,
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumns(value = [
-        JoinColumn(name = "REGION", referencedColumnName = "REGION"),
-        JoinColumn(name = "S01_PERSONKEY", referencedColumnName = "S01_PERSONKEY"),
-        JoinColumn(name = "S05_SAKSBLOKK", referencedColumnName = "S05_SAKSBLOKK"),
-        JoinColumn(name = "S10_SAKSNR", referencedColumnName = "S10_SAKSNR")
-    ])
-    @Cascade(value = [CascadeType.ALL])
-    val statushistorikk: List<Status>
-) : Serializable {
-    val status: SakStatus
-        get() = statushistorikk.minByOrNull { it.lopeNr }?.status ?: SakStatus.IKKE_BEHANDLET
+) : Serializable
 
-    @Entity
-    @Table(name = "SA_PERSON_01")
-    data class Person(
-        @Id
-        @Column(name = "ID_PERS", nullable = false, columnDefinition = "DECIMAL")
-        val id: Long,
+@Entity
+@Table(name = "SA_PERSON_01")
+data class SakPerson(
+    @Id
+    @Column(name = "ID_PERS", nullable = false, columnDefinition = "DECIMAL")
+    val id: Long,
 
-        @Column(name = "REGION", columnDefinition = "CHAR")
-        val region: String,
+    @Column(name = "REGION", columnDefinition = "CHAR")
+    val region: String,
 
-        @Column(name = "S01_PERSONKEY", columnDefinition = "DECIMAL")
-        val personKey: Long,
+    @Column(name = "S01_PERSONKEY", columnDefinition = "DECIMAL")
+    val personKey: Long,
 
-        @Column(name = "F_NR", columnDefinition = "CHAR")
-        @Convert(converter = ReversedFoedselNrConverter::class)
-        val fnr: FoedselsNr,
+    @Column(name = "F_NR", columnDefinition = "CHAR")
+    @Convert(converter = ReversedFoedselNrConverter::class)
+    val fnr: FoedselsNr,
 
-    ): Serializable
-}
+) : Serializable

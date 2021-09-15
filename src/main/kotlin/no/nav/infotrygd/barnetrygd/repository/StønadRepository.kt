@@ -1,6 +1,7 @@
 package no.nav.infotrygd.barnetrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.infotrygd.barnetrygd.model.dl1.Sak
 import no.nav.infotrygd.barnetrygd.model.dl1.Stønad
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -34,6 +35,16 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
            "AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år) " + //datoformatet er av typen "seq" derav 9999 - år
            "AND s.status in :statusKoder ")
     fun findStønadByÅrAndStatusKoder(år: Int, vararg statusKoder: String): List<TrunkertStønad>
+
+    @Query("""SELECT s FROM Stønad s
+                INNER JOIN Person p
+                ON (s.personKey = p.personKey and
+                        s.region = p.region)
+                WHERE p.fnr = :fnr
+                AND (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år)
+                AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år)
+                AND s.status in :statusKoder""")
+    fun findStønadByÅrAndStatusKoderAndFnr(fnr: FoedselsNr, år: Int, vararg statusKoder: String): List<Stønad>
 
     @Query("""
         SELECT s FROM Stønad s
@@ -76,6 +87,20 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     """)
     fun findLøpendeStønader(page: Pageable): List<Stønad>
 
+    @Query("""
+        SELECT s FROM Stønad s
+        WHERE s.personKey = :#{#sak.personKey}
+        AND s.saksblokk = :#{#sak.saksblokk}
+        AND s.sakNr = :#{#sak.saksnummer}
+        AND s.region = :#{#sak.region}
+    """)
+    fun findStønadBySak(sak: Sak): Stønad?
+
+    @Query("""
+        SELECT MIN(s.iverksattFom) FROM Stønad s
+        WHERE s.personKey = :personKey
+    """)
+    fun findSenesteIverksattFomByPersonKey(personKey: Long): String
 }
 
 data class TrunkertStønad(

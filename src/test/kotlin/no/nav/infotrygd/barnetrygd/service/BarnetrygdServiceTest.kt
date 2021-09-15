@@ -5,7 +5,9 @@ import io.mockk.mockk
 import no.nav.infotrygd.barnetrygd.model.dl1.Person
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
+import no.nav.infotrygd.barnetrygd.repository.SakPersonRepository
 import no.nav.infotrygd.barnetrygd.repository.SakRepository
+import no.nav.infotrygd.barnetrygd.repository.StatusRepository
 import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
 import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
@@ -21,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.sql.SQLException
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 @RunWith(SpringRunner::class)
@@ -41,10 +44,16 @@ internal class BarnetrygdServiceTest {
     private lateinit var sakRepository: SakRepository
 
     @Autowired
+    private lateinit var sakPersonRepository: SakPersonRepository
+
+    @Autowired
     private lateinit var vedtakRepository: VedtakRepository
 
     @Autowired
     private lateinit var utbetalingRepository: UtbetalingRepository
+
+    @Autowired
+    private lateinit var statusRepository: StatusRepository
 
     private lateinit var barnetrygdService: BarnetrygdService
 
@@ -56,7 +65,8 @@ internal class BarnetrygdServiceTest {
             barnRepository,
             sakRepository,
             vedtakRepository,
-            utbetalingRepository
+            utbetalingRepository,
+            statusRepository
         )
     }
 
@@ -111,7 +121,7 @@ internal class BarnetrygdServiceTest {
         val barnRepositoryMock = mockk<BarnRepository>()
         every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
                 SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
-        val barnetrygdService = BarnetrygdService(mockk(), mockk(), barnRepositoryMock, mockk(), mockk(), mockk())
+        val barnetrygdService = BarnetrygdService(mockk(), mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk())
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }
@@ -203,7 +213,8 @@ internal class BarnetrygdServiceTest {
                 virkningFom = "798094"
             )
         )
-        sakRepository.save(TestData.sak(person, opphørtStønad, valg = "UT", undervalg = "MB"))
+        sakRepository.save(TestData.sak(person, opphørtStønad.saksblokk, opphørtStønad.sakNr, valg = "UT", undervalg = "MB"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
 
         utbetalingRepository.save(TestData.utbetaling(opphørtStønad))
 
@@ -269,15 +280,18 @@ internal class BarnetrygdServiceTest {
     fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, 2 barn og barnetrygd inkludert i utbetaling`() {
 
         val person = personRepository.save(TestData.person())
-        val barn = barnRepository.saveAll(
-            listOf(
-                TestData.barn(person),
-                TestData.barn(person, barnetrygdTom = "111111")
-            )
-        )
+        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
+            .also {
+                barnRepository.saveAll(
+                    listOf(
+                        TestData.barn(person, it.iverksattFom, it.virkningFom),
+                        TestData.barn(person, it.iverksattFom, it.virkningFom, barnetrygdTom = "111111")
+                    )
+                )
+            }
 
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000", barn = barn))
-        sakRepository.save(TestData.sak(person, løpendeStønad, valg = "UT", undervalg = "MD"))
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, beløp = 1581.0), // utvidet på aktiv stønad
@@ -300,15 +314,18 @@ internal class BarnetrygdServiceTest {
     fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, 2 barn og barnetrygd inkludert i utbetaling og gammel takst`() {
 
         val person = personRepository.save(TestData.person())
-        val barn = barnRepository.saveAll(
-            listOf(
-                TestData.barn(person),
-                TestData.barn(person, barnetrygdTom = "111111")
-            )
-        )
+        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
+            .also {
+                barnRepository.saveAll(
+                    listOf(
+                        TestData.barn(person, it.iverksattFom, it.virkningFom),
+                        TestData.barn(person, it.iverksattFom, it.virkningFom, barnetrygdTom = "111111")
+                    )
+                )
+            }
 
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000", barn = barn))
-        sakRepository.save(TestData.sak(person, løpendeStønad, valg = "UT", undervalg = "MD"))
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, beløp = 1455.0), // utvidet på aktiv stønad
@@ -331,15 +348,19 @@ internal class BarnetrygdServiceTest {
     fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, barn under 6, barn over 6`() {
 
         val person = personRepository.save(TestData.person())
-        val barn = barnRepository.saveAll(
-            listOf(
-                TestData.barn(person),
-                TestData.barn(person, barnetrygdTom = "111111")
-            )
-        )
+        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
+            .also {
+                barnRepository.saveAll(
+                    listOf(
+                        TestData.barn(person, it.iverksattFom, it.virkningFom),
+                        TestData.barn(person, it.iverksattFom, it.virkningFom, barnetrygdTom = "111111")
+                    )
+                )
+            }
 
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000", barn = barn))
-        sakRepository.save(TestData.sak(person, løpendeStønad, valg = "UT", undervalg = "MD"))
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
+
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, beløp = 1731.0), // utvidet på aktiv stønad
@@ -363,14 +384,17 @@ internal class BarnetrygdServiceTest {
     fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, pluss 1 barn over 6`() {
 
         val person = personRepository.save(TestData.person())
-        val barn = barnRepository.saveAll(
-            listOf(
-                TestData.barn(person),
-            )
-        )
+        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
+            .also {
+                barnRepository.saveAll(
+                    listOf(
+                        TestData.barn(person, it.iverksattFom, it.virkningFom)
+                    )
+                )
+            }
 
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000", barn = barn))
-        sakRepository.save(TestData.sak(person, løpendeStønad, valg = "UT", undervalg = "MD"))
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, beløp = 1054.0), // utvidet på aktiv stønad
@@ -393,14 +417,17 @@ internal class BarnetrygdServiceTest {
     fun `hent utvidet barnetrygd skal bruke beløp for manuell behandling med delt bosted, pluss 1 barn over 6 når beløpet er orginalt riktig`() {
 
         val person = personRepository.save(TestData.person())
-        val barn = barnRepository.saveAll(
-            listOf(
-                TestData.barn(person),
-            )
-        )
+        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
+            .also {
+                barnRepository.saveAll(
+                    listOf(
+                        TestData.barn(person, it.iverksattFom, it.virkningFom)
+                    )
+                )
+            }
 
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000", barn = barn))
-        sakRepository.save(TestData.sak(person, løpendeStønad, valg = "UT", undervalg = "MD"))
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, beløp = 527.0), // utvidet på aktiv stønad
@@ -419,10 +446,46 @@ internal class BarnetrygdServiceTest {
         )
     }
 
+    @Test
+    fun `skal hente utvidet barnetrygd stønader en person for et bestemt år`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val person2 = personRepository.saveAndFlush(TestData.person())
+        stonadRepository.saveAll(listOf(
+            TestData.stønad(person, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
+            TestData.stønad(person, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
+            TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
+            TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
+        ))
+
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2019).also {
+            assertThat(it.perioder).hasSize(1)
+            assertThat(it.perioder[0].fomMåned).isEqualTo(YearMonth.of(2019, 1))
+            assertThat(it.perioder[0].tomMåned).isEqualTo(YearMonth.of(2019, 11))
+            assertThat(it.perioder[0].maxDelingsprosent).isEqualTo("100")
+            assertThat(it.perioder[0].sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+        }
+
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2020).also {
+            assertThat(it.perioder).hasSize(1)
+            assertThat(it.perioder[0].fomMåned).isEqualTo(YearMonth.of(2020, 1))
+            assertThat(it.perioder[0].tomMåned).isEqualTo(null)
+            assertThat(it.perioder[0].maxDelingsprosent).isEqualTo("100")
+            assertThat(it.perioder[0].sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+        }
+
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2021).also {
+            assertThat(it.perioder).hasSize(1)
+            assertThat(it.perioder[0].fomMåned).isEqualTo(YearMonth.of(2020, 1))
+            assertThat(it.perioder[0].tomMåned).isEqualTo(null)
+            assertThat(it.perioder[0].maxDelingsprosent).isEqualTo("100")
+            assertThat(it.perioder[0].sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+        }
+    }
+
     private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
         val person = personRepository.save(TestData.person())
         val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = stønadStatus, opphørtFom = "000000"))
-        sakRepository.save(TestData.sak(person, løpendeStønad, valg = "UT", undervalg = "MB"))
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MB"))
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, kontonummer = "06040000", beløp = 660.00), //småbarnstillegg aktiv stønad
@@ -447,7 +510,8 @@ internal class BarnetrygdServiceTest {
                 virkningFom = virkningFom
             )
         )
-        sakRepository.save(TestData.sak(person, opphørtStønad, valg = "UT", undervalg = "MB"))
+        sakRepository.save(TestData.sak(person, opphørtStønad.saksblokk, opphørtStønad.sakNr, valg = "UT", undervalg = "MB"))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
         if (beløp == null){
             utbetalingRepository.save(TestData.utbetaling(opphørtStønad))
         } else {
