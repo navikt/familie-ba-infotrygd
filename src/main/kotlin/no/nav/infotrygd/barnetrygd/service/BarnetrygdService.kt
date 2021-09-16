@@ -77,7 +77,10 @@ class BarnetrygdService(
             saker
             }.distinct()
             .map {
-                logger.info("Konverterer til SakDto for ${it.id}")
+                logger.info("Konverterer til SakDto for ${it.id} ${it.saksblokk} ${it.saksnummer} ${it.region}")
+                val stønadBySak = stonadRepository.findStønadBySak(it)
+                logger.info("Stønad ${stønadBySak?.id}")
+
                 konverterTilDto(it)
             }
     }
