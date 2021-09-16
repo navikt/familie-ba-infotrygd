@@ -69,18 +69,11 @@ class BarnetrygdService(
     }
 
     fun findSakerByBrukerFnr(brukerFnr: List<FoedselsNr>): List<SakDto> {
-
-
         return brukerFnr.flatMap {
-            val saker = sakRepository.findBarnetrygdsakerByFnr(it)
-            logger.info("Antall saker ${saker.size} ")
-            saker
+                sakRepository.findBarnetrygdsakerByFnr(it)
             }.distinct()
             .map {
                 logger.info("Konverterer til SakDto for ${it.id} ${it.saksblokk} ${it.saksnummer} ${it.region}")
-                val stønadBySak = stonadRepository.findStønadBySak(it).minByOrNull {stoenad -> stoenad.virkningFom.toInt() }
-                logger.info("Stønad ${stønadBySak?.id}")
-
                 konverterTilDto(it)
             }
     }
