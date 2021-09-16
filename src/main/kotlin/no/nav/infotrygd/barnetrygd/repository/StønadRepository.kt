@@ -94,7 +94,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND s.sakNr = :#{#sak.saksnummer}
         AND s.region = :#{#sak.region}
     """)
-    fun findStønadBySak(sak: Sak): Stønad?
+    fun findStønadBySak(sak: Sak): List<Stønad>
 
     @Query("""
         SELECT MIN(s.iverksattFom) FROM Stønad s

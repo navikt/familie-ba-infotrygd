@@ -78,7 +78,7 @@ class BarnetrygdService(
             }.distinct()
             .map {
                 logger.info("Konverterer til SakDto for ${it.id} ${it.saksblokk} ${it.saksnummer} ${it.region}")
-                val stønadBySak = stonadRepository.findStønadBySak(it)
+                val stønadBySak = stonadRepository.findStønadBySak(it).minByOrNull {stoenad -> stoenad.virkningFom.toInt() }
                 logger.info("Stønad ${stønadBySak?.id}")
 
                 konverterTilDto(it)
@@ -119,7 +119,8 @@ class BarnetrygdService(
             nivå = sak.nivaa,
             resultat = sak.resultat,
             vedtaksdato = sak.vedtaksdato,
-            stønad = stonadRepository.findStønadBySak(sak)?.let { hentDelytelseOgKonverterTilDto(it) },
+            // minByOrNull er pga at det på en del gamle saker finnes flere stønader på samme sak, noe som egentlig er feil, men må sees på ved migrering.
+            stønad = stonadRepository.findStønadBySak(sak).minByOrNull { it.virkningFom.toInt() }?.let { hentDelytelseOgKonverterTilDto(it) },
             iverksattdato = sak.iverksattdato,
             årsakskode = sak.aarsakskode,
             behenEnhet = sak.behenEnhet,
