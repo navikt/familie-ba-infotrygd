@@ -2,6 +2,7 @@ package no.nav.infotrygd.barnetrygd.service
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.infotrygd.barnetrygd.model.dl1.Person
 import no.nav.infotrygd.barnetrygd.repository.BarnRepository
 import no.nav.infotrygd.barnetrygd.repository.PersonRepository
@@ -458,27 +459,30 @@ internal class BarnetrygdServiceTest {
         ))
 
         barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2019).also {
-            assertThat(it.perioder).hasSize(1)
-            assertThat(it.perioder[0].fomMåned).isEqualTo(YearMonth.of(2019, 1))
-            assertThat(it.perioder[0].tomMåned).isEqualTo(YearMonth.of(2019, 11))
-            assertThat(it.perioder[0].maxDelingsprosent).isEqualTo("100")
-            assertThat(it.perioder[0].sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+            assertThat(it.brukere).hasSize(1)
+            assertThat(it.brukere.first().perioder).hasSize(1)
+            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2019-01")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2019-11")
+            assertThat(it.brukere.first().perioder.first().maxDelingsprosent).isEqualTo(SkatteetatenPeriode.MaxDelingsprosent._100)
+            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
 
         barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2020).also {
-            assertThat(it.perioder).hasSize(1)
-            assertThat(it.perioder[0].fomMåned).isEqualTo(YearMonth.of(2020, 1))
-            assertThat(it.perioder[0].tomMåned).isEqualTo(null)
-            assertThat(it.perioder[0].maxDelingsprosent).isEqualTo("100")
-            assertThat(it.perioder[0].sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+            assertThat(it.brukere).hasSize(1)
+            assertThat(it.brukere.first().perioder).hasSize(1)
+            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isNull()
+            assertThat(it.brukere.first().perioder.first().maxDelingsprosent).isEqualTo(SkatteetatenPeriode.MaxDelingsprosent._100)
+            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
 
         barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2021).also {
-            assertThat(it.perioder).hasSize(1)
-            assertThat(it.perioder[0].fomMåned).isEqualTo(YearMonth.of(2020, 1))
-            assertThat(it.perioder[0].tomMåned).isEqualTo(null)
-            assertThat(it.perioder[0].maxDelingsprosent).isEqualTo("100")
-            assertThat(it.perioder[0].sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+            assertThat(it.brukere).hasSize(1)
+            assertThat(it.brukere.first().perioder).hasSize(1)
+            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isNull()
+            assertThat(it.brukere.first().perioder.first().maxDelingsprosent).isEqualTo(SkatteetatenPeriode.MaxDelingsprosent._100)
+            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
     }
 

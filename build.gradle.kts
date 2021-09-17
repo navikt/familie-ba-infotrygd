@@ -13,6 +13,7 @@ val swaggerVersion = "2.9.2"
 val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
+val skattKontraktVersjon = "2.0_20210916164514_9f2518b"
 
 val mainClass = "no.nav.infotrygd.barnetrygd.Main"
 
@@ -76,6 +77,7 @@ dependencies {
     implementation("io.springfox:springfox-swagger2:$swaggerVersion")
     implementation("io.springfox:springfox-swagger-ui:$swaggerVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:5.1")
+    implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$skattKontraktVersjon")
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")

@@ -7,6 +7,9 @@ import io.swagger.annotations.ApiModelProperty
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.infotrygd.barnetrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
@@ -147,7 +150,7 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdUtvidetBarnetrygdRequest",
             value = """{"bruker": "12345678910", "år": "2020"}"""))
-    fun skatteetatenPerioderUtvidetPerson(@RequestBody request: SkatteetatenPerioderUtvidetRequest): InfotrygdUtvidetBarnetrygdSkatteetatenResponse {
+    fun skatteetatenPerioderUtvidetPerson(@RequestBody request: SkatteetatenPerioderUtvidetRequest): SkatteetatenPerioderResponse {
         clientValidator.authorizeClient()
 
         val bruker = FoedselsNr(request.personIdent)
@@ -158,7 +161,7 @@ class BarnetrygdController(
 
     @ApiOperation("Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
     @GetMapping(path =["utvidet"])
-    fun utvidet(@ApiParam("år") @RequestParam("aar") år: String): InfotrygdUtvidetBaPersonerResponse {
+    fun utvidet(@ApiParam("år") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
         clientValidator.authorizeClient()
 
         val personer = mutableMapOf<String, YearMonth>()
@@ -171,11 +174,11 @@ class BarnetrygdController(
             }
 
         return personer.map {
-            UtvidetBarnetrygdPerson(
+            SkatteetatenPerson(
                 ident = it.key,
                 sisteVedtakPaaIdent = it.value.atDay(1).atStartOfDay()
             )
-        }.let { InfotrygdUtvidetBaPersonerResponse(it) }
+        }.let { SkatteetatenPersonerResponse(it) }
     }
 
     data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
@@ -186,7 +189,7 @@ class BarnetrygdController(
 
     class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
 
-    class InfotrygdUtvidetBarnetrygdSkatteetatenResponse(val perioder: List<UtvidetBarnetrygdPeriodeSkatteetaten>)
+
 
     data class UtvidetBarnetrygdPeriode(val stønadstype: Stønadstype,
                                         @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")
@@ -195,14 +198,6 @@ class BarnetrygdController(
                                         val tomMåned: YearMonth?,
                                         val beløp: Double,
                                         val manueltBeregnet: Boolean,
-    )
-
-    data class UtvidetBarnetrygdPeriodeSkatteetaten(@ApiModelProperty(dataType = "java.lang.String", example = "2020-05")
-                                                    val fomMåned: YearMonth,
-                                                    @ApiModelProperty(dataType = "java.lang.String", example = "2020-12")
-                                                    val tomMåned: YearMonth?,
-                                                    val maxDelingsprosent: String,
-                                                    val sisteVedtakPaaIdent: LocalDateTime
     )
 
     class InfotrygdUtvidetBaPersonerResponse(val brukere: List<UtvidetBarnetrygdPerson>)

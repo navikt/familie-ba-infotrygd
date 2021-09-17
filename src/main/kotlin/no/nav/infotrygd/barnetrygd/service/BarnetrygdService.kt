@@ -3,6 +3,9 @@
 package no.nav.infotrygd.barnetrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
 import no.nav.infotrygd.barnetrygd.model.db2.Utbetaling
 import no.nav.infotrygd.barnetrygd.model.db2.toDelytelseDto
 import no.nav.infotrygd.barnetrygd.model.dl1.*
@@ -15,7 +18,6 @@ import no.nav.infotrygd.barnetrygd.repository.StønadRepository
 import no.nav.infotrygd.barnetrygd.repository.TrunkertStønad
 import no.nav.infotrygd.barnetrygd.repository.UtbetalingRepository
 import no.nav.infotrygd.barnetrygd.repository.VedtakRepository
-import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønadstype.UTVIDET
@@ -24,6 +26,7 @@ import no.nav.infotrygd.barnetrygd.utils.DatoUtils
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.time.YearMonth
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
@@ -149,19 +152,18 @@ class BarnetrygdService(
 
     fun finnPerioderMedUtvidetBarnetrygdForÅr(brukerFnr: FoedselsNr,
                                               år: Int
-    ): BarnetrygdController.InfotrygdUtvidetBarnetrygdSkatteetatenResponse {
+    ): SkatteetatenPerioderResponse {
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(brukerFnr, år, "00", "02", "03").filter { erUtvidetBarnetrygd(it) }
 
-        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(utvidetBarnetrygdStønader)
+        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(brukerFnr, utvidetBarnetrygdStønader)
 
-        return BarnetrygdController.InfotrygdUtvidetBarnetrygdSkatteetatenResponse(perioder)
+        return SkatteetatenPerioderResponse(perioder)
     }
 
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<TrunkertStønad> {
-        val personerMedUtvidetBa = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(),"00", "02", "03")
+        return stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
-        return personerMedUtvidetBa
     }
 
     private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
@@ -210,8 +212,8 @@ class BarnetrygdService(
     }
 
 
-    private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(utvidetBarnetrygdStønader: List<Stønad>
-    ): List<BarnetrygdController.UtvidetBarnetrygdPeriodeSkatteetaten>
+    private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
+    ): List<SkatteetatenPerioder>
     {
         logger.info(
             "StønadsID med utvidet barnetrygd = ${
@@ -229,23 +231,28 @@ class BarnetrygdService(
             return emptyList()
         }
 
-
+        var sisteVedtakPaaIdent:LocalDateTime? = null
         //TODO slå sammen perioder
-        val allePerioder = mutableListOf<BarnetrygdController.UtvidetBarnetrygdPeriodeSkatteetaten>()
+        val allePerioder = mutableListOf<SkatteetatenPeriode>()
+
         utvidetBarnetrygdStønader.forEach {
             val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.personKey, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
-
+            if (sisteVedtakPaaIdent == null) {
+                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay()
+            }
 
             allePerioder.add(
-                BarnetrygdController.UtvidetBarnetrygdPeriodeSkatteetaten(
-                    fomMåned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!,
-                    tomMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom), //Leverer siste dato på stønaden eller null hvis løpenden
-                    sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay(),
-                    maxDelingsprosent = if (erDeltBosted) "50" else "100" //TODO venter på avklaring på hva status 1 2 og 3 mappes til i orginal tjenste
+                SkatteetatenPeriode(
+                    fraMaaned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.toString(),
+                    tomMaaned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
+                    //TODO mapping delingsprosent
+                    maxDelingsprosent = if (erDeltBosted) SkatteetatenPeriode.MaxDelingsprosent._50 else SkatteetatenPeriode.MaxDelingsprosent._100 //TODO venter på avklaring på hva status 1 2 og 3 mappes til i orginal tjenste
                 )
             )
         }
-        return allePerioder
+        SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
+
+        return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
     }
 
     private fun konverterTilDtoUtvidetBarnetrygd(
