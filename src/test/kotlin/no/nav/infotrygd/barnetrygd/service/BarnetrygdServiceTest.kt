@@ -460,8 +460,11 @@ internal class BarnetrygdServiceTest {
             TestData.stønad(person, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
             // utvidet barnetrygd fra 2020 hvor saken er ikke delt bosted
             TestData.stønad(person, virkningFom = (999999-202001).toString(), status = "02", saksblokk = sakIkkeDeltBosted.saksblokk, saksnummer = sakIkkeDeltBosted.saksnummer, region = sakIkkeDeltBosted.region),
-            // utvidet barnetrygd fra 2017 hvor saken er manuelt beregnet og vi dermed ikke kan utlede delt bosted
-            TestData.stønad(person, virkningFom = (999999-201701).toString(), opphørtFom = "062017", status = "02", saksblokk = sakManuletBeregnet.saksblokk, saksnummer = sakManuletBeregnet.saksnummer, region = sakManuletBeregnet.region), // utvidet barnetrygd fra 2020
+            // utvidet barnetrygd fra 2017 hvor saken er manuelt beregnet og vi dermed ikke kan utlede delt bosted. Denne slår også sammen perioden fra stønaden 2017-2018
+            TestData.stønad(person, virkningFom = (999999-201701).toString(), opphørtFom = "062017", status = "02", saksblokk = sakManuletBeregnet.saksblokk, saksnummer = sakManuletBeregnet.saksnummer, region = sakManuletBeregnet.region),
+            TestData.stønad(person, virkningFom = (999999-201707).toString(), opphørtFom = "042018", status = "02", saksblokk = sakManuletBeregnet.saksblokk, saksnummer = sakManuletBeregnet.saksnummer, region = sakManuletBeregnet.region),
+
+            //Dette er testdata fra en annen person og skal ikke bli med i uttrekket
             TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
             TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
         ))
@@ -501,7 +504,7 @@ internal class BarnetrygdServiceTest {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2017-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2017-06")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2018-04")
             assertThat(it.brukere.first().perioder.first().delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent.usikker)
         }
     }

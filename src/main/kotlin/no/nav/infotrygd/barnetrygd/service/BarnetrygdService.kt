@@ -232,7 +232,7 @@ class BarnetrygdService(
         }
 
         var sisteVedtakPaaIdent:LocalDateTime? = null
-        //TODO slå sammen perioder
+
         val allePerioder = mutableListOf<SkatteetatenPeriode>()
 
         utvidetBarnetrygdStønader.forEach {
@@ -250,7 +250,12 @@ class BarnetrygdService(
         }
         SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
-        return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
+        //Slå sammen perioder basert på delingsprosent
+        val sammenslåttePerioderDelingsprosent =
+            allePerioder.groupBy { it.delingsprosent }.values
+                .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
+
+        return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = sammenslåttePerioderDelingsprosent, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
@@ -369,6 +374,16 @@ class BarnetrygdService(
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
                 if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)) {
                     sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
+                } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
+            }
+    }
+
+    private fun slåSammenSkatteetatenPeriode(perioderAvEtGittDelingsprosent: List<SkatteetatenPeriode>): List<SkatteetatenPeriode> {
+        return perioderAvEtGittDelingsprosent.sortedBy { it.fraMaaned }
+            .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
+                val nesteUtbetalingFraaMåned = YearMonth.parse(nesteUtbetaling.fraMaaned)
+                if (sammenslåttePerioder.lastOrNull()?.tomMaaned == nesteUtbetalingFraaMåned.minusMonths(1).toString()) {
+                    sammenslåttePerioder.apply { add(removeLast().copy(tomMaaned = nesteUtbetaling.tomMaaned)) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
     }
