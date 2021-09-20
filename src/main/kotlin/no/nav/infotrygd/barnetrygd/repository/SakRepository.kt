@@ -2,6 +2,7 @@ package no.nav.infotrygd.barnetrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.infotrygd.barnetrygd.model.dl1.Sak
+import no.nav.infotrygd.barnetrygd.model.dl1.Stønad
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -60,4 +61,21 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.region = :region"""
     )
     fun erUtvidetBarnetrygd(personKey: Long, saksblokk: String, saksnummer:String, region: String): Boolean
+
+
+    @Query(
+        """
+        SELECT s FROM Sak s 
+            WHERE s.personKey = :#{#stonad.personKey}
+              AND s.kapittelNr = 'BA'
+              AND s.valg = 'UT'
+              AND s.saksblokk = :#{#stonad.saksblokk}
+              AND s.saksnummer = :#{#stonad.sakNr}
+              AND s.region = :#{#stonad.region}
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
+    )
+    fun hentUtvidetBarnetrygdsakerForStønad(stonad: Stønad): List<Sak>
+
+
+
 }

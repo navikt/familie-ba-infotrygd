@@ -13,7 +13,7 @@ val swaggerVersion = "2.9.2"
 val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-val skattKontraktVersjon = "2.0_20210916164514_9f2518b"
+val skattKontraktVersjon = "2.0_20210920094114_9c74239"
 
 val mainClass = "no.nav.infotrygd.barnetrygd.Main"
 

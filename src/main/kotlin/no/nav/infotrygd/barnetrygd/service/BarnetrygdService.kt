@@ -236,7 +236,7 @@ class BarnetrygdService(
         val allePerioder = mutableListOf<SkatteetatenPeriode>()
 
         utvidetBarnetrygdStønader.forEach {
-            val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.personKey, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+
             if (sisteVedtakPaaIdent == null) {
                 sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay()
             }
@@ -245,14 +245,23 @@ class BarnetrygdService(
                 SkatteetatenPeriode(
                     fraMaaned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.toString(),
                     tomMaaned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
-                    //TODO mapping delingsprosent
-                    maxDelingsprosent = if (erDeltBosted) SkatteetatenPeriode.MaxDelingsprosent._50 else SkatteetatenPeriode.MaxDelingsprosent._100 //TODO venter på avklaring på hva status 1 2 og 3 mappes til i orginal tjenste
-                )
-            )
+                    delingsprosent = delingsprosent(it)))
+
         }
         SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
         return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
+    }
+
+    private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
+        val undervalgSaker = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it).map { it.undervalg }
+        var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
+        if (undervalgSaker.any { it == "EF" || it == "EU" }) {
+            delingsprosent = SkatteetatenPeriode.Delingsprosent._0
+        } else if (undervalgSaker.contains("MD")) {
+            delingsprosent = SkatteetatenPeriode.Delingsprosent._50
+        }
+        return delingsprosent
     }
 
     private fun konverterTilDtoUtvidetBarnetrygd(
