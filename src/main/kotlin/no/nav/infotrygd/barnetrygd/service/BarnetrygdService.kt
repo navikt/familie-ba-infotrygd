@@ -244,7 +244,7 @@ class BarnetrygdService(
             allePerioder.add(
                 SkatteetatenPeriode(
                     fraMaaned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.toString(),
-                    tomMaaned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
+                    tomMaaned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
                     delingsprosent = delingsprosent(it)))
 
         }
