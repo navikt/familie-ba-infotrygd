@@ -202,7 +202,7 @@ class BarnetrygdService(
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                sakRepository.erUtvidetBarnetrygd(stønad.personKey, stønad.saksblokk, stønad.sakNr, stønad.region)
+                sakRepository.erUtvidetBarnetrygd(stønad.fnr, stønad.saksblokk, stønad.sakNr, stønad.region)
             }
 
             2L -> true //Utvidet barnetrygd.
@@ -321,7 +321,7 @@ class BarnetrygdService(
 
         if (it.status.toInt() != 0) return Pair(finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling), false)
 
-        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.personKey, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.fnr, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
 
 
         if (!erDeltBosted && utbetaling.beløp in LIST_MED_GODKJENTE_UTVIDET_BARNETRYGD_BELØP) {
@@ -392,7 +392,7 @@ class BarnetrygdService(
         val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
 
         return løpendeStønaderFnr.filter {
-            sakRepository.findBarnetrygdsakerByStønad(it.personKey, valg, undervalg, it.saksblokk, it.sakNr, it.region)
+            sakRepository.findBarnetrygdsakerByStønad(it.fnr, valg, undervalg, it.saksblokk, it.sakNr, it.region)
                 .isNotEmpty()
         }.map { it.fnr.asString }.toSet()
     }

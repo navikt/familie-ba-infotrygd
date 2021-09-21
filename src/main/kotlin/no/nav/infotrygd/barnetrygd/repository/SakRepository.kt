@@ -38,7 +38,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
     @Query(
         """
         SELECT s FROM Sak s 
-            WHERE s.personKey = :personKey
+            WHERE s.fnr = :fnr
               AND s.kapittelNr = 'BA'
               AND s.valg = :valg
               AND s.undervalg = :undervalg
@@ -47,12 +47,15 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.region = :region
               AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
     )  // søknad, revurdering, klage, anke, flyttesak
-    fun findBarnetrygdsakerByStønad(personKey: Long, valg: String, undervalg: String, saksblokk: String, saksnummer:String, region: String): List<Sak>
+    fun findBarnetrygdsakerByStønad(fnr: FoedselsNr, valg: String, undervalg: String, saksblokk: String, saksnummer:String, region: String): List<Sak>
 
     @Query(
         """
-        SELECT CASE WHEN count(s) > 0 THEN true ELSE false END FROM Sak s 
-            WHERE s.personKey = :personKey
+        SELECT CASE WHEN count(s) > 0 THEN true ELSE false END FROM Sak s
+        INNER JOIN SakPerson p
+                ON (s.personKey = p.personKey AND
+                    s.region = p.region)
+            WHERE p.fnr = :fnr 
               AND s.kapittelNr = 'BA'
               AND s.valg = 'UT'
               AND s.undervalg IN ('MD', 'ME', 'MB')
@@ -60,13 +63,13 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.saksnummer = :saksnummer
               AND s.region = :region"""
     )
-    fun erUtvidetBarnetrygd(personKey: Long, saksblokk: String, saksnummer:String, region: String): Boolean
+    fun erUtvidetBarnetrygd(fnr: FoedselsNr, saksblokk: String, saksnummer:String, region: String): Boolean
 
 
     @Query(
         """
         SELECT s FROM Sak s 
-            WHERE s.personKey = :#{#stonad.personKey}
+            WHERE s.fnr = :#{#stonad.fnr}
               AND s.kapittelNr = 'BA'
               AND s.valg = 'UT'
               AND s.saksblokk = :#{#stonad.saksblokk}

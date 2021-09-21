@@ -122,6 +122,7 @@ object TestData {
             resultat = "I",
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
+            fnr = person.fnr,
         )
     }
 

@@ -80,6 +80,10 @@ data class Sak(
     @Column(name = "TK_NR", columnDefinition = "CHAR(4)")
     val tkNr: String? = null,
 
+    @Column(name = "F_NR", columnDefinition = "CHAR(11)")
+    @Convert(converter = ReversedFoedselNrConverter::class)
+    val fnr: FoedselsNr,
+
 ) : Serializable
 
 @Entity
