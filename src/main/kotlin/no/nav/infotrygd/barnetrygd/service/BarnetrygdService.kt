@@ -6,6 +6,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import no.nav.infotrygd.barnetrygd.model.db2.Utbetaling
 import no.nav.infotrygd.barnetrygd.model.db2.toDelytelseDto
 import no.nav.infotrygd.barnetrygd.model.dl1.*
@@ -24,6 +25,7 @@ import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.Stønads
 import no.nav.infotrygd.barnetrygd.rest.controller.BarnetrygdController.UtvidetBarnetrygdPeriode
 import no.nav.infotrygd.barnetrygd.utils.DatoUtils
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -150,6 +152,7 @@ class BarnetrygdService(
         })
     }
 
+    @Cacheable(value = ["skatt_perioder"], unless = "#result == null")
     fun finnPerioderMedUtvidetBarnetrygdForÅr(brukerFnr: FoedselsNr,
                                               år: Int
     ): SkatteetatenPerioderResponse {
@@ -161,9 +164,26 @@ class BarnetrygdService(
         return SkatteetatenPerioderResponse(perioder)
     }
 
-    fun finnPersonerMedUtvidetBarnetrygd(år: String): List<TrunkertStønad> {
-        return stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
+    @Cacheable(value = ["skatt_personer"], unless = "#result == null")
+    fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
+        val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
+
+        val personer = mutableMapOf<String, YearMonth>()
+
+        stønaderMedAktuelleKoder.filter { it.fnr != null }
+            .forEach {
+                if (!personer.containsKey(it.fnr!!.asString)) {
+                    personer[it.fnr.asString] = finnSisteVedtakPåPerson(it.personKey)
+                }
+            }
+
+        return personer.map {
+            SkatteetatenPerson(
+                ident = it.key,
+                sisteVedtakPaaIdent = it.value.atDay(1).atStartOfDay()
+            )
+        }
     }
 
     private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {

@@ -48,7 +48,7 @@ class StønadRepositoryTest {
             assertThat(it).hasSize(2)
         }
         barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
-            assertThat(it).hasSize(1).extracting("fnr").contains(personFraInneværendeÅr.fnr)
+            assertThat(it).hasSize(1).extracting("ident").contains(personFraInneværendeÅr.fnr.asString)
         }
     }
 

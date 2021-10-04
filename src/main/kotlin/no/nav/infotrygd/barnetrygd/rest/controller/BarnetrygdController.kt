@@ -163,22 +163,7 @@ class BarnetrygdController(
     @GetMapping(path =["utvidet"])
     fun utvidet(@ApiParam("år") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
         clientValidator.authorizeClient()
-
-        val personer = mutableMapOf<String, YearMonth>()
-
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år).filter { it.fnr != null }
-            .forEach {
-                if(!personer.containsKey(it.fnr!!.asString)) {
-                    personer[it.fnr.asString] = barnetrygdService.finnSisteVedtakPåPerson(it.personKey)
-                }
-            }
-
-        return personer.map {
-            SkatteetatenPerson(
-                ident = it.key,
-                sisteVedtakPaaIdent = it.value.atDay(1).atStartOfDay()
-            )
-        }.let { SkatteetatenPersonerResponse(it) }
+        return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år))
     }
 
     data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
