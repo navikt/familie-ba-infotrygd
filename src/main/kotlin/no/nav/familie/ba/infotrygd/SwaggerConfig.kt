@@ -26,7 +26,7 @@ class SwaggerConfig {
                 ApiKey("JWT", "Authorization", "header")
             ))
             .select()
-            .apis(RequestHandlerSelectors.basePackage("no.nav.infotrygd"))
+            .apis(RequestHandlerSelectors.basePackage("no.nav.familie.ba.infotrygd"))
             .paths(PathSelectors.any())
             .build()
     }
