@@ -15,7 +15,7 @@ val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20210920094114_9c74239"
 
-val mainClass = "no.nav.infotrygd.barnetrygd.Main"
+val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
