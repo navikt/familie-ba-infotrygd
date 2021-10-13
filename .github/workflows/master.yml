@@ -5,8 +5,8 @@ on:
       - master
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/familie-ba-infotrygd:${{ github.sha }}
-  IMAGE_LATEST: docker.pkg.github.com/${{ github.repository }}/familie-ba-infotrygd:latest
+  IMAGE: ghcr.io/navikt/familie-ba-infotrygd:${{ github.sha }}
+  IMAGE_LATEST: ghcr.io/navikt/:latest
 jobs:
   deploy-to-prod:
     name: Bygg app/image, push til github, deploy til prod-fss og dev-fss
@@ -28,11 +28,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "$GITHUB_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           docker push ${IMAGE}
           docker push ${IMAGE_LATEST}
       - name: Deploy to dev-fss

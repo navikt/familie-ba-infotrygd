@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/familie-ba-infotrygd:${{ github.sha }}
+  IMAGE: ghcr.io/navikt/familie-ba-infotrygd:${{ github.sha }}
 jobs:
   deploy-to-dev:
     name: Bygg app/image, push til github, deploy til dev-fss
@@ -22,11 +22,14 @@ jobs:
       - name: Build docker image
         run: |
           docker build -t $IMAGE .
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "$GITHUB_TOKEN" | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           docker push ${IMAGE}
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v1
