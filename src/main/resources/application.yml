@@ -2,7 +2,7 @@ server.port: 8080
 
 spring:
   application:
-    name: ${NAIS_APP_NAME:infotrygd-barnetrygd}
+    name: ${NAIS_APP_NAME:familie-ba-infotrygd}
   jackson:
     serialization:
       indent_output: true

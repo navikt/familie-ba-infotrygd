@@ -1,7 +1,7 @@
-# Infotrygd Barnetrygd 
+# Familie BA Infotrygd
 
 Dette er en REST-tjeneste som gir tilgang til historiske data fra Infotrygd
-via replikert database.
+via replikert database. Er kopiert fra [infotrygd-barnetrygd](https://github.com/navikt/infotrygd-barnetrygd)
 
 Swagger: http://localhost:8080/swagger-ui.html
 

@@ -1,10 +1,10 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: infotrygd-barnetrygd
-  namespace: infotrygd
+  name: familie-ba-infotrygd
+  namespace: teamfamilie
   labels:
-    team: infotrygd
+    team: teamfamilie
 
 spec:
   image: {{ image }}
@@ -44,7 +44,7 @@ spec:
       cpu: 500m
       memory: 1024Mi
   ingresses: # Optional. List of ingress URLs that will route HTTP traffic to the application.
-    - "https://infotrygd-barnetrygd.nais.adeo.no/"
+    - "https://familie-ba-infotrygd.nais.adeo.no/"
   logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
   logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.

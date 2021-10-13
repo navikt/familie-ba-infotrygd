@@ -3,4 +3,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = "infotrygd-barnetrygd"
+rootProject.name = "familie-ba-infotrygd"

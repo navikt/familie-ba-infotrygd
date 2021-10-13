@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/infotrygd-barnetrygd:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/familie-ba-infotrygd:${{ github.sha }}
 jobs:
   deploy-to-dev:
     name: Bygg app/image, push til github, deploy til dev-fss
