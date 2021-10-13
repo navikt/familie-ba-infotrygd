@@ -470,7 +470,7 @@ internal class BarnetrygdServiceTest {
         ))
 
         //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2019).also {
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2019).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2019-01")
@@ -481,7 +481,7 @@ internal class BarnetrygdServiceTest {
         }
 
         //Denne verifiserer at stønaden er ikke deltbosted
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2020).also {
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2020).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
@@ -490,7 +490,7 @@ internal class BarnetrygdServiceTest {
             assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
         //Denne verifiserer samme stønad som over, bare at stønaden er løpende og input er året etter
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2021).also {
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2021).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
@@ -500,7 +500,7 @@ internal class BarnetrygdServiceTest {
         }
 
         //Denne verifiserer at stønaden er manuelt  beregnet og vi dermed ikke kan utlede delt bosted
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr, 2017).also {
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2017).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2017-01")

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
@@ -150,12 +151,26 @@ class BarnetrygdController(
         ApiImplicitParam(name = "request",
             dataType = "InfotrygdUtvidetBarnetrygdRequest",
             value = """{"bruker": "12345678910", "år": "2020"}"""))
+    @Deprecated("bruk skatteetatenPerioderUtvidetPersoner")
     fun skatteetatenPerioderUtvidetPerson(@RequestBody request: SkatteetatenPerioderUtvidetRequest): SkatteetatenPerioderResponse {
         clientValidator.authorizeClient()
 
-        val bruker = FoedselsNr(request.personIdent)
+        return barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(request.personIdent, request.år)
+    }
 
-        return barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(bruker, request.år)
+
+    @ApiOperation("Hent alle perioder for utvidet for en liste personer")
+    @PostMapping(path = ["utvidet/skatteetaten/perioder"], consumes = ["application/json"])
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "request",
+                         dataType = "SkatteetatenPerioderRequest",
+                         value = """{"identer": ["12345678910"], "aar": 2020}"""))
+    fun skatteetatenPerioderUtvidetPersoner(@RequestBody request: SkatteetatenPerioderRequest): List<SkatteetatenPerioderResponse> {
+        clientValidator.authorizeClient()
+
+        return request.identer.map{
+            barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(it, request.aar.toInt())
+        }
     }
 
 
@@ -168,6 +183,7 @@ class BarnetrygdController(
 
     data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
                                                   @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
+
 
     data class SkatteetatenPerioderUtvidetRequest( val personIdent: String,
                                                    val år: Int)

@@ -152,19 +152,20 @@ class BarnetrygdService(
         })
     }
 
-    @Cacheable(value = ["skatt_perioder"], unless = "#result == null")
-    fun finnPerioderMedUtvidetBarnetrygdForÅr(brukerFnr: FoedselsNr,
+    @Cacheable(cacheManager = "perioderCacheManager", value = ["skatt_perioder"], unless = "#result == null")
+    fun finnPerioderMedUtvidetBarnetrygdForÅr(brukerFnr: String,
                                               år: Int
     ): SkatteetatenPerioderResponse {
+        val bruker = FoedselsNr(brukerFnr)
 
-        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(brukerFnr, år, "00", "02", "03").filter { erUtvidetBarnetrygd(it) }
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03").filter { erUtvidetBarnetrygd(it) }
 
-        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(brukerFnr, utvidetBarnetrygdStønader)
+        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
 
         return SkatteetatenPerioderResponse(perioder)
     }
 
-    @Cacheable(value = ["skatt_personer"], unless = "#result == null")
+    @Cacheable(cacheManager = "personerCacheManager", value = ["skatt_personer"], unless = "#result == null")
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
@@ -235,18 +236,6 @@ class BarnetrygdService(
     private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
     ): List<SkatteetatenPerioder>
     {
-        logger.info(
-            "StønadsID med utvidet barnetrygd = ${
-                utvidetBarnetrygdStønader.map {
-                    Triple(
-                        it.id,
-                        it.virkningFom,
-                        it.opphørtFom
-                    )
-                }
-            }"
-        )
-
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
         }
