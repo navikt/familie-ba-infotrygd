@@ -48,8 +48,23 @@ spec:
   logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
   logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
+  secureLogs:
+    enabled: true
   vault:
     enabled: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
+  accessPolicy:
+    inbound:
+      rules:
+        - application: familie-ba-sak
+          namespace: teamfamilie
+          cluster: prod-fss
+        - application: familie-ba-mottak
+          namespace: teamfamilie
+          cluster: prod-fss
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
   env:
     - name: APP_DATASOURCE_URL
       value: jdbc:oracle:thin:@a01dbfl037.adeo.no:1521/cdc

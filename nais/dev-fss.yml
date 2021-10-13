@@ -51,6 +51,19 @@ spec:
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
   vault:
     enabled: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
+  accessPolicy:
+    inbound:
+      rules:
+        - application: familie-ba-sak
+          namespace: teamfamilie
+          cluster: dev-fss
+        - application: familie-ba-mottak
+          namespace: teamfamilie
+          cluster: dev-fss
+  azure:
+    application:
+      enabled: true
+      tenant: trygdeetaten.no
   env:
     - name: APP_DATASOURCE_URL
       value: jdbc:oracle:thin:@a01dbfl033.adeo.no:1521/cdcq
@@ -70,11 +83,5 @@ spec:
       value: ef9c1445-cfff-459c-a9ab-211cedd2d2f9
     - name: APP_AZURE_PROXY_URL
       value: https://webproxy-nais.nav.no:8088
-    - name: APP_STS_DISCOVERY_URL
-      value: https://isso-q.adeo.no/isso/oauth2/.well-known/openid-configuration
-    - name: APP_STS_AUD
-      value: familie-ba-sak,familie-ba-sak-q0,familie-ba-sak-q1
-    - name: APP_STS_PROXY_URL
-      value: ""
     - name: APP_CLIENT_WHITELIST
       value: azure/146ccc69-7cd0-4b8e-86a5-144534e53a00,azure/288f2ef5-23fa-4fc5-af6b-6001adaf9e50
