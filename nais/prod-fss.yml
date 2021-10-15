@@ -67,7 +67,7 @@ spec:
       tenant: nav.no
   env:
     - name: APP_DATASOURCE_URL
-      value: jdbc:oracle:thin:@a01dbfl037.adeo.no:1521/cdc
+      value: jdbc:oracle:thin:@a01dbfl037.adeo.no:1521/infotrygd_bap
     - name: APP_DATASOURCE_PLATFORM
       value: org.hibernate.dialect.Oracle10gDialect
     - name: APP_DATASOURCE_DRIVER
@@ -75,7 +75,7 @@ spec:
     - name: APP_JPA_PLATFORM
       value: org.hibernate.dialect.Oracle10gDialect
     - name: APP_DEFAULT_SCHEMA
-      value: REST_READ_P
+      value: INFOTRYGD_BAP
     - name: APP_DDL_AUTO
       value: none
     - name: APP_AZURE_DISCOVERY_URL
@@ -86,9 +86,5 @@ spec:
       value: https://webproxy-nais.nav.no:8088
     - name: APP_STS_DISCOVERY_URL
       value: https://isso.adeo.no/isso/oauth2/.well-known/openid-configuration
-    - name: APP_STS_AUD
-      value: familie-ba-sak-p
-    - name: APP_STS_PROXY_URL
-      value: ""
     - name: APP_CLIENT_WHITELIST
       value: azure/0412f3eb-b22a-4d3f-99aa-319321eb340f,azure/984d4731-b95d-4f87-8154-d8f153f0ebee
