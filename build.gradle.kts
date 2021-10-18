@@ -68,7 +68,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
-    implementation("no.nav.familie.kontrakter:felles:2.0_20210315145940_2152fb0")
+    implementation("no.nav.familie.kontrakter:felles:2.0_20211015081925_ef6cd67")
     implementation("no.nav.familie.kontrakter:barnetrygd:2.0_20211015081925_ef6cd67")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
