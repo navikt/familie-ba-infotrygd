@@ -77,8 +77,6 @@ spec:
       value: REST_READ_Q1
     - name: APP_DDL_AUTO
       value: none
-    - name: APP_AZURE_AUD
-      value: ef9c1445-cfff-459c-a9ab-211cedd2d2f9
     - name: APP_AZURE_PROXY_URL
       value: https://webproxy-nais.nav.no:8088
     - name: APP_CLIENT_WHITELIST

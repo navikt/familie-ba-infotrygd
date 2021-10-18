@@ -81,8 +81,6 @@ spec:
       value: INFOTRYGD_BAP
     - name: APP_DDL_AUTO
       value: none
-    - name: APP_AZURE_AUD
-      value: 92a348c5-149e-42aa-b56f-207414785aaa
     - name: APP_AZURE_PROXY_URL
       value: https://webproxy-nais.nav.no:8088
     - name: APP_CLIENT_WHITELIST
