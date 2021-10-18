@@ -6,7 +6,7 @@ on:
 
 env:
   IMAGE: ghcr.io/navikt/familie-ba-infotrygd:${{ github.sha }}
-  IMAGE_LATEST: ghcr.io/navikt/:latest
+  IMAGE_LATEST: ghcr.io/navikt/familie-ba-infotrygd:latest
 jobs:
   deploy-to-prod:
     name: Bygg app/image, push til github, deploy til prod-fss og dev-fss
