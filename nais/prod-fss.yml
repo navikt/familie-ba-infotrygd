@@ -85,3 +85,7 @@ spec:
       value: https://webproxy-nais.nav.no:8088
     - name: APP_CLIENT_WHITELIST
       value: azure/0412f3eb-b22a-4d3f-99aa-319321eb340f,azure/984d4731-b95d-4f87-8154-d8f153f0ebee
+    - name: APP_DATASOURCE_USERNAME_PATH
+      value: /var/run/secrets/oracle/creds/username
+    - name: APP_DATASOURCE_PASSWORD_PATH
+      value: /var/run/secrets/oracle/creds/password
