@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableCaching
-class CacheConfig {
+class  CacheConfig {
 
     @Bean
     fun perioderCacheManager(): CacheManager {

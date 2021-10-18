@@ -37,8 +37,8 @@ no.nav.security.jwt:
   expirythreshold: 60 #threshold in minutes until token expires
   issuer:
     azure:
-      discoveryurl: ${APP_AZURE_DISCOVERY_URL}
-      accepted_audience: ${APP_AZURE_AUD}
+      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
+      accepted_audience: ${AZURE_APP_CLIENT_ID}
       proxyurl: ${APP_AZURE_PROXY_URL}
 
 app:
