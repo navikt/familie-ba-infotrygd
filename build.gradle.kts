@@ -65,6 +65,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
     implementation("no.nav.familie.kontrakter:felles:2.0_20210315145940_2152fb0")
