@@ -7,7 +7,7 @@ val mockkVersion = "1.11.0"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "1.3.7"
+val tokenSupportVersion = "1.3.9"
 val jacksonVersion = "2.9.9"
 val swaggerVersion = "2.9.2"
 val oracleusername = "richard.martinsen@nav.no"
@@ -19,13 +19,14 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.4.20"
-    val springBootVersion = "2.1.6.RELEASE"
+    val kotlinVersion = "1.5.31"
+    val springBootVersion = "2.5.5"
     id("org.springframework.boot") version springBootVersion
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
+    id("com.github.ben-manes.versions") version "0.39.0"
 }
 
 group = "no.nav"
@@ -78,17 +79,17 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.springfox:springfox-swagger2:$swaggerVersion")
     implementation("io.springfox:springfox-swagger-ui:$swaggerVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:5.1")
+    implementation("net.logstash.logback:logstash-logback-encoder:6.6")
     implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$skattKontraktVersjon")
-    compile("org.springframework.boot:spring-boot-starter-jdbc")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
     implementation("com.oracle.ojdbc:ojdbc8:19.3.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:oracle-xe:1.12.1")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    compile("com.h2database:h2")
+    testImplementation("com.h2database:h2")
 }
 
 tasks.withType<KotlinCompile> {
