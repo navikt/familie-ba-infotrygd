@@ -6,7 +6,7 @@ registries:
     username: x-access-token
     password: ${{secrets.PAT}}
 updates:
-  - package-ecosystem: maven
+  - package-ecosystem: gradle
     directory: "/"
     schedule:
       interval: daily
