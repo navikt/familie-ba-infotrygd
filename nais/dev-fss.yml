@@ -77,8 +77,6 @@ spec:
       value: REST_READ_Q1
     - name: APP_DDL_AUTO
       value: none
-    - name: APP_AZURE_DISCOVERY_URL
-      value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
     - name: APP_AZURE_AUD
       value: ef9c1445-cfff-459c-a9ab-211cedd2d2f9
     - name: APP_AZURE_PROXY_URL
