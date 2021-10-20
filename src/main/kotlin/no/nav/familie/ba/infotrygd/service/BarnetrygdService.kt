@@ -74,8 +74,11 @@ class BarnetrygdService(
     }
 
     fun findSakerByBrukerFnr(brukerFnr: List<FoedselsNr>): List<SakDto> {
+        logger.info("findSakerByBrukerFnr ${brukerFnr.size}")
         return brukerFnr.flatMap {
-                sakRepository.findBarnetrygdsakerByFnr(it)
+                val saker = sakRepository.findBarnetrygdsakerByFnr(it)
+                logger.info("findSakerByBrukerFnr saker:${saker.size}")
+                saker
             }.distinct()
             .map {
                 logger.info("Konverterer til SakDto for ${it.id} ${it.saksblokk} ${it.saksnummer} ${it.region}")
