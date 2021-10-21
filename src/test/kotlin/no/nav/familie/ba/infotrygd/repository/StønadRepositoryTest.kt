@@ -23,6 +23,9 @@ class StønadRepositoryTest {
     lateinit var stønadRepository: StønadRepository
 
     @Autowired
+    lateinit var sakRepository: SakRepository
+
+    @Autowired
     lateinit var personRepository: PersonRepository
 
     lateinit var barnetrygdService: BarnetrygdService
@@ -35,12 +38,17 @@ class StønadRepositoryTest {
 
     @Test
     fun `sjekk at antall personer med utvidet barnetrygd er riktig innenfor hvert av årene 2019, 2020 og 2021`() {
-        val personFraInneværendeÅr = TestData.person()
+        val personMedUtvidetBarnetrygd2021 = personRepository.saveAndFlush(TestData.person())
         stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
-            TestData.stønad(personFraInneværendeÅr, status = "02"), // utvidet barnetrygd fra 2020
-            TestData.stønad(TestData.person(), opphørtFom = "122020", status = "02") // utvidet barnetrygd kun 2020
-        ))
+            TestData.stønad(personRepository.saveAndFlush(TestData.person()), virkningFom = (999999-201901).toString(),
+                status = "01"), // ordinær barnetrygd fra 2019
+            TestData.stønad(personMedUtvidetBarnetrygd2021,
+                status = "02"), // utvidet barnetrygd fra 2020
+            TestData.stønad(personRepository.saveAndFlush(TestData.person()), opphørtFom = "122020",
+                status = "02") // utvidet barnetrygd kun 2020
+        )).also {
+            sakRepository.saveAll(it.map { TestData.sak(it, valg = "UT", undervalg = "MB") })
+        }
         barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2019").also {
             assertThat(it).hasSize(0)
         }
@@ -48,7 +56,7 @@ class StønadRepositoryTest {
             assertThat(it).hasSize(2)
         }
         barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
-            assertThat(it).hasSize(1).extracting("ident").contains(personFraInneværendeÅr.fnr.asString)
+            assertThat(it).hasSize(1).extracting("ident").contains(personMedUtvidetBarnetrygd2021.fnr.asString)
         }
     }
 

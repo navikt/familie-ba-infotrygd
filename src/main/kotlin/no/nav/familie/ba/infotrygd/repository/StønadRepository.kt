@@ -30,11 +30,32 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     """)
     fun findStønadByFnr(fnr: List<FoedselsNr>): List<Stønad>
 
-    @Query("SELECT new no.nav.familie.ba.infotrygd.repository.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region) FROM Stønad s " +
-           "WHERE (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år) " +
-           "AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år) " + //datoformatet er av typen "seq" derav 9999 - år
-           "AND s.status in :statusKoder")
-    fun findStønadByÅrAndStatusKoder(år: Int, vararg statusKoder: String): List<TrunkertStønad>
+    @Query("""
+        WITH personermedutvidetbarnetrygd AS (
+            SELECT stonad.F_NR FROM {h-schema}BA_STOENAD_20 stonad
+                INNER JOIN {h-schema}SA_SAK_10 sak ON (
+                    sak.S01_PERSONKEY = stonad.B01_PERSONKEY AND
+                    sak.S05_SAKSBLOKK = stonad.B20_BLOKK AND
+                    sak.S10_SAKSNR = stonad.B20_SAK_NR AND
+                    sak.REGION = stonad.REGION)
+            WHERE (
+                stonad.B20_OPPHOERT_VFOM  = '000000' OR
+                CAST(substring(stonad.B20_OPPHOERT_VFOM, 3, 4) AS integer) >= :aar
+            )
+            AND CAST(substring(stonad.B20_VIRKFOM_SEQ, 1, 4) AS integer) >= :aarSeq
+            AND sak.S10_KAPITTELNR = 'BA'
+            AND (stonad.B20_STATUS IN ('02', '03') OR
+                (stonad.B20_STATUS = '00' AND sak.S10_VALG = 'UT' AND sak.S10_UNDERVALG IN ('MD', 'ME', 'MB')))
+        )
+        
+        SELECT s.F_NR AS ident, MIN(s.B20_IVERFOM_SEQ) AS sisteVedtaksdatoSeq FROM {h-schema}BA_STOENAD_20 s
+            INNER JOIN {h-schema}BA_PERSON_01 p ON s.B01_PERSONKEY = p.B01_PERSONKEY AND s.REGION = p.REGION
+        WHERE p.F_NR IN (SELECT * FROM personermedutvidetbarnetrygd)
+        GROUP BY s.F_NR
+        """,
+           nativeQuery = true
+    )
+    fun findPersonerMedUtvidetBarnetrygd(aar: Int, aarSeq: Int): List<PersonIdentOgSisteVedtaksdato>
 
     @Query("""SELECT s FROM Stønad s
                 INNER JOIN Person p
@@ -118,3 +139,9 @@ data class TrunkertStønad(
 
     val region: String,
 )
+
+interface PersonIdentOgSisteVedtaksdato {
+    val ident: String
+    val sisteVedtaksdatoSeq: String
+}
+

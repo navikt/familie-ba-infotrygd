@@ -126,6 +126,28 @@ object TestData {
         )
     }
 
+    fun sak(stønad: Stønad,
+            valg: String = "OR",
+            undervalg: String = "OS"): Sak {
+        return Sak(
+            id = nextId(),
+            personKey = stønad.personKey,
+            saksblokk = stønad.saksblokk,
+            saksnummer = stønad.sakNr,
+            mottattdato = LocalDate.now(),
+            regDato = LocalDate.now(),
+            region = stønad.region,
+            kapittelNr = "BA",
+            valg = valg,
+            undervalg = undervalg,
+            type = "S",
+            resultat = "I",
+            vedtaksdato = LocalDate.now(),
+            iverksattdato = LocalDate.now(),
+            fnr = stønad.fnr,
+        )
+    }
+
     fun utbetaling(
         stønad: Stønad,
         kontonummer: String = "06010000",

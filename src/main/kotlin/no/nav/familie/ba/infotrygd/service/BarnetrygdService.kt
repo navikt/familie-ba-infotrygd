@@ -3,6 +3,7 @@
 package no.nav.familie.ba.infotrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
@@ -168,22 +169,12 @@ class BarnetrygdService(
 
     @Cacheable(cacheManager = "personerCacheManager", value = ["skatt_personer"], unless = "#result == null")
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
-        val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
-            .filter { erUtvidetBarnetrygd(it) }
+        val personer = stonadRepository.findPersonerMedUtvidetBarnetrygd(år.toInt(), 9999 - år.toInt())
 
-        val personer = mutableMapOf<String, YearMonth>()
-
-        stønaderMedAktuelleKoder.filter { it.fnr != null }
-            .forEach {
-                if (!personer.containsKey(it.fnr!!.asString)) {
-                    personer[it.fnr.asString] = finnSisteVedtakPåPerson(it.personKey)
-                }
-            }
-
-        return personer.map {
+        return personer.filter { it.ident.toLong() != 0L }.map {
             SkatteetatenPerson(
-                ident = it.key,
-                sisteVedtakPaaIdent = it.value.atDay(1).atStartOfDay()
+                ident = ReversedFoedselNrConverter().convertToEntityAttribute(it.ident)!!.asString,
+                sisteVedtakPaaIdent = DatoUtils.seqDatoTilYearMonth(it.sisteVedtaksdatoSeq)!!.atDay(1).atStartOfDay()
             )
         }
     }
