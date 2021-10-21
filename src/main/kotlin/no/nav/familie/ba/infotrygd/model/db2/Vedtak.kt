@@ -34,7 +34,7 @@ data class Vedtak(
 
     @Column(name = "KODE_RESULTAT", columnDefinition = "CHAR")
     @Convert(converter = Char2Converter::class)
-    val kodeResultat: String,
+    val kodeResultat: String?,
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
