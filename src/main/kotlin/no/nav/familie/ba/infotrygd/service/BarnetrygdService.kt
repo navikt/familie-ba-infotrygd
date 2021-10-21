@@ -80,6 +80,7 @@ class BarnetrygdService(
                 logger.info("findSakerByBrukerFnr saker:${saker.size}")
                 saker
             }
+            .distinct()
             .map {
                 logger.info("Konverterer til SakDto for ${it.id} ${it.saksblokk} ${it.saksnummer} ${it.region}")
                 konverterTilDto(it)

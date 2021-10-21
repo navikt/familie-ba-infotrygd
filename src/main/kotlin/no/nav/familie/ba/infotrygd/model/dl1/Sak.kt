@@ -38,7 +38,7 @@ data class Sak(
 
     @Column(name = "S10_UNDERVALG", columnDefinition = "CHAR")
     @Convert(converter = Char2Converter::class)
-    val undervalg: String,
+    val undervalg: String?,
 
     @Column(name = "S10_RESULTAT", columnDefinition = "CHAR")
     @Convert(converter = Char2Converter::class)
