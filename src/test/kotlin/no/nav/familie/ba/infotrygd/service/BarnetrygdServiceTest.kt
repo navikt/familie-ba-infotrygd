@@ -129,8 +129,8 @@ internal class BarnetrygdServiceTest {
 
 
     @Test
-    fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato nå, som kun henter aktiv stønad`() {
-        val person = settOppLøpendeUtvidetBarnetrygd("0")
+    fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato nå, som kun henter aktiv stønad, manuelt beregnet`() {
+        val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(person) //2019-05 - 2020-04
 
 
@@ -140,7 +140,8 @@ internal class BarnetrygdServiceTest {
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), null, 1054.00,
-                false,
+                true,
+                deltBosted = false
             )
         )
         assertThat(response.perioder).contains(
@@ -148,6 +149,7 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00,
                 false,
+                deltBosted = false
             )
         )
     }
@@ -155,7 +157,7 @@ internal class BarnetrygdServiceTest {
 
     @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato i fortiden, som henter aktiv stønad og gammel stønad hvor perioder slås sammen`() {
-        val person = settOppLøpendeUtvidetBarnetrygd("0")
+        val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(person)
 
         val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
@@ -164,7 +166,8 @@ internal class BarnetrygdServiceTest {
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), null, 1054.00,
-                false,
+                true,
+                false
             )
         )
         assertThat(response.perioder).contains(
@@ -172,6 +175,7 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00,
                 false,
+                false
             )
         )
     }
@@ -190,6 +194,7 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 2), YearMonth.of(2020, 4), 970.00,
                 false,
+                false
             )
         )
         assertThat(response.perioder).contains(
@@ -197,13 +202,14 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 3), YearMonth.of(2020, 4), 1054.00,
                 false,
+                false
             )
         )
     }
 
     @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato i fortiden, som henter aktiv stønad og gammel stønad hvor perioder IKKE slås sammen pga ikke sammenhengende perioder`() {
-        val person = settOppLøpendeUtvidetBarnetrygd("0")
+        val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
 
         val opphørtStønad = stonadRepository.save(
             TestData.stønad(
@@ -226,14 +232,16 @@ internal class BarnetrygdServiceTest {
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2020, 5), null, 1054.00,
-                false,
+                true,
+                false
             )
         )
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), YearMonth.of(2020, 3), 1054.00,
-                false,
+                true,
+                false
             )
         )
         assertThat(response.perioder).contains(
@@ -241,13 +249,14 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00,
                 false,
+                false
             )
         )
     }
 
     @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato i fortiden, som henter aktiv stønad og gammel stønad og hvor perioder IKKE slås sammen pga ulike beløp`() {
-        val person = settOppLøpendeUtvidetBarnetrygd("0")
+        val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(person, 1000.00)
 
         val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
@@ -256,7 +265,8 @@ internal class BarnetrygdServiceTest {
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2020, 5), null, 1054.00,
-                false,
+                true,
+                false
             )
         )
 
@@ -265,6 +275,7 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.UTVIDET,
                 YearMonth.of(2019, 5), YearMonth.of(2020, 4), 1000.00,
                 true,
+                false
             )
         )
 
@@ -273,12 +284,13 @@ internal class BarnetrygdServiceTest {
                 BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG,
                 YearMonth.of(2020, 5), null, 660.00,
                 false,
+                false
             )
         )
     }
 
     @Test
-    fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, 2 barn og barnetrygd inkludert i utbetaling`() {
+    fun `hent utvidet barnetrygd skal returnere manuell behandling med delt bosted, 2 barn og manuelt beregnet beløp`() {
 
         val person = personRepository.save(TestData.person())
         val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
@@ -305,144 +317,9 @@ internal class BarnetrygdServiceTest {
         assertThat(response.perioder).contains(
             BarnetrygdController.UtvidetBarnetrygdPeriode(
                 BarnetrygdController.Stønadstype.UTVIDET,
-                YearMonth.of(2020, 5), null, 527.00,
-                false,
-            )
-        )
-    }
-
-    @Test
-    fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, 2 barn og barnetrygd inkludert i utbetaling og gammel takst`() {
-
-        val person = personRepository.save(TestData.person())
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
-            .also {
-                barnRepository.saveAll(
-                    listOf(
-                        TestData.barn(person, it.iverksattFom, it.virkningFom),
-                        TestData.barn(person, it.iverksattFom, it.virkningFom, barnetrygdTom = "111111")
-                    )
-                )
-            }
-
-        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
-        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
-        utbetalingRepository.saveAll(
-            listOf(
-                TestData.utbetaling(løpendeStønad, beløp = 1455.0), // utvidet på aktiv stønad
-            )
-        )
-
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
-
-        assertThat(response.perioder).hasSize(1)
-        assertThat(response.perioder).contains(
-            BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.Stønadstype.UTVIDET,
-                YearMonth.of(2020, 5), null, 485.00,
-                false,
-            )
-        )
-    }
-
-    @Test
-    fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, barn under 6, barn over 6`() {
-
-        val person = personRepository.save(TestData.person())
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
-            .also {
-                barnRepository.saveAll(
-                    listOf(
-                        TestData.barn(person, it.iverksattFom, it.virkningFom),
-                        TestData.barn(person, it.iverksattFom, it.virkningFom, barnetrygdTom = "111111")
-                    )
-                )
-            }
-
-        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
-        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
-
-        utbetalingRepository.saveAll(
-            listOf(
-                TestData.utbetaling(løpendeStønad, beløp = 1731.0), // utvidet på aktiv stønad
-            )
-        )
-
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
-
-        assertThat(response.perioder).hasSize(1)
-        assertThat(response.perioder).contains(
-            BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.Stønadstype.UTVIDET,
-                YearMonth.of(2020, 5), null, 527.00,
-                false,
-            )
-        )
-    }
-
-
-    @Test
-    fun `hent utvidet barnetrygd skal korrigere beløp for manuell behandling med delt bosted, pluss 1 barn over 6`() {
-
-        val person = personRepository.save(TestData.person())
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
-            .also {
-                barnRepository.saveAll(
-                    listOf(
-                        TestData.barn(person, it.iverksattFom, it.virkningFom)
-                    )
-                )
-            }
-
-        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
-        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
-        utbetalingRepository.saveAll(
-            listOf(
-                TestData.utbetaling(løpendeStønad, beløp = 1054.0), // utvidet på aktiv stønad
-            )
-        )
-
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
-
-        assertThat(response.perioder).hasSize(1)
-        assertThat(response.perioder).contains(
-            BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.Stønadstype.UTVIDET,
-                YearMonth.of(2020, 5), null, 527.00,
-                false,
-            )
-        )
-    }
-
-    @Test
-    fun `hent utvidet barnetrygd skal bruke beløp for manuell behandling med delt bosted, pluss 1 barn over 6 når beløpet er orginalt riktig`() {
-
-        val person = personRepository.save(TestData.person())
-        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = "00", opphørtFom = "000000"))
-            .also {
-                barnRepository.saveAll(
-                    listOf(
-                        TestData.barn(person, it.iverksattFom, it.virkningFom)
-                    )
-                )
-            }
-
-        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
-        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
-        utbetalingRepository.saveAll(
-            listOf(
-                TestData.utbetaling(løpendeStønad, beløp = 527.0), // utvidet på aktiv stønad
-            )
-        )
-
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
-
-        assertThat(response.perioder).hasSize(1)
-        assertThat(response.perioder).contains(
-            BarnetrygdController.UtvidetBarnetrygdPeriode(
-                BarnetrygdController.Stønadstype.UTVIDET,
-                YearMonth.of(2020, 5), null, 527.00,
-                false,
+                YearMonth.of(2020, 5), null, 1581.00,
+                true,
+                true
             )
         )
     }
@@ -545,5 +422,10 @@ internal class BarnetrygdServiceTest {
             utbetalingRepository.save(TestData.utbetaling(opphørtStønad, beløp = beløp))
         }
 
+    }
+
+    companion object {
+        const val MANUELT_BEREGNET_STATUS = "0"
+        const val UTVIDET_BARNETRYGD_STATUS = "2"
     }
 }

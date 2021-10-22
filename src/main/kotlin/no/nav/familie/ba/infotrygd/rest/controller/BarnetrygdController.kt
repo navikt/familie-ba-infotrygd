@@ -199,6 +199,7 @@ class BarnetrygdController(
                                         val tomMåned: YearMonth?,
                                         val beløp: Double,
                                         val manueltBeregnet: Boolean,
+                                        val deltBosted: Boolean? = null
     )
 
     class InfotrygdUtvidetBaPersonerResponse(val brukere: List<UtvidetBarnetrygdPerson>)
