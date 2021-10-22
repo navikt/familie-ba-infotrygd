@@ -346,7 +346,9 @@ class BarnetrygdService(
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
         return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
-                if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)) {
+                if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)
+                    && sammenslåttePerioder.lastOrNull()?.manueltBeregnet == nesteUtbetaling.manueltBeregnet
+                    && sammenslåttePerioder.lastOrNull()?.deltBosted == nesteUtbetaling.deltBosted) {
                     sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
