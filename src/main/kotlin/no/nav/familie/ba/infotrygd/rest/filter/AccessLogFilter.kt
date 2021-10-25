@@ -1,21 +1,15 @@
 package no.nav.familie.ba.infotrygd.rest.filter
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.Ordered.LOWEST_PRECEDENCE
-import org.springframework.core.annotation.Order
-import org.springframework.stereotype.Component
-import org.springframework.web.filter.GenericFilterBean
 import javax.servlet.FilterChain
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
+import javax.servlet.http.HttpFilter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-@Component
-@Order(LOWEST_PRECEDENCE)
-class LogFilter(@Value("\${spring.application.name}") private val applicationName: String) : GenericFilterBean() {
+class AccessLogFilter(private val applicationName: String) : HttpFilter() {
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val dontLog = setOf("/actuator/health", "/actuator/prometheus")
