@@ -6,7 +6,11 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.ba.infotrygd.model.db2.Delytelse
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
 import no.nav.familie.ba.infotrygd.model.db2.Vedtak
-import no.nav.familie.ba.infotrygd.model.dl1.*
+import no.nav.familie.ba.infotrygd.model.dl1.Barn
+import no.nav.familie.ba.infotrygd.model.dl1.Person
+import no.nav.familie.ba.infotrygd.model.dl1.Sak
+import no.nav.familie.ba.infotrygd.model.dl1.SakPerson
+import no.nav.familie.ba.infotrygd.model.dl1.Stønad
 import no.nav.familie.ba.infotrygd.nextId
 import java.time.LocalDate
 
@@ -141,6 +145,28 @@ object TestData {
             fnr = stønad.fnr,
             utbetalingId = nextId(),
             utbetalingTom = stønad.opphørtFom
+        )
+    }
+
+    fun sak(stønad: Stønad,
+            valg: String = "OR",
+            undervalg: String = "OS"): Sak {
+        return Sak(
+            id = nextId(),
+            personKey = stønad.personKey,
+            saksblokk = stønad.saksblokk,
+            saksnummer = stønad.sakNr,
+            mottattdato = LocalDate.now(),
+            regDato = LocalDate.now(),
+            region = stønad.region,
+            kapittelNr = "BA",
+            valg = valg,
+            undervalg = undervalg,
+            type = "S",
+            resultat = "I",
+            vedtaksdato = LocalDate.now(),
+            iverksattdato = LocalDate.now(),
+            fnr = stønad.fnr,
         )
     }
 

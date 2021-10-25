@@ -364,22 +364,9 @@ class BarnetrygdService(
             }
     }
 
-    fun hentLøpendeStønader(valg: String, undervalg: String, page: Int): Set<String> {
-        val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
-
-        return løpendeStønaderFnr.filter {
-            sakRepository.findBarnetrygdsakerByStønad(it.fnr, valg, undervalg, it.saksblokk, it.sakNr, it.region)
-                .isNotEmpty()
-        }.map { it.fnr.asString }.toSet()
+    fun finnPersonerKlarForMigrering(page: Int, size: Int, valg: String, undervalg: String): Set<String> {
+        return stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg).map { it.fnr.asString }.toSet()
     }
-
-
-    fun finnPersonerKlarForMigrering(page: Int, valg: String, undervalg: String): Set<String> {
-        return stonadRepository.findKlarForMigrering(PageRequest.of(page, 10), valg, undervalg).map { it.fnr.asString }.toSet()
-
-    }
-
-
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
         return stonadRepository.findSenesteIverksattFomByPersonKey(personKey).let { DatoUtils.seqDatoTilYearMonth(it)!! }
