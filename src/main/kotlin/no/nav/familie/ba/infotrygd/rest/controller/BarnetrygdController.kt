@@ -125,6 +125,15 @@ class BarnetrygdController(
         return ResponseEntity.ok(barnetrygdService.hentLøpendeStønader(valg, undervalg, page))
     }
 
+
+
+    @GetMapping(path = ["migrering"])
+    fun migrering(@RequestParam("valg") valg: String, @RequestParam("undervalg") undervalg: String, @RequestParam("page") page: Int = 0): ResponseEntity<Set<String>> {
+        clientValidator.authorizeClient()
+
+        return ResponseEntity.ok(barnetrygdService.finnPersonerKlarForMigrering(page, valg, undervalg ))
+    }
+
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,
                                             historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {

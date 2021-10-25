@@ -101,6 +101,26 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         WHERE s.personKey = :personKey
     """)
     fun findSenesteIverksattFomByPersonKey(personKey: Long): String
+
+
+
+    @Query("""
+        SELECT s FROM Stønad s
+           INNER JOIN Person p
+                   ON (s.personKey = p.personKey and
+                       s.region = p.region)
+           INNER JOIN Sak sa
+                   ON ( s.personKey = sa.personKey and
+                        s.region = sa.region and
+                        s.saksblokk = sa.saksblokk and
+                        s.sakNr = sa.saksnummer and
+                        sa.kapittelNr = 'BA' and
+                        sa.valg = :valg and 
+                        sa.undervalg = :undervalg)
+        AND s.opphørtFom = '000000'
+    """)
+    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String): List<Stønad>
+
 }
 
 data class TrunkertStønad(
