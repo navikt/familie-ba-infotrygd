@@ -7,16 +7,15 @@ import io.swagger.annotations.ApiModelProperty
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
-import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
-import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -30,9 +29,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import java.time.YearMonth
+import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
-import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
 
 
 @Protected
@@ -199,6 +198,7 @@ class BarnetrygdController(
                                         val tomMåned: YearMonth?,
                                         val beløp: Double,
                                         val manueltBeregnet: Boolean,
+                                        val deltBosted: Boolean
     )
 
     class InfotrygdUtvidetBaPersonerResponse(val brukere: List<UtvidetBarnetrygdPerson>)

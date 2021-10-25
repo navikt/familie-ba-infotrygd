@@ -302,14 +302,16 @@ class BarnetrygdService(
         utvidetBarnetrygdStønader.forEach {
             val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
             allePerioder.addAll(utbetalinger.map { utbetaling ->
-                val (beløp, manueltBeregnet) = kalkulerBeløp(it, utbetaling)
+                val (beløp, manueltBeregnet, deltBosted) = kalkulerBeløp(it, utbetaling)
+
 
                 UtvidetBarnetrygdPeriode(
                     if (utbetaling.erSmåbarnstillegg()) SMÅBARNSTILLEGG else UTVIDET,
                     utbetaling.fom()!!,
                     utbetaling.tom(),
                     beløp,
-                    manueltBeregnet
+                    manueltBeregnet,
+                    deltBosted
                 )
             })
         }
@@ -326,52 +328,14 @@ class BarnetrygdService(
         return perioder
     }
 
-    private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Pair<Double, Boolean> {
-        if (utbetaling.erSmåbarnstillegg()) return Pair(utbetaling.beløp, false)
-
-        if (it.status.toInt() != 0) return Pair(finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling), false)
-
+    private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
         val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.fnr, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
 
+        if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
 
-        if (!erDeltBosted && utbetaling.beløp in LIST_MED_GODKJENTE_UTVIDET_BARNETRYGD_BELØP) {
-            return Pair(utbetaling.beløp, false)
-        } else if( erDeltBosted) {
-            if (utbetaling.beløp in listOf((UTVIDET_BARNETRYGD_ELDRE_SATS/2).toDouble(), (UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS/2).toDouble())) return Pair(utbetaling.beløp, false)
+        if (it.status.toInt() != 0) return Triple(finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling), false, erDeltBosted)
 
-            val antallBarnetrygdbarn = barnRepository.findBarnByStønad(it).count()
-
-
-
-            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med nåværende sats
-            if (utbetaling.beløp.toInt() == (antallBarnetrygdbarn * BARNETRYGD_OVER_6ÅR_SATS + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2) {
-                return Pair(UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()/2, false)
-            }
-
-            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med eldre sats
-            if (utbetaling.beløp.toInt() == (antallBarnetrygdbarn * BARNETRYGD_ELDRE_SATS + UTVIDET_BARNETRYGD_ELDRE_SATS) / 2) {
-                return Pair(UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()/2, false)
-            }
-
-            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med sats 2021-09
-            if (utbetaling.beløp.toInt() == (antallBarnetrygdbarn * BARNETRYGD_UNDER_6ÅR_SATS_FRA_09_2021 + UTVIDET_BARNETRYGD_ELDRE_SATS) / 2) {
-                return Pair(UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()/2, false)
-            }
-
-            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med 1 barn under 6 år og et  barn over 6 år
-            if (utbetaling.beløp.toInt() == (BARNETRYGD_OVER_6ÅR_SATS + BARNETRYGD_UNDER_6ÅR_SATS + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2) {
-                return Pair(UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()/2, false)
-            }
-
-            // Denne støtter manuell beregning for delt bosted hvor barnetrygd er inkludert i utbetalingsbeløpet med 1 barn under 6 år og et  barn over 6 år fra september 2021
-            if (utbetaling.beløp.toInt() == (BARNETRYGD_UNDER_6ÅR_SATS_FRA_09_2021 + BARNETRYGD_OVER_6ÅR_SATS + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2) {
-                return Pair(UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()/2, false)
-            }
-        }
-
-        logger.info("Klarer ikke beregne utvidet barnetrygdbeløp. Returnerer manueltBeregnet for stønadId=${it.id}")
-
-        return Pair(utbetaling.beløp, true)
+        return Triple(utbetaling.beløp, true, erDeltBosted)
     }
 
     fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
@@ -382,7 +346,9 @@ class BarnetrygdService(
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
         return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
-                if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)) {
+                if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)
+                    && sammenslåttePerioder.lastOrNull()?.manueltBeregnet == nesteUtbetaling.manueltBeregnet
+                    && sammenslåttePerioder.lastOrNull()?.deltBosted == nesteUtbetaling.deltBosted) {
                     sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
@@ -417,15 +383,6 @@ class BarnetrygdService(
         const val VALG_UTVIDET_BARNETRYG = "UT"
         const val UTVIDET_BARNETRYGD_ELDRE_SATS = 970
         const val UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS = 1054
-        const val BARNETRYGD_OVER_6ÅR_SATS = 1054
-        const val BARNETRYGD_UNDER_6ÅR_SATS_FRA_09_2021 = 1654
-        const val BARNETRYGD_UNDER_6ÅR_SATS = 1354
-        const val BARNETRYGD_ELDRE_SATS = 970
-        private val LIST_MED_GODKJENTE_UTVIDET_BARNETRYGD_BELØP = listOf(
-            UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble(),
-            UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
-        )
-
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"
         const val MANUELL_BEREGNING_EØS = "ME"
         const val MANUELL_BEREGNING = "MB"
