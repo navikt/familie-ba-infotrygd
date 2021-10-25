@@ -144,48 +144,20 @@ class BarnetrygdController(
         return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
     }
 
-    @ApiOperation("Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet måned. Maks 5 år tilbake i tid")
-    @PostMapping(path = ["utvidet/skatteetaten"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-            dataType = "InfotrygdUtvidetBarnetrygdRequest",
-            value = """{"bruker": "12345678910", "år": "2020"}"""))
-    @Deprecated("bruk skatteetatenPerioderUtvidetPersoner")
-    fun skatteetatenPerioderUtvidetPerson(@RequestBody request: SkatteetatenPerioderUtvidetRequest): SkatteetatenPerioderResponse {
+    @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
+    @GetMapping(path = ["liste-lopende-sak"])
+    fun hentLøpendeBarnetrygdFnr(@RequestParam("valg") valg: String, @RequestParam("undervalg") undervalg: String, @RequestParam("page") page: Int = 0): ResponseEntity<Set<String>> {
         clientValidator.authorizeClient()
 
-        return barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(request.personIdent, request.år)
+        return ResponseEntity.ok(barnetrygdService.hentLøpendeStønader(valg, undervalg, page))
     }
 
-
-    @ApiOperation("Hent alle perioder for utvidet for en liste personer")
-    @PostMapping(path = ["utvidet/skatteetaten/perioder"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-                         dataType = "SkatteetatenPerioderRequest",
-                         value = """{"identer": ["12345678910"], "aar": 2020}"""))
-    fun skatteetatenPerioderUtvidetPersoner(@RequestBody request: SkatteetatenPerioderRequest): List<SkatteetatenPerioderResponse> {
-        clientValidator.authorizeClient()
-
-        return request.identer.map{
-            barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(it, request.aar.toInt())
-        }
-    }
-
-
-    @ApiOperation("Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
-    @GetMapping(path =["utvidet"])
-    fun utvidet(@ApiParam("år") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
-        clientValidator.authorizeClient()
-        return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år))
-    }
 
     data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
                                                   @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
 
 
-    data class SkatteetatenPerioderUtvidetRequest( val personIdent: String,
-                                                   val år: Int)
+
 
     class InfotrygdUtvidetBarnetrygdResponse(val perioder: List<UtvidetBarnetrygdPeriode>)
 
@@ -209,16 +181,6 @@ class BarnetrygdController(
         UTVIDET,
         SMÅBARNSTILLEGG
     }
-
-
-    @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
-    @GetMapping(path = ["liste-lopende-sak"])
-    fun hentLøpendeBarnetrygdFnr(@RequestParam("valg") valg: String, @RequestParam("undervalg") undervalg: String, @RequestParam("page") page: Int = 0): ResponseEntity<Set<String>> {
-        clientValidator.authorizeClient()
-
-        return ResponseEntity.ok(barnetrygdService.hentLøpendeStønader(valg, undervalg, page))
-    }
-
 
 
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,

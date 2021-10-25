@@ -1,0 +1,17 @@
+package no.nav.familie.ba.infotrygd.config
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+class  LogConfig {
+
+    @Bean
+    fun logFilter(): FilterRegistrationBean<LogFilter> {
+        val filterRegistration: FilterRegistrationBean<LogFilter> = FilterRegistrationBean()
+        filterRegistration.filter = LogFilter()
+        filterRegistration.order = 1
+        return filterRegistration
+    }
+}
