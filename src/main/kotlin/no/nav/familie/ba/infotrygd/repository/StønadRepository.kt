@@ -40,9 +40,9 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
                     sak.REGION = stonad.REGION)
             WHERE (
                 stonad.B20_OPPHOERT_VFOM  = '000000' OR
-                CAST(substring(stonad.B20_OPPHOERT_VFOM, 3, 4) AS integer) >= :aar
+                CAST(substr(stonad.B20_OPPHOERT_VFOM, 3, 4) AS integer) >= :aar
             )
-            AND CAST(substring(stonad.B20_VIRKFOM_SEQ, 1, 4) AS integer) >= :aarSeq
+            AND CAST(substr(stonad.B20_VIRKFOM_SEQ, 1, 4) AS integer) >= :aarSeq
             AND sak.S10_KAPITTELNR = 'BA'
             AND (stonad.B20_STATUS IN ('02', '03') OR
                 (stonad.B20_STATUS = '00' AND sak.S10_VALG = 'UT' AND sak.S10_UNDERVALG IN ('MD', 'ME', 'MB')))
