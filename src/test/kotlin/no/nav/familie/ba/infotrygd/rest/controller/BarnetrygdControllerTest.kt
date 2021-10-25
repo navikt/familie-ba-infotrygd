@@ -157,7 +157,7 @@ class BarnetrygdControllerTest {
         ))
 
         get("/infotrygd/barnetrygd/utvidet?aar=2020")
-            .pakkUt(BarnetrygdController.InfotrygdUtvidetBaPersonerResponse::class.java).also {
+            .pakkUt(BisysController.InfotrygdUtvidetBaPersonerResponse::class.java).also {
                 assertThat(it.brukere).hasSize(2)
             }
     }

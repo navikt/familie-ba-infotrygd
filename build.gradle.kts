@@ -14,6 +14,7 @@ val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20210920094114_9c74239"
+val fellesVersjon = "1.20211008153542_d279663"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
@@ -70,6 +71,7 @@ dependencies {
     implementation("io.micrometer:micrometer-core")
     implementation("no.nav.familie.kontrakter:felles:2.0_20211015081925_ef6cd67")
     implementation("no.nav.familie.kontrakter:barnetrygd:2.0_20211015081925_ef6cd67")
+    implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.ttddyy:datasource-proxy:1.4.1")

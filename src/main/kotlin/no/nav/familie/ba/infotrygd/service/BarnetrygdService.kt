@@ -19,10 +19,10 @@ import no.nav.familie.ba.infotrygd.repository.StønadRepository
 import no.nav.familie.ba.infotrygd.repository.TrunkertStønad
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
-import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.InfotrygdUtvidetBarnetrygdResponse
-import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.Stønadstype.SMÅBARNSTILLEGG
-import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.Stønadstype.UTVIDET
-import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.UtvidetBarnetrygdPeriode
+import no.nav.familie.ba.infotrygd.rest.controller.BisysController.InfotrygdUtvidetBarnetrygdResponse
+import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.SMÅBARNSTILLEGG
+import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.UTVIDET
+import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
