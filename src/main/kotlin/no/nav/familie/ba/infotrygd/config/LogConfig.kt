@@ -5,6 +5,7 @@ import no.nav.familie.log.filter.LogFilter
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered.LOWEST_PRECEDENCE
 
 @Configuration
 class  LogConfig {
@@ -21,7 +22,7 @@ class  LogConfig {
     fun accessLogFilter(): FilterRegistrationBean<AccessLogFilter> {
         val filterRegistration: FilterRegistrationBean<AccessLogFilter> = FilterRegistrationBean()
         filterRegistration.filter = AccessLogFilter("familie-ba-infotrygd")
-        filterRegistration.order = 10000
+        filterRegistration.order = LOWEST_PRECEDENCE
         return filterRegistration
     }
 }
