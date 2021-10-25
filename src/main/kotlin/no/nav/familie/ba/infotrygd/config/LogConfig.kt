@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 class  LogConfig {
 
     @Bean
-    fun logFilter(): FilterRegistrationBean<LogFilter> {
+    fun logFilterFelles(): FilterRegistrationBean<LogFilter> {
         val filterRegistration: FilterRegistrationBean<LogFilter> = FilterRegistrationBean()
         filterRegistration.filter = LogFilter()
         filterRegistration.order = 1
