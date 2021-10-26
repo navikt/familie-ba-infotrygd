@@ -69,7 +69,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
-    implementation("no.nav.familie.kontrakter:felles:2.0_20211015081925_ef6cd67")
+    implementation("no.nav.familie.kontrakter:felles:2.0_20211026123218_88597ac")
     implementation("no.nav.familie.kontrakter:barnetrygd:2.0_20211015081925_ef6cd67")
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
