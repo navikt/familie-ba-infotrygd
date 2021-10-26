@@ -3,10 +3,6 @@
 package no.nav.familie.ba.infotrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
 import no.nav.familie.ba.infotrygd.model.db2.toDelytelseDto
 import no.nav.familie.ba.infotrygd.model.dl1.*
@@ -24,6 +20,10 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.UTVIDET
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
@@ -364,13 +364,8 @@ class BarnetrygdService(
             }
     }
 
-    fun hentLøpendeStønader(valg: String, undervalg: String, page: Int): Set<String> {
-        val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
-
-        return løpendeStønaderFnr.filter {
-            sakRepository.findBarnetrygdsakerByStønad(it.fnr, valg, undervalg, it.saksblokk, it.sakNr, it.region)
-                .isNotEmpty()
-        }.map { it.fnr.asString }.toSet()
+    fun finnPersonerKlarForMigrering(page: Int, size: Int, valg: String, undervalg: String): Set<String> {
+        return stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg).map { it.fnr.asString }.toSet()
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
