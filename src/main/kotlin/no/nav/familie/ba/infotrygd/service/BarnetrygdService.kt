@@ -365,7 +365,14 @@ class BarnetrygdService(
     }
 
     fun finnPersonerKlarForMigrering(page: Int, size: Int, valg: String, undervalg: String): Set<String> {
-        return stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg).map { it.fnr.asString }.toSet()
+        val stønader = stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
+
+        val filtrerteStønader =  stønader.filter{
+            barnRepository.findBarnByStønad(it).size == it.antallBarn
+        }
+
+        return filtrerteStønader
+            .map { it.fnr.asString }.toSet()
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {

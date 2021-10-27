@@ -87,6 +87,7 @@ object TestData {
         opphørtFom: String = "000000",
         opphørsgrunn: String? = "M",
         region: String? = null,
+        antallBarn:Int = 1
     ): Stønad {
         return Stønad(
             id = nextId(),
@@ -103,6 +104,7 @@ object TestData {
             opphørtFom = opphørtFom,
             opphørsgrunn = opphørsgrunn,
             region = region ?: mottaker.region,
+            antallBarn = antallBarn
         )
     }
 

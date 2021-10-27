@@ -58,4 +58,6 @@ data class Stønad(
     @Column(name = "B20_VIRKFOM_SEQ", columnDefinition = "VARCHAR2")
     val virkningFom: String,
 
+    @Column(name = "B20_ANT_BARN", columnDefinition = "DECIMAL")
+    val antallBarn: Int,
 ) : Serializable
