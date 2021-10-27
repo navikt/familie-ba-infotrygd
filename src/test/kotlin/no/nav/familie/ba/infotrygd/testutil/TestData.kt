@@ -12,7 +12,9 @@ import no.nav.familie.ba.infotrygd.model.dl1.Sak
 import no.nav.familie.ba.infotrygd.model.dl1.SakPerson
 import no.nav.familie.ba.infotrygd.model.dl1.Stønad
 import no.nav.familie.ba.infotrygd.nextId
+import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 object TestData {
 
@@ -33,7 +35,8 @@ object TestData {
         virkningFom: String = (999999-202005).toString(),
         barnetrygdTom: String = "000000",
         barnFnr: FoedselsNr = foedselsNr(),
-        region: String = "X"
+        region: String = "X",
+        stønadstype: String? = null
     ): Barn {
         return Barn(
             id = nextId(),
@@ -45,6 +48,27 @@ object TestData {
             region = region,
             iverksatt = iverksatt,
             virkningFom = virkningFom,
+            stønadstype = stønadstype
+        )
+    }
+
+    fun barn(stønad: Stønad,
+             barnFnr: FoedselsNr = foedselsNr(),
+             barnetrygdTom: String? = null,
+             stønadstype: String? = null
+    ): Barn {
+        return Barn(
+            id = nextId(),
+            fnr = stønad.fnr,
+            tkNr = stønad.tkNr,
+            personKey = stønad.personKey,
+            barnFnr = barnFnr,
+            iverksatt = stønad.iverksattFom,
+            virkningFom = stønad.virkningFom,
+            region = stønad.region,
+            barnetrygdTom = barnetrygdTom ?: DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
+                ?.minusMonths(1)?.format(DateTimeFormatter.ofPattern("MMyyyy")) ?: "000000",
+            stønadstype = stønadstype
         )
     }
 

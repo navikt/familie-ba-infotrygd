@@ -392,20 +392,36 @@ internal class BarnetrygdServiceTest {
         val person = personRepository.saveAndFlush(TestData.person())
         val personSomFiltreresVekkPgaAntallBarnIStønadIkkeSamsvarerMedAntallBarnIBarnRepo =
             personRepository.saveAndFlush(TestData.person())
-        val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01")
+        val personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn =
+            personRepository.saveAndFlush(TestData.person())
+        val personSomFiltreresVekkPgaBarnMedSpesiellStønadstype =
+            personRepository.saveAndFlush(TestData.person())
+        val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
         val stønad2 = TestData.stønad(
             personSomFiltreresVekkPgaAntallBarnIStønadIkkeSamsvarerMedAntallBarnIBarnRepo,
             virkningFom = (999999 - 202001).toString(),
             status = "02"
         )
-        stonadRepository.saveAll(listOf(stønad1, stønad2)).also {
+        val stønad3 = TestData.stønad(
+            personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn,
+            virkningFom = (999999 - 202001).toString(),
+            status = "02",
+            antallBarn = 2
+        )
+        val stønad4 = TestData.stønad(
+            personSomFiltreresVekkPgaBarnMedSpesiellStønadstype,
+            virkningFom = (999999 - 202001).toString(),
+            status = "01",
+            antallBarn = 1
+        )
+
+        stonadRepository.saveAll(listOf(stønad1, stønad2, stønad3, stønad4)).also {
             sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
         }
 
-        barnRepository.save(TestData.barn(person, stønad1.iverksattFom, stønad1.virkningFom, region = stønad1.region))
+        barnRepository.saveAll(listOf(TestData.barn(stønad1), TestData.barn(stønad3), TestData.barn(stønad4, stønadstype = "N")))
 
-
-        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
+        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1)
             .also {
                 assertThat(it).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
             }

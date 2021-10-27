@@ -364,11 +364,12 @@ class BarnetrygdService(
             }
     }
 
-    fun finnPersonerKlarForMigrering(page: Int, size: Int, valg: String, undervalg: String): Set<String> {
-        val stønader = stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
+    fun finnPersonerKlarForMigrering(page: Int, size: Int, valg: String, undervalg: String, maksAntallBarn: Int): Set<String> {
+        val stønader = stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
 
         val filtrerteStønader =  stønader.filter{
-            barnRepository.findBarnByStønad(it).size == it.antallBarn
+            val barnPåStønad = barnRepository.findBarnByStønad(it)
+            barnPåStønad.size == it.antallBarn && barnPåStønad.all { it.stønadstype == null }
         }
 
         return filtrerteStønader
