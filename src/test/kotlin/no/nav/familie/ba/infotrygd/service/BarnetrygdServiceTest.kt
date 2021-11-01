@@ -13,6 +13,7 @@ import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController
 import no.nav.familie.ba.infotrygd.testutil.TestData
+import no.nav.familie.ba.infotrygd.testutil.TestData.foedselsNr
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import org.assertj.core.api.Assertions.assertThat
 import org.hibernate.exception.SQLGrammarException
@@ -24,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.sql.SQLException
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
@@ -419,11 +421,34 @@ internal class BarnetrygdServiceTest {
             sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
         }
 
-        barnRepository.saveAll(listOf(TestData.barn(stønad1), TestData.barn(stønad3), TestData.barn(stønad4, stønadstype = "N")))
+        barnRepository.saveAll(listOf(TestData.barn(stønad1),
+                                      TestData.barn(stønad3),
+                                      TestData.barn(stønad4, stønadstype = "N")))
 
-        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1)
+        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
             .also {
                 assertThat(it).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
+            }
+    }
+
+
+    @Test
+    fun `skal filtrere bort barn under 7 år ved migreirng`() {
+        val personMedBarnUnder7år = personRepository.saveAndFlush(TestData.person())
+
+            personRepository.saveAndFlush(TestData.person())
+        val stønad1 = TestData.stønad(personMedBarnUnder7år, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
+
+
+        stonadRepository.saveAll(listOf(stønad1)).also {
+            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
+        }
+
+        barnRepository.saveAll(listOf(TestData.barn(stønad = stønad1, barnFnr = foedselsNr(foedselsdato = LocalDate.now()))))
+
+        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 99, 3)
+            .also {
+                assertThat(it).hasSize(0)
             }
     }
 

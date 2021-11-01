@@ -127,7 +127,8 @@ class BarnetrygdController(
                 request.size,
                 request.valg,
                 request.undervalg,
-                request.maksAntallBarn
+                request.maksAntallBarn,
+                request.minimumAlder
             )
         )
     }
@@ -137,8 +138,11 @@ class BarnetrygdController(
         val size: Int,
         val valg: String,
         val undervalg: String,
-        val maksAntallBarn: Int = 99
-    )
+        val maksAntallBarn: Int = 99,
+        val minimumAlder: Int = 7
+    ) {
+
+    }
 
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,

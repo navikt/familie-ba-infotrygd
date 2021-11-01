@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
@@ -364,12 +365,29 @@ class BarnetrygdService(
             }
     }
 
-    fun finnPersonerKlarForMigrering(page: Int, size: Int, valg: String, undervalg: String, maksAntallBarn: Int): Set<String> {
+    fun finnPersonerKlarForMigrering(
+        page: Int,
+        size: Int,
+        valg: String,
+        undervalg: String,
+        maksAntallBarn: Int,
+        minimumAlder: Int
+    ): Set<String> {
         val stønader = stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
 
-        val filtrerteStønader =  stønader.filter{
+        var filtrerteStønader =  stønader.filter{
             val barnPåStønad = barnRepository.findBarnByStønad(it)
+            //filterer bort om antall barn på stønad ikke stemmer med antall barn i barnRepo og om stønadstype ikke er N, FJ osv.
+            //Dette gjøres for å unngå å migrere saker som bl.a. er fosterbarn og andre uvanlige saker i denne fasen
             barnPåStønad.size == it.antallBarn && barnPåStønad.all { it.stønadstype == null }
+        }
+
+        //filterer bort barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
+        filtrerteStønader = filtrerteStønader.filter {
+            val barn = barnRepository.findBarnByStønad(it).firstOrNull {
+                it.barnFnr.foedselsdato.isAfter(LocalDate.now().minusYears(minimumAlder.toLong()))//Settes til 3 når vi bare vil filtere bort småbarnstillegg
+            }
+            barn == null
         }
 
         return filtrerteStønader
