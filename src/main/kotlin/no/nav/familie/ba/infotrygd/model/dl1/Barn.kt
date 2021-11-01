@@ -1,6 +1,7 @@
 package no.nav.familie.ba.infotrygd.model.dl1
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.infotrygd.model.converters.Char2Converter
 import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.familie.ba.infotrygd.model.converters.ReversedLongFoedselNrConverter
 import javax.persistence.*
@@ -39,6 +40,9 @@ data class Barn(
     @Column(name = "B10_BA_VFOM", columnDefinition = "VARCHAR2")
     val virkningFom: String,
 
+    @Column(name = "B10_STONADS_TYPE", columnDefinition = "VARCHAR2")
+    @Convert(converter = Char2Converter::class)
+    val stønadstype: String?,
 )
 
 fun Barn.toBarnDto(): BarnDto {

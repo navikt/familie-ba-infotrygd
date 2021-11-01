@@ -2,7 +2,6 @@ package no.nav.familie.ba.infotrygd.service
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
 import no.nav.familie.ba.infotrygd.repository.PersonRepository
@@ -14,6 +13,7 @@ import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController
 import no.nav.familie.ba.infotrygd.testutil.TestData
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import org.assertj.core.api.Assertions.assertThat
 import org.hibernate.exception.SQLGrammarException
 import org.junit.Before
@@ -384,6 +384,47 @@ internal class BarnetrygdServiceTest {
             assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2018-03")
             assertThat(it.brukere.first().perioder.first().delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent.usikker)
         }
+    }
+
+
+    @Test
+    fun `skal hente personer klar for migrering`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val personSomFiltreresVekkPgaAntallBarnIStønadIkkeSamsvarerMedAntallBarnIBarnRepo =
+            personRepository.saveAndFlush(TestData.person())
+        val personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn =
+            personRepository.saveAndFlush(TestData.person())
+        val personSomFiltreresVekkPgaBarnMedSpesiellStønadstype =
+            personRepository.saveAndFlush(TestData.person())
+        val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
+        val stønad2 = TestData.stønad(
+            personSomFiltreresVekkPgaAntallBarnIStønadIkkeSamsvarerMedAntallBarnIBarnRepo,
+            virkningFom = (999999 - 202001).toString(),
+            status = "02"
+        )
+        val stønad3 = TestData.stønad(
+            personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn,
+            virkningFom = (999999 - 202001).toString(),
+            status = "02",
+            antallBarn = 2
+        )
+        val stønad4 = TestData.stønad(
+            personSomFiltreresVekkPgaBarnMedSpesiellStønadstype,
+            virkningFom = (999999 - 202001).toString(),
+            status = "01",
+            antallBarn = 1
+        )
+
+        stonadRepository.saveAll(listOf(stønad1, stønad2, stønad3, stønad4)).also {
+            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
+        }
+
+        barnRepository.saveAll(listOf(TestData.barn(stønad1), TestData.barn(stønad3), TestData.barn(stønad4, stønadstype = "N")))
+
+        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1)
+            .also {
+                assertThat(it).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
+            }
     }
 
     private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
