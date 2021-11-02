@@ -92,6 +92,7 @@ class BarnetrygdService(
 
     fun hentDelytelseOgKonverterTilDto(stønad: Stønad): StønadDto {
         return StønadDto(
+            id = stønad.id,
             status = stønad.status,
             tekstkode = stønad.tekstkode,
             iverksattFom = stønad.iverksattFom,
@@ -108,6 +109,7 @@ class BarnetrygdService(
     fun konverterTilDto(sak: Sak): SakDto {
         val status = statusRepository.findStatushistorikkForSak(sak).minByOrNull { it.lopeNr }?.status ?: IKKE_BEHANDLET
         return SakDto(
+            id = sak.id,
             saksnr = sak.saksnummer,
             saksblokk = sak.saksblokk,
             regDato = sak.regDato,
@@ -126,6 +128,8 @@ class BarnetrygdService(
             behenEnhet = sak.behenEnhet,
             regAvEnhet = sak.regAvEnhet,
             status = status.kode,
+            tkNr = sak.tkNr,
+            region = sak.region,
         )
     }
 
