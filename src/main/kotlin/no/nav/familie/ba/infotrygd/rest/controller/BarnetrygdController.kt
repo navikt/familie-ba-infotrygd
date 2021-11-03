@@ -14,6 +14,8 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -108,6 +110,23 @@ class BarnetrygdController(
                 request.minimumAlder
             )
         )
+    }
+
+
+    @ApiOperation("Finn stønad med id")
+    @GetMapping(path = ["stønad/{id}"])
+    fun findStønadById(@PathVariable id: Long): ResponseEntity<StønadDto> {
+        clientValidator.authorizeClient()
+
+        try {
+            return ResponseEntity.ok(
+                barnetrygdService.findStønadById(id)
+            )
+        } catch (nsee: NoSuchElementException) {
+            return ResponseEntity.notFound().build()
+        }
+
+
     }
 
     data class MigreringRequest(

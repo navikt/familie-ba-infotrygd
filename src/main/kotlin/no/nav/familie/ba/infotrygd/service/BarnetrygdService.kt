@@ -387,6 +387,11 @@ class BarnetrygdService(
         return stonadRepository.findSenesteIverksattFomByPersonKey(personKey).let { DatoUtils.seqDatoTilYearMonth(it)!! }
     }
 
+    fun findStønadById(id: Long): StønadDto {
+        val stønad = stonadRepository.findById(id).orElseThrow{ NoSuchElementException("Fant ikke stønad med id $id")}
+        return hentDelytelseOgKonverterTilDto(stønad)
+    }
+
     companion object {
 
         const val KAPITTEL_BARNETRYGD = "BA"
