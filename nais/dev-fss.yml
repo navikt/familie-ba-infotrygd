@@ -60,6 +60,9 @@ spec:
         - application: familie-ba-mottak
           namespace: teamfamilie
           cluster: dev-fss
+        - application: familie-ba-migrering
+          namespace: teamfamilie
+          cluster: dev-gcp
   azure:
     application:
       enabled: true
