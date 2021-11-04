@@ -70,7 +70,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
     implementation("no.nav.familie.kontrakter:felles:2.0_20211015081925_ef6cd67")
-    implementation("no.nav.familie.kontrakter:barnetrygd:2.0_20211015081925_ef6cd67")
+    implementation("no.nav.familie.kontrakter:barnetrygd:2.0_20211102150948_d5cb43e")
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
