@@ -74,7 +74,7 @@ dependencies {
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.4.1")
+    implementation("net.ttddyy:datasource-proxy:1.7")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     testImplementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
     implementation("javax.inject:javax.inject:1")
