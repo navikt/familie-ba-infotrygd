@@ -103,11 +103,11 @@ class StønadRepositoryTest {
             TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // løpende barnetrygd
         )).also { sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") }) }
 
-        stønadRepository.findKlarForMigrering(Pageable.unpaged(), "OR", "OS").also {
+        stønadRepository.findKlarForMigrering(Pageable.unpaged(), "OR", "OS").toSet().also {
             assertThat(it).hasSize(2).extracting("fnr").contains(person.fnr, person2.fnr) //Det finnes ingen saker på personene
         }
 
-        stønadRepository.findKlarForMigrering(Pageable.unpaged(), "UT", "EF").also {
+        stønadRepository.findKlarForMigrering(Pageable.unpaged(), "UT", "EF").toSet().also {
             assertThat(it).hasSize(0)
         }
     }
