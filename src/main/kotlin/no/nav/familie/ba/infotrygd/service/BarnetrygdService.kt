@@ -330,7 +330,7 @@ class BarnetrygdService(
     }
 
     private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
-        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it.fnr, "UT", MANUELL_BEREGNING_DELT_BOSTED, it.saksblokk, it.sakNr, it.region).isNotEmpty()
+        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it, "UT", MANUELL_BEREGNING_DELT_BOSTED).isNotEmpty()
 
         if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
 
