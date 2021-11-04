@@ -3,10 +3,6 @@
 package no.nav.familie.ba.infotrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
 import no.nav.familie.ba.infotrygd.model.db2.toDelytelseDto
 import no.nav.familie.ba.infotrygd.model.dl1.*
@@ -24,10 +20,15 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.UTVIDET
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
@@ -364,13 +365,33 @@ class BarnetrygdService(
             }
     }
 
-    fun hentLøpendeStønader(valg: String, undervalg: String, page: Int): Set<String> {
-        val løpendeStønaderFnr = stonadRepository.findLøpendeStønader(PageRequest.of(page, 1000))
+    fun finnPersonerKlarForMigrering(
+        page: Int,
+        size: Int,
+        valg: String,
+        undervalg: String,
+        maksAntallBarn: Int,
+        minimumAlder: Int
+    ): Set<String> {
+        val stønader = stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
 
-        return løpendeStønaderFnr.filter {
-            sakRepository.findBarnetrygdsakerByStønad(it.fnr, valg, undervalg, it.saksblokk, it.sakNr, it.region)
-                .isNotEmpty()
-        }.map { it.fnr.asString }.toSet()
+        var filtrerteStønader =  stønader.filter{
+            val barnPåStønad = barnRepository.findBarnByStønad(it)
+            //filterer bort om antall barn på stønad ikke stemmer med antall barn i barnRepo og om stønadstype ikke er N, FJ osv.
+            //Dette gjøres for å unngå å migrere saker som bl.a. er fosterbarn og andre uvanlige saker i denne fasen
+            barnPåStønad.size == it.antallBarn && barnPåStønad.all { it.stønadstype == null }
+        }
+
+        //filterer bort barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
+        filtrerteStønader = filtrerteStønader.filter {
+            val barn = barnRepository.findBarnByStønad(it).firstOrNull {
+                it.barnFnr.foedselsdato.isAfter(LocalDate.now().minusYears(minimumAlder.toLong()))//Settes til 3 når vi bare vil filtere bort småbarnstillegg
+            }
+            barn == null
+        }
+
+        return filtrerteStønader
+            .map { it.fnr.asString }.toSet()
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {

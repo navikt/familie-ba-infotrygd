@@ -14,7 +14,6 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -118,11 +117,31 @@ class BarnetrygdController(
     }
 
     @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
-    @GetMapping(path = ["liste-lopende-sak"])
-    fun hentLøpendeBarnetrygdFnr(@RequestParam("valg") valg: String, @RequestParam("undervalg") undervalg: String, @RequestParam("page") page: Int = 0): ResponseEntity<Set<String>> {
+    @PostMapping(path = ["migrering"])
+    fun migrering(@RequestBody request: MigreringRequest): ResponseEntity<Set<String>> {
         clientValidator.authorizeClient()
 
-        return ResponseEntity.ok(barnetrygdService.hentLøpendeStønader(valg, undervalg, page))
+        return ResponseEntity.ok(
+            barnetrygdService.finnPersonerKlarForMigrering(
+                request.page,
+                request.size,
+                request.valg,
+                request.undervalg,
+                request.maksAntallBarn,
+                request.minimumAlder
+            )
+        )
+    }
+
+    data class MigreringRequest(
+        val page: Int,
+        val size: Int,
+        val valg: String,
+        val undervalg: String,
+        val maksAntallBarn: Int = 99,
+        val minimumAlder: Int = 7
+    ) {
+
     }
 
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
