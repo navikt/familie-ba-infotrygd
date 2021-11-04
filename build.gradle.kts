@@ -9,7 +9,7 @@ val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
 val tokenSupportVersion = "1.3.9"
 val jacksonVersion = "2.9.9"
-val swaggerVersion = "2.9.2"
+val swaggerVersion = "3.0.0"
 val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
@@ -75,14 +75,13 @@ dependencies {
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.4.1")
+    implementation("net.ttddyy:datasource-proxy:1.7")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     testImplementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.springfox:springfox-swagger2:$swaggerVersion")
-    implementation("io.springfox:springfox-swagger-ui:$swaggerVersion")
+    implementation("io.springfox:springfox-boot-starter:$swaggerVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:6.6")
     implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$skattKontraktVersjon")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -91,7 +90,7 @@ dependencies {
     implementation("com.oracle.database.jdbc:ojdbc8:19.12.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.12.1")
+    testImplementation("org.testcontainers:oracle-xe:1.16.2")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2")
 }
