@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkResponse as InfotrygdSøkResponseGammel
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -33,27 +32,6 @@ class BarnetrygdController(
     private val clientValidator: ClientValidator
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    @ApiOperation("Avgjør hvorvidt det finnes en løpende sak på søker eller barn i Infotrygd.")
-    @PostMapping(path = ["lopendeSak"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-                         dataType = "InfotrygdSøkRequest",
-                         value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    @Deprecated("Bruk /lopende-barnetrygd")
-    fun harLopendeBarnetrygdSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<Any> {
-        clientValidator.authorizeClient()
-
-        if (request.brukere.isEmpty() && request.barn.isNullOrEmpty()) {
-            return ResponseEntity.ok(InfotrygdSøkResponseGammel(ingenTreff = true))
-        }
-
-        val brukere = request.brukere.map { FoedselsNr(it) }
-        val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
-
-        val mottarBarnetrygd = barnetrygdService.mottarBarnetrygd(brukere, barn)
-        return ResponseEntity.ok(InfotrygdSøkResponseGammel(ingenTreff = !mottarBarnetrygd))
-    }
 
     @ApiOperation("Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
     @PostMapping(path = ["lopende-barnetrygd"], consumes = ["application/json"])
@@ -70,7 +48,6 @@ class BarnetrygdController(
 
         return ResponseEntity.ok(InfotrygdLøpendeBarnetrygdResponse(harLøpendeBarnetrygd))
     }
-
     @ApiOperation("Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
     @PostMapping(path = ["aapen-sak"], consumes = ["application/json"])
     @ApiImplicitParams(
@@ -140,9 +117,7 @@ class BarnetrygdController(
         val undervalg: String,
         val maksAntallBarn: Int = 99,
         val minimumAlder: Int = 7
-    ) {
-
-    }
+    )
 
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,

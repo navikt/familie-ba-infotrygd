@@ -11,16 +11,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface StønadRepository : JpaRepository<Stønad, Long> {
 
-    @Deprecated("Erstattes med direkte oppslag basert på fnr via inner join")
-    @Query("""
-        SELECT s FROM Stønad s
-        WHERE s.personKey = :personKey
-        AND s.region = :region
-        AND s.opphørtFom = '000000'
-    """)
-    fun findByPersonKeyAndRegion(personKey: Long,
-                                 region: String): List<Stønad>
-
     @Query("""
         SELECT s FROM Stønad s
            INNER JOIN Person p

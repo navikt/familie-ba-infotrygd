@@ -8,7 +8,6 @@ import no.nav.familie.ba.infotrygd.model.db2.toDelytelseDto
 import no.nav.familie.ba.infotrygd.model.dl1.*
 import no.nav.familie.ba.infotrygd.model.kodeverk.SakStatus.IKKE_BEHANDLET
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
-import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
@@ -36,7 +35,6 @@ import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 @Service
 class BarnetrygdService(
-    private val personRepository: PersonRepository,
     private val stonadRepository: StønadRepository,
     private val barnRepository: BarnRepository,
     private val sakRepository: SakRepository,
@@ -46,19 +44,6 @@ class BarnetrygdService(
 ) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
-
-    @Deprecated("Controller-metoden som benytter den er deprecated.")
-    fun mottarBarnetrygd(brukerFnr: List<FoedselsNr>, barnFnr: List<FoedselsNr>?): Boolean {
-        val personMottarBarnetrygd = brukerFnr.isNotEmpty() && personRepository.findByFnrList(brukerFnr)
-            .flatMap { stonadRepository.findByPersonKeyAndRegion(it.personKey, it.region) }
-            .isNotEmpty()
-        val mottasBarnetrygdForBarn = barnFnr?.let {
-            barnRepository.findBarnetrygdBarnInFnrList(it)
-                .flatMap { stonadRepository.findByPersonKeyAndRegion(it.personKey, it.region) }
-        }?.isNotEmpty() == true
-
-        return personMottarBarnetrygd || mottasBarnetrygdForBarn
-    }
 
     fun findStønadByBrukerFnr(brukerFnr: List<FoedselsNr>, historikk: Boolean? = false): List<StønadDto> {
         return if (brukerFnr.isEmpty()) emptyList() else when (historikk) {
