@@ -74,7 +74,7 @@ dependencies {
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.4.1")
+    implementation("net.ttddyy:datasource-proxy:1.7")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     testImplementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
     implementation("javax.inject:javax.inject:1")
@@ -89,7 +89,7 @@ dependencies {
     implementation("com.oracle.database.jdbc:ojdbc8:19.12.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.12.1")
+    testImplementation("org.testcontainers:oracle-xe:1.16.2")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2")
 }
