@@ -104,7 +104,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
 
     @Query(
         """
-        SELECT distinct (s) FROM Stønad s           
+        SELECT s FROM Stønad s           
            INNER JOIN Sak sa
                    ON ( s.personKey = sa.personKey and
                         s.region = sa.region and
