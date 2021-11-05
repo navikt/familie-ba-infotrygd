@@ -114,7 +114,7 @@ class BarnetrygdController(
 
 
     @ApiOperation("Finn stønad med id")
-    @GetMapping(path = ["stønad/{id}"])
+    @GetMapping(path = ["stonad/{id}"])
     fun findStønadById(@PathVariable id: Long): ResponseEntity<StønadDto> {
         clientValidator.authorizeClient()
 

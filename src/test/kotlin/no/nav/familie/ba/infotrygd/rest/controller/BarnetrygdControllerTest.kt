@@ -170,6 +170,29 @@ class BarnetrygdControllerTest {
             }
     }
 
+
+    @Test
+    fun `skal hente stønad basert på id`() {
+        val stønad = stønadRepository.saveAndFlush(
+            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
+            )
+
+        get("/infotrygd/barnetrygd/stonad/${stønad.id}")
+            .pakkUt(StønadDto::class.java).also {
+                assertThat(it.id).isEqualTo(stønad.id)
+            }
+    }
+
+    @Test
+    fun `hent stønad basert på id returnerer 404 hvis stønad ikke eksisterer`() {
+        val stønad = stønadRepository.saveAndFlush(
+            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
+        )
+
+        val response = get("/infotrygd/barnetrygd/stonad/666")
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
     @Test
     fun noAuth() {
         uri.values.forEach {
