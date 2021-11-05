@@ -53,7 +53,7 @@ object TestData {
     }
 
     fun barn(stønad: Stønad,
-             barnFnr: FoedselsNr = foedselsNr(),
+             barnFnr: FoedselsNr = foedselsNr(LocalDate.now()),
              barnetrygdTom: String? = null,
              stønadstype: String? = null
     ): Barn {

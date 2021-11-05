@@ -94,20 +94,22 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
 
     @Query(
         """
-        SELECT s FROM Stønad s           
-           INNER JOIN Sak sa
-                   ON ( s.personKey = sa.personKey and
-                        s.region = sa.region and
-                        s.saksblokk = sa.saksblokk and
-                        s.sakNr = sa.saksnummer )
-        WHERE s.opphørtFom = '000000'
-        AND sa.kapittelNr = 'BA'
-        AND sa.valg = :valg
-        AND sa.undervalg = :undervalg
-        AND s.antallBarn <= :maksAntallBarn
-    """
+        SELECT s.* FROM {h-schema}BA_STOENAD_20 s           
+           INNER JOIN {h-schema}SA_SAK_10 sa
+                   ON ( s.B01_PERSONKEY = sa.S01_PERSONKEY and
+                        s.REGION = sa.REGION and
+                        s.B20_BLOKK = sa.S05_SAKSBLOKK and
+                        s.B20_SAK_NR = sa.S10_SAKSNR )
+        WHERE s.B20_OPPHOERT_VFOM = '000000'
+        AND sa.S10_KAPITTELNR = 'BA'
+        AND sa.S10_VALG = :valg
+        AND sa.S10_UNDERVALG = :undervalg
+        AND s.B20_ANT_BARN <= :maksAntallBarn
+        AND regexp_like(s.TK_NR, :tknrFilter)
+    """,
+        nativeQuery = true
     )
-    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
+    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99, tknrFilter: String = "...."): List<Stønad>
 
 }
 

@@ -22,6 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.core.env.Environment
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.sql.SQLException
@@ -58,6 +59,8 @@ internal class BarnetrygdServiceTest {
     @Autowired
     private lateinit var statusRepository: StatusRepository
 
+    private val environment: Environment = mockk(relaxed = true)
+
     private lateinit var barnetrygdService: BarnetrygdService
 
     @Before
@@ -68,7 +71,8 @@ internal class BarnetrygdServiceTest {
             sakRepository,
             vedtakRepository,
             utbetalingRepository,
-            statusRepository
+            statusRepository,
+            environment
         )
     }
 
@@ -123,7 +127,7 @@ internal class BarnetrygdServiceTest {
         val barnRepositoryMock = mockk<BarnRepository>()
         every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
                 SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
-        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk())
+        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk(), mockk())
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }
@@ -449,6 +453,52 @@ internal class BarnetrygdServiceTest {
             .also {
                 assertThat(it).hasSize(0)
             }
+    }
+
+    @Test
+    fun `skal filtrere bort person med løpende stønad på barn over 18 år ved migreirng`() {
+        val personMedStønadPåBarnOver18år = personRepository.saveAndFlush(TestData.person())
+
+        personRepository.saveAndFlush(TestData.person())
+        val stønad1 = TestData.stønad(personMedStønadPåBarnOver18år, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
+
+
+        stonadRepository.saveAll(listOf(stønad1)).also {
+            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
+        }
+
+        barnRepository.saveAll(listOf(TestData.barn(stønad = stønad1, barnFnr = foedselsNr(foedselsdato = LocalDate.now().minusMonths(18L*12 + 1)))))
+
+        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 99, 3)
+            .also {
+                assertThat(it).hasSize(0)
+            }
+    }
+
+    @Test
+    fun `skal filtrere på tknr ved migreirng i preprod`() {
+        every { environment.activeProfiles } returns listOf("preprod").toTypedArray() andThen listOf("prod").toTypedArray()
+
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        val personSomFiltreresVekkPgaTknrIPreprod =
+            personRepository.saveAndFlush(TestData.person())
+        val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
+        val stønad3 = TestData.stønad(
+            personSomFiltreresVekkPgaTknrIPreprod, virkningFom = (999999 - 202001).toString(), status = "02", antallBarn = 1
+        )
+
+        stonadRepository.saveAll(listOf(stønad1, stønad3)).also {
+            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
+        }
+
+        barnRepository.saveAll(listOf(TestData.barn(stønad1),
+                                      TestData.barn(stønad3)))
+
+        val personerKlareForMigreringIPreprod = barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
+        val personerKlareForMigreringIProd = barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
+
+        assertThat(personerKlareForMigreringIPreprod).hasSize(1).contains(person.fnr.asString)
+        assertThat(personerKlareForMigreringIProd).hasSize(2)
     }
 
     private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
