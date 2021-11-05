@@ -8,7 +8,7 @@ import javax.persistence.AttributeConverter
 open class AbstractNavLocalDateConverter(datePattern: String) : AttributeConverter<LocalDate?, Int?> {
     private val logger = LoggerFactory.getLogger(javaClass)
     
-    private val formatter = DateTimeFormatter.ofPattern(datePattern);
+    private val formatter = DateTimeFormatter.ofPattern(datePattern)
     override fun convertToDatabaseColumn(attribute: LocalDate?): Int? {
         return attribute?.format(formatter)?.toInt()
     }
@@ -27,7 +27,7 @@ open class AbstractNavLocalDateConverter(datePattern: String) : AttributeConvert
              */
             logger.warn("Kunne ikke lese dato: '$dbData'. \nFiltrert stacktrace:" +
                     "${e.stackTrace.filter { it.className.contains("no.nav.familie.ba.infotrygd") }.toList()} ")
-            null;
+            null
         }
     }
 

@@ -2,7 +2,6 @@ package no.nav.familie.ba.infotrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
-import no.nav.familie.ba.infotrygd.model.db2.Vedtak
 import no.nav.familie.ba.infotrygd.model.dl1.Stønad
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

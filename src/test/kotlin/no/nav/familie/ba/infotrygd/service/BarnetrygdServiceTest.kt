@@ -63,7 +63,6 @@ internal class BarnetrygdServiceTest {
     @Before
     fun setup() {
         barnetrygdService = BarnetrygdService(
-            personRepository,
             stonadRepository,
             barnRepository,
             sakRepository,
@@ -124,7 +123,7 @@ internal class BarnetrygdServiceTest {
         val barnRepositoryMock = mockk<BarnRepository>()
         every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
                 SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
-        val barnetrygdService = BarnetrygdService(mockk(), mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk())
+        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk())
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }

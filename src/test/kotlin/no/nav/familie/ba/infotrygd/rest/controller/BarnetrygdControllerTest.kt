@@ -1,13 +1,19 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
-import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
-import no.nav.familie.kontrakter.ba.infotrygd.Sak
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ba.infotrygd.model.db2.Beslutning
 import no.nav.familie.ba.infotrygd.model.db2.Endring
 import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
 import no.nav.familie.ba.infotrygd.model.db2.StønadDb2
-import no.nav.familie.ba.infotrygd.repository.*
+import no.nav.familie.ba.infotrygd.repository.BarnRepository
+import no.nav.familie.ba.infotrygd.repository.BeslutningRepository
+import no.nav.familie.ba.infotrygd.repository.EndringRepository
+import no.nav.familie.ba.infotrygd.repository.LøpeNrFnrRepository
+import no.nav.familie.ba.infotrygd.repository.PersonRepository
+import no.nav.familie.ba.infotrygd.repository.SakPersonRepository
+import no.nav.familie.ba.infotrygd.repository.SakRepository
+import no.nav.familie.ba.infotrygd.repository.StønadDb2Repository
+import no.nav.familie.ba.infotrygd.repository.StønadRepository
+import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkRequest
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
@@ -15,6 +21,9 @@ import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.ba.infotrygd.testutil.restClient
 import no.nav.familie.ba.infotrygd.testutil.restClientNoAuth
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
+import no.nav.familie.kontrakter.ba.infotrygd.Sak
+import no.nav.familie.kontrakter.felles.objectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +81,6 @@ class BarnetrygdControllerTest {
 
     private val uri = mapOf("stønad" to "/infotrygd/barnetrygd/stonad",
                             "sak" to "/infotrygd/barnetrygd/saker",
-                            "deprecated" to "/infotrygd/barnetrygd/lopendeSak",
                             "lopende-barnetrygd" to "/infotrygd/barnetrygd/lopende-barnetrygd",
                             "aapen-sak" to "/infotrygd/barnetrygd/aapen-sak")
 

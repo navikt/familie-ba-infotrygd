@@ -9,13 +9,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface BarnRepository : JpaRepository<Barn, Long> {
-    
-    @Query("""
-        SELECT b FROM Barn b
-        WHERE b.barnFnr IN :barnFnrList
-        AND b.barnetrygdTom = '000000'
-    """)
-    fun findBarnetrygdBarnInFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
 
     @Query("""
         SELECT b FROM Barn b

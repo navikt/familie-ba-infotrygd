@@ -1,7 +1,7 @@
 package no.nav.familie.ba.infotrygd
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.filter.Filter;
-import ch.qos.logback.core.spi.FilterReply;
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.filter.Filter
+import ch.qos.logback.core.spi.FilterReply
 
 class LogFilter : Filter<ILoggingEvent>() {
     // Denne er her for å fikse problem med testcontainers<->IntelliJ
