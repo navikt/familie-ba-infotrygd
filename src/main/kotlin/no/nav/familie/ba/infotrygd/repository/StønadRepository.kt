@@ -105,9 +105,25 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND sa.valg = :valg
         AND sa.undervalg = :undervalg
         AND s.antallBarn <= :maksAntallBarn
-    """
-    )
+    """)
     fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
+
+    @Query(
+        """
+        SELECT s FROM Stønad s           
+           INNER JOIN Sak sa
+                   ON ( s.personKey = sa.personKey and
+                        s.region = sa.region and
+                        s.saksblokk = sa.saksblokk and
+                        s.sakNr = sa.saksnummer )
+        WHERE s.opphørtFom = '000000'
+        AND sa.kapittelNr = 'BA'
+        AND sa.valg = :valg
+        AND sa.undervalg = :undervalg
+        AND s.antallBarn <= :maksAntallBarn
+        AND s.tkNr IN ('0312','0315')
+    """)
+    fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
 
 }
 

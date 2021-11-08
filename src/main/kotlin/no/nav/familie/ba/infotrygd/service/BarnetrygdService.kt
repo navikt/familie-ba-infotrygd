@@ -25,6 +25,7 @@ import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRespo
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.core.env.Environment
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -41,7 +42,8 @@ class BarnetrygdService(
     private val vedtakRepository: VedtakRepository,
     private val utbetalingRepository: UtbetalingRepository,
     private val statusRepository: StatusRepository,
-) {
+    private val environment: Environment,
+    ) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
 
@@ -362,7 +364,11 @@ class BarnetrygdService(
         maksAntallBarn: Int,
         minimumAlder: Int
     ): Set<String> {
-        val stønader = stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+        val stønader = if (environment.activeProfiles.contains(PREPROD)) {
+            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+        } else {
+            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+        }
 
         var filtrerteStønader =  stønader.filter{
             val barnPåStønad = barnRepository.findBarnByStønad(it)
@@ -371,10 +377,12 @@ class BarnetrygdService(
             barnPåStønad.size == it.antallBarn && barnPåStønad.all { it.stønadstype == null }
         }
 
-        //filterer bort barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
+        //filterer bort personer med barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
+        //og personer med løpende barnetrygd for barn over 18 år
         filtrerteStønader = filtrerteStønader.filter {
             val barn = barnRepository.findBarnByStønad(it).firstOrNull {
-                it.barnFnr.foedselsdato.isAfter(LocalDate.now().minusYears(minimumAlder.toLong()))//Settes til 3 når vi bare vil filtere bort småbarnstillegg
+                it.barnFnr.foedselsdato.isAfter(LocalDate.now().minusYears(minimumAlder.toLong())) ||//Settes til 3 når vi bare vil filtere bort småbarnstillegg
+                it.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && it.barnetrygdTom == "000000"
             }
             barn == null
         }
@@ -401,6 +409,6 @@ class BarnetrygdService(
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"
         const val MANUELL_BEREGNING_EØS = "ME"
         const val MANUELL_BEREGNING = "MB"
-
+        const val PREPROD = "preprod"
     }
 }

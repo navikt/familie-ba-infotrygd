@@ -93,3 +93,5 @@ spec:
       value: /var/run/secrets/oracle/creds/username
     - name: APP_DATASOURCE_PASSWORD_PATH
       value: /var/run/secrets/oracle/creds/password
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
