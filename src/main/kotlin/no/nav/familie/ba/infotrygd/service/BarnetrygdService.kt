@@ -364,11 +364,11 @@ class BarnetrygdService(
         maksAntallBarn: Int,
         minimumAlder: Int
     ): Set<String> {
-        val stønader = stonadRepository.findKlarForMigrering(
-            PageRequest.of(page, size), valg, undervalg, maksAntallBarn,
-            //filtrerer på tknr 0312/0315 når aktiv profil er preprod, for å unngå personer som ikke finnes i testmiljøet i Q1
-            tknrFilter = if (environment.activeProfiles.contains(PREPROD)) TKNR_REGEX_FOR_PREPROD else "...."
-        )
+        val stønader = if (environment.activeProfiles.contains(PREPROD)) {
+            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+        } else {
+            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+        }
 
         var filtrerteStønader =  stønader.filter{
             val barnPåStønad = barnRepository.findBarnByStønad(it)
