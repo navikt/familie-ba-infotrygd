@@ -28,6 +28,7 @@ import java.sql.SQLException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @RunWith(SpringRunner::class)
 @DataJpaTest
@@ -89,6 +90,22 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
+    fun `findStønadByPerson gir ett treff på stønad som ikke er opphørt når opphørtFom er frem i tid`() {
+        val person = TestData.person()
+        val person2 = TestData.person()
+        val stønad = TestData.stønad(person2, opphørtFom = YearMonth.now().plusMonths(1).format(DateTimeFormatter.ofPattern("MMyyyy")))
+        val stønad2 = TestData.stønad(person, opphørtFom = YearMonth.now().minusMonths(1).format(DateTimeFormatter.ofPattern("MMyyyy")))
+
+        personRepository.saveAll(listOf(person, person2))
+        stonadRepository.saveAll(listOf(stønad, stønad2))
+
+        val stønadResult = barnetrygdService.findStønadByBrukerFnr(listOf(person.fnr, person2.fnr))
+
+        assertThat(stønadResult).hasSize(1)
+        assertThat(stønadResult).first().isEqualToComparingFieldByField(barnetrygdService.hentDelytelseOgKonverterTilDto(stønad))
+    }
+
+    @Test
     fun `findStønadByPerson gir tomt resultat når region ikke matcher`() {
         val person = TestData.person()
         val stønad = TestData.stønad(person, opphørtFom = "000000", region = "2")
@@ -98,6 +115,25 @@ internal class BarnetrygdServiceTest {
 
         val stønadResult = barnetrygdService.findStønadByBrukerFnr(listOf(person.fnr))
         assertThat(stønadResult).isEmpty()
+    }
+
+    @Test
+    fun `findStønadByBarn gir ett treff på stønad som ikke er opphørt når opphørtFom er frem i tid`() {
+        val person = personRepository.saveAll(listOf(TestData.person(), TestData.person()))
+        val barn = barnRepository.saveAll(
+            listOf(
+                TestData.barn(person[0]),
+                TestData.barn(person[1], barnetrygdTom = "111111")
+            )
+        )
+
+        stonadRepository.saveAll(person.map { TestData.stønad(it, opphørtFom = YearMonth.now().plusMonths(1)
+            .format(DateTimeFormatter.ofPattern("MMyyyy"))) })
+
+        val stønadResult = barnetrygdService.findStønadByBarnFnr(barn.map { it.barnFnr })
+        assertThat(stønadResult).hasSize(1)
+        val stønadResultBarn2 = barnetrygdService.findStønadByBarnFnr(listOf(barn[1].barnFnr))
+        assertThat(stønadResultBarn2).hasSize(0)
     }
 
     @Test
@@ -117,6 +153,7 @@ internal class BarnetrygdServiceTest {
         val stønadResultBarn2 = barnetrygdService.findStønadByBarnFnr(listOf(barn[1].barnFnr))
         assertThat(stønadResultBarn2).hasSize(0)
     }
+
 
     @Test
     fun `tellAntallÅpneSaker skal ikke involvere barnRepository når "barn"-listen er tom`() {

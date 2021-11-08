@@ -48,14 +48,14 @@ class BarnetrygdService(
     fun findStønadByBrukerFnr(brukerFnr: List<FoedselsNr>, historikk: Boolean? = false): List<StønadDto> {
         return if (brukerFnr.isEmpty()) emptyList() else when (historikk) {
             true -> stonadRepository.findStønadByFnr(brukerFnr)
-            else -> stonadRepository.findLøpendeStønadByFnr(brukerFnr)
+            else -> stonadRepository.findLøpendeStønadByFnr(brukerFnr, YearMonth.now().monthValue, YearMonth.now().year)
         }.distinct().map { hentDelytelseOgKonverterTilDto(it) }
     }
 
     fun findStønadByBarnFnr(barnFnr: List<FoedselsNr>, historikk: Boolean? = false): List<StønadDto> {
         return if (barnFnr.isEmpty()) emptyList() else when (historikk) {
             true -> stonadRepository.findStønadByBarnFnr(barnFnr)
-            else -> stonadRepository.findLøpendeStønadByBarnFnr(barnFnr)
+            else -> stonadRepository.findLøpendeStønadByBarnFnr(barnFnr, YearMonth.now().monthValue, YearMonth.now().year)
         }.distinct().map { hentDelytelseOgKonverterTilDto(it) }
     }
 

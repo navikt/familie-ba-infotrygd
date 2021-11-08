@@ -42,9 +42,10 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
                    ON (s.personKey = p.personKey and
                        s.region = p.region)
         WHERE p.fnr IN :fnr
-        AND s.opphørtFom = '000000'
+        AND (s.opphørtFom = '000000' OR
+            (CAST(substring(s.opphørtFom, 3, 4) as integer) >= :aar AND CAST(substring(s.opphørtFom, 1, 2) as integer) > :maaned))
     """)
-    fun findLøpendeStønadByFnr(fnr: List<FoedselsNr>): List<Stønad>
+    fun findLøpendeStønadByFnr(fnr: List<FoedselsNr>, maaned: Int, aar: Int): List<Stønad>
 
     @Query("""
         SELECT s FROM Stønad s
@@ -61,10 +62,11 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
                    ON (s.personKey = b.personKey and
                        s.region = b.region)
         WHERE b.barnFnr IN :barnFnr
-        AND b.barnetrygdTom = '000000'
-        AND s.opphørtFom = '000000'
+        AND b.barnetrygdTom = '000000' 
+        AND ( s.opphørtFom = '000000' OR
+              (CAST(substring(s.opphørtFom, 3, 4) as integer) >= :aar AND CAST(substring(s.opphørtFom, 1, 2) as integer) > :maaned))
     """)
-    fun findLøpendeStønadByBarnFnr(barnFnr: List<FoedselsNr>): List<Stønad>
+    fun findLøpendeStønadByBarnFnr(barnFnr: List<FoedselsNr>, maaned: Int, aar: Int): List<Stønad>
 
 
 
