@@ -410,6 +410,5 @@ class BarnetrygdService(
         const val MANUELL_BEREGNING_EØS = "ME"
         const val MANUELL_BEREGNING = "MB"
         const val PREPROD = "preprod"
-        const val TKNR_REGEX_FOR_PREPROD = "031[25]"
     }
 }
