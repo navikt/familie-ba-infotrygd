@@ -15,7 +15,7 @@ val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20210920094114_9c74239"
 val fellesVersjon = "1.20211008153542_d279663"
-val kontrakterVersjon = "2.0_20211102145927_73ce7c7"
+val kontrakterVersjon = "2.0_20211117104454_ff89d3c"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
