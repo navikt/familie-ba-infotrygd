@@ -73,6 +73,7 @@ dependencies {
     implementation("no.nav.familie.kontrakter:felles:$kontrakterVersjon")
     implementation("no.nav.familie.kontrakter:barnetrygd:$kontrakterVersjon")
     implementation("no.nav.familie.felles:log:$fellesVersjon")
+    implementation("no.nav.familie.felles:leader:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.ttddyy:datasource-proxy:1.7")
