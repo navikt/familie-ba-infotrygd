@@ -22,22 +22,23 @@ class MålerService(private val stønadRepository: StønadRepository, private va
     fun antallLøpendeSaker() {
         if (LeaderClient.isLeader() != true) return
         logger.info("Oppdaterer metrikker")
-        var saker: Int
+        val rows = mutableListOf<MultiGauge.Row<Number>>()
         if (erPreprod()) {
-            saker = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"OR", "OS").size
+            val antall = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"OR", "OS").size
+            rows.add(
+                MultiGauge.Row.of(
+                    Tags.of("valg", "OR",
+                            "undervalg", "OS"),
+                    antall))
         } else {
-            saker = stønadRepository.findKlarForMigrering(Pageable.unpaged(), "OR", "OS").size
+            stønadRepository.countLøpendeStønader().map {
+                rows.add(
+                    MultiGauge.Row.of(
+                        Tags.of("valg", it.valg,
+                                "undervalg", it.undervalg),
+                        it.antall))
+            }
         }
-
-        logger.info("Antall løpende saker klar for migrering: $saker")
-
-        val rows =
-            listOf(MultiGauge.Row.of(
-                Tags.of("valg", "OR",
-                        "undervalg", "OS"),
-                saker))
-
-
         antallLøpendeSakerGauge.register(rows, true)
     }
 

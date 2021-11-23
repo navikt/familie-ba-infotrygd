@@ -125,7 +125,23 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     """)
     fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
 
+    @Query(
+        """
+        SELECT sa.S10_VALG, sa.S10_UNDERVALG, count(*) FROM BA_STOENAD_20 s
+            INNER JOIN SA_SAK_10 sa
+                ON ( s.B01_PERSONKEY = sa.S01_PERSONKEY and
+                     s.region = sa.region and
+                     s.B20_BLOKK = sa.S05_SAKSBLOKK and
+                     s.B20_SAK_NR = sa.S10_SAKSNR )
+        WHERE s.B20_OPPHOERT_VFOM = '000000'
+        AND sa.S10_KAPITTELNR = 'BA'
+        group by sa.S10_VALG, sa.S10_UNDERVALG""",
+        nativeQuery = true
+    )
+    fun countLøpendeStønader() : List<AntallLøpendeStønader>
+
 }
+data class AntallLøpendeStønader(val valg: String, val undervalg: String, val antall: Int)
 
 data class TrunkertStønad(
     val id: Long,
