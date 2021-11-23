@@ -21,6 +21,7 @@ class MålerService(private val stønadRepository: StønadRepository, private va
     @Scheduled(fixedDelay = 4 * 60 * 60 * 1000, initialDelay = 3 * 50 * 1000)
     fun antallLøpendeSaker() {
         if (LeaderClient.isLeader() != true) return
+
         logger.info("Oppdaterer metrikker")
         val rows = mutableListOf<MultiGauge.Row<Number>>()
         if (erPreprod()) {

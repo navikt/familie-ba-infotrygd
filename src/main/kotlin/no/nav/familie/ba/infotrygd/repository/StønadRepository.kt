@@ -126,8 +126,8 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
 
     @Query(
-        """
-        SELECT sa.S10_VALG, sa.S10_UNDERVALG, count(*) FROM BA_STOENAD_20 s
+        value = """
+        SELECT sa.S10_VALG valg, sa.S10_UNDERVALG undervalg, count(*) antall FROM BA_STOENAD_20 s
             INNER JOIN SA_SAK_10 sa
                 ON ( s.B01_PERSONKEY = sa.S01_PERSONKEY and
                      s.region = sa.region and
@@ -141,7 +141,11 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     fun countLøpendeStønader() : List<AntallLøpendeStønader>
 
 }
-data class AntallLøpendeStønader(val valg: String, val undervalg: String, val antall: Int)
+interface AntallLøpendeStønader {
+    val valg: String
+    val undervalg: String
+    val antall: Int
+}
 
 data class TrunkertStønad(
     val id: Long,
