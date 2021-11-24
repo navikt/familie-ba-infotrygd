@@ -127,8 +127,8 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
 
     @Query(
         value = """
-        SELECT sa.S10_VALG valg, sa.S10_UNDERVALG undervalg, count(*) antall FROM BA_STOENAD_20 s
-            INNER JOIN SA_SAK_10 sa
+        SELECT sa.S10_VALG valg, sa.S10_UNDERVALG undervalg, count(*) antall FROM {h-schema}BA_STOENAD_20 s
+            INNER JOIN {h-schema}SA_SAK_10 sa
                 ON ( s.B01_PERSONKEY = sa.S01_PERSONKEY and
                      s.region = sa.region and
                      s.B20_BLOKK = sa.S05_SAKSBLOKK and
