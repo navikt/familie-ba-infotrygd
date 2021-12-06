@@ -1,5 +1,6 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.db2.Beslutning
 import no.nav.familie.ba.infotrygd.model.db2.Endring
 import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
@@ -17,6 +18,7 @@ import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkRequest
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
+import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.StønadRequest
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.ba.infotrygd.testutil.restClient
@@ -172,15 +174,25 @@ class BarnetrygdControllerTest {
 
 
     @Test
-    fun `skal hente stønad basert på id`() {
-        val stønad = stønadRepository.saveAndFlush(
-            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
-            )
+    fun `skal hente stønad basert på personKey, iverksattFom, virkningFom og region`() {
+        val personIdent = "12345678910"
+        val personKey = "031256341278910"
+        val person =
+            TestData.person(fnr = FoedselsNr(personIdent), personKey = personKey.toLong(), tkNr = personKey.substring(0, 4))
+        val stønad = stønadRepository.saveAndFlush(TestData.stønad(person))
 
-        get("/infotrygd/barnetrygd/stonad/${stønad.id}")
-            .pakkUt(StønadDto::class.java).also {
-                assertThat(it.id).isEqualTo(stønad.id)
-            }
+        post(
+            "/infotrygd/barnetrygd/stonad/sok",
+            StønadRequest(
+                person.fnr.asString,
+                stønad.tkNr,
+                stønad.iverksattFom,
+                stønad.virkningFom,
+                stønad.region
+            )
+        ).pakkUt(StønadDto::class.java).also {
+            assertThat(it.id).isEqualTo(stønad.id)
+        }
     }
 
     @Test
@@ -220,6 +232,18 @@ class BarnetrygdControllerTest {
             .uri(uri!!)
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(request)
+            .exchange()
+            .block()!!
+    }
+
+    private fun post(
+        uri: String?,
+        stønadRequest: StønadRequest
+    ): ClientResponse {
+        return restClient(port).post()
+            .uri(uri!!)
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(stønadRequest)
             .exchange()
             .block()!!
     }
