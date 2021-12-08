@@ -140,6 +140,15 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     )
     fun countLøpendeStønader() : List<AntallLøpendeStønader>
 
+    @Query("""
+        SELECT s FROM Stønad s
+        WHERE s.personKey = :personKey
+        AND s.iverksattFom = :iverksattFom
+        AND s.virkningFom = :virkningFom
+        AND s.region = :region
+    """)
+    fun findStønad(personKey: Long, iverksattFom: String, virkningFom: String, region: String): Stønad
+
 }
 interface AntallLøpendeStønader {
     val valg: String

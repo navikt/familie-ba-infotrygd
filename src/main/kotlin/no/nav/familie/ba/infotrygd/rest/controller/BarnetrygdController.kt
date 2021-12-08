@@ -115,6 +115,7 @@ class BarnetrygdController(
 
     @ApiOperation("Finn stønad med id")
     @GetMapping(path = ["stonad/{id}"])
+    @Deprecated(message="Erstattes av findStønad som henter basert på B01_PERSONKEY, B20_IVERFOM_SEQ, B20_VIRKFOM_SEQ og REGION")
     fun findStønadById(@PathVariable id: Long): ResponseEntity<StønadDto> {
         clientValidator.authorizeClient()
 
@@ -129,14 +130,25 @@ class BarnetrygdController(
 
     }
 
-    data class MigreringRequest(
-        val page: Int,
-        val size: Int,
-        val valg: String,
-        val undervalg: String,
-        val maksAntallBarn: Int = 99,
-        val minimumAlder: Int = 7
-    )
+    @ApiOperation("Finn stønad basert på personKey, iverksattFom, virkningFom og region")
+    @PostMapping(path = ["stonad/sok"])
+    fun findStønad(@RequestBody stønadRequest: StønadRequest): ResponseEntity<StønadDto> {
+        clientValidator.authorizeClient()
+
+        try {
+            return ResponseEntity.ok(
+                barnetrygdService.findStønad(
+                    stønadRequest.personIdent,
+                    stønadRequest.tknr,
+                    stønadRequest.iverksattFom,
+                    stønadRequest.virkningFom,
+                    stønadRequest.region
+                )
+            )
+        } catch (nsee: NoSuchElementException) {
+            return ResponseEntity.notFound().build()
+        }
+    }
 
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,
@@ -147,5 +159,23 @@ class BarnetrygdController(
         return Pair(barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
                     barnetrygdService.findStønadByBarnFnr(barn, historikk))
     }
+
+    data class MigreringRequest(
+        val page: Int,
+        val size: Int,
+        val valg: String,
+        val undervalg: String,
+        val maksAntallBarn: Int = 99,
+        val minimumAlder: Int = 7
+    )
+
+    class StønadRequest(
+        val personIdent: String,
+        val tknr: String,
+        val iverksattFom: String,
+        val virkningFom: String,
+        val region: String
+    )
 }
+
 
