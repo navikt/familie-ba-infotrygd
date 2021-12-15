@@ -3,6 +3,7 @@
 package no.nav.familie.ba.infotrygd.service
 
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
 import no.nav.familie.ba.infotrygd.model.db2.toDelytelseDto
 import no.nav.familie.ba.infotrygd.model.dl1.*
@@ -397,6 +398,12 @@ class BarnetrygdService(
 
     fun findStønadById(id: Long): StønadDto {
         val stønad = stonadRepository.findById(id).orElseThrow{ NoSuchElementException("Fant ikke stønad med id $id")}
+        return hentDelytelseOgKonverterTilDto(stønad)
+    }
+
+    fun findStønad(personIdent: String, tknr: String, iverksattFom: String, virkningFom: String, region: String): StønadDto {
+        val personKey = tknr + ReversedFoedselNrConverter().convertToDatabaseColumn(FoedselsNr(personIdent))
+        val stønad = stonadRepository.findStønad(personKey.toLong(), iverksattFom, virkningFom, region)
         return hentDelytelseOgKonverterTilDto(stønad)
     }
 

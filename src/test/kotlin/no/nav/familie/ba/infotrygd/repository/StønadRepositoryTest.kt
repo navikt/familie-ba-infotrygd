@@ -111,4 +111,12 @@ class StønadRepositoryTest {
             assertThat(it).hasSize(0)
         }
     }
+
+    @Test
+    fun `skal finne stønad basert på personKey, iverksattFom, virkningFom og region`() {
+        val stønad = stønadRepository.saveAndFlush(TestData.stønad(TestData.person()))
+        stønadRepository.findStønad(stønad.personKey, stønad.iverksattFom, stønad.virkningFom, stønad.region).also {
+            assertThat(it).isEqualTo(stønad)
+        }
+    }
 }
