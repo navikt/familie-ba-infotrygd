@@ -89,7 +89,7 @@ class BarnetrygdService(
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
             barn = barnRepository.findBarnByStønad(stønad).map { it.toBarnDto() },
-            delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.toLong(), stønad.saksblokk)
+            delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
                 .firstOrNull()?.delytelse?.map { it.toDelytelseDto() } ?: emptyList()
         )
     }
