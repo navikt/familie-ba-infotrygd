@@ -4,6 +4,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.ba.infotrygd.model.db2.Delytelse
+import no.nav.familie.ba.infotrygd.model.db2.DelytelseId
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
 import no.nav.familie.ba.infotrygd.model.db2.Vedtak
 import no.nav.familie.ba.infotrygd.model.dl1.Barn
@@ -96,7 +97,7 @@ object TestData {
             1L,
             kodeRutine,
             kodeResultat,
-            listOf(Delytelse(1L, LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M"))
+            listOf(Delytelse(DelytelseId(1, 1), LocalDate.of(2020, 1, 1), LocalDate.now().minusDays(1), 1900.0, "MS", typeUtbetaling = "M"), Delytelse(DelytelseId(1, 2), LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M"))
         )
     }
 

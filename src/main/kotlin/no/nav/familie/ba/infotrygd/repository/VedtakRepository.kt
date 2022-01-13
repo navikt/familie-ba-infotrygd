@@ -37,7 +37,7 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
                         WHERE b.vedtakId = v.vedtakId
                         AND b.godkjent2 = 'J')
         AND EXISTS (SELECT 1 FROM Delytelse d
-                    WHERE d.vedtakId = v.vedtakId)
+                    WHERE d.id.vedtakId = v.vedtakId)
     """
     )
     fun tellAntallÅpneSakerPåPerson(fnr: String): Long
