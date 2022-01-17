@@ -17,7 +17,8 @@ enum class SakStatus(override val tekst: String) : Kode {
     ST("sendt til"),
     VD("videresendt Direktoratet"),
     VI("venter på iverksetting"),
-    VT("videresendt Trygderetten");
+    VT("videresendt Trygderetten"),
+    HB("Henlagt/Bortfalt");
 
     override val kode: String
         get() = this.name
