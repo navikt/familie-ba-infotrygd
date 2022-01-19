@@ -62,7 +62,7 @@ spec:
       rules:
         - application: familie-ba-sak
           namespace: teamfamilie
-          cluster: prod-fss
+          cluster: prod-gcp
         - application: familie-ba-mottak
           namespace: teamfamilie
           cluster: prod-fss
