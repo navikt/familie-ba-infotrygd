@@ -47,7 +47,7 @@ app:
 
 rolle:
   teamfamilie:
-    forvalter: "928636f4-fd0d-4149-978e-a6fb68bb19de"
+    forvalter: "c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b"
 
 springdoc:
   packages-to-scan: "no.nav.familie.ba.infotrygd"
