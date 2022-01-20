@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import java.time.YearMonth
+import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
 @Protected
@@ -34,11 +35,7 @@ class BisysController(
 
     @Operation(summary = "Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet måned. Maks 5 år tilbake i tid")
     @PostMapping(path = ["utvidet"], consumes = ["application/json"])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [ExampleObject(value = """{"bruker": "12345678910", "fraDato": "2020-05"}""")]
-        )]
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"bruker": "12345678910", "fraDato": "2020-05"}""")])])
     fun utvidet(@RequestBody request: InfotrygdUtvidetBarnetrygdRequest): InfotrygdUtvidetBarnetrygdResponse {
         clientValidator.authorizeClient()
 

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -37,11 +38,7 @@ class BarnetrygdController(
 
     @Operation(summary = "Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
     @PostMapping(path = ["lopende-barnetrygd"], consumes = ["application/json"])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [ExampleObject(value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}")]
-        )]
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun harLopendeBarnetrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
         clientValidator.authorizeClient()
 
@@ -53,11 +50,7 @@ class BarnetrygdController(
     }
     @Operation(summary = "Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
     @PostMapping(path = ["aapen-sak"], consumes = ["application/json"])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [ExampleObject(value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}")]
-        )]
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun harÅpenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
         clientValidator.authorizeClient()
 
@@ -68,11 +61,7 @@ class BarnetrygdController(
 
     @Operation(summary = "Uttrekk fra tabellen \"BA_STOENAD_20\".")
     @PostMapping(path = ["stonad"], consumes = ["application/json"])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [ExampleObject(value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}")]
-        )]
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun stønad(
         @RequestBody request: InfotrygdSøkRequest,
         @RequestParam(required = false) historikk: Boolean?
@@ -86,11 +75,7 @@ class BarnetrygdController(
 
     @Operation(summary = "Uttrekk fra tabellen \"SA_SAK_10\".")
     @PostMapping(path = ["saker"], consumes = ["application/json"])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [ExampleObject(value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}")]
-        )]
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         clientValidator.authorizeClient()
 
@@ -182,6 +167,10 @@ class BarnetrygdController(
         val virkningFom: String,
         val region: String
     )
+
+    companion object {
+        const val INFOTRYGD_SØK_EKSEMPEL = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"
+    }
 }
 
 

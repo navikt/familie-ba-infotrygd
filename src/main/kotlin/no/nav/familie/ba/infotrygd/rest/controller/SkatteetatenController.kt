@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
 @Protected
@@ -34,11 +35,7 @@ class SkatteetatenController(
 
     @Operation(summary = "Hent alle perioder for utvidet for en liste personer")
     @PostMapping(path = ["utvidet/skatteetaten/perioder"], consumes = ["application/json"])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": 2020}""")]
-        )]
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": 2020}""")])])
     fun skatteetatenPerioderUtvidetPersoner(
         @RequestBody
         request: SkatteetatenPerioderRequest
