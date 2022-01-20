@@ -28,7 +28,7 @@ class ClientValidator(
 
     fun authorizeClient() {
         if(!authorized()) {
-            val msg = "Klienten er ikke autorisert: ${issuerSubjects().plus(azureClientIds())}"
+            val msg = "Klienten er ikke autorisert: ${issuerSubjects().plus(azureClientIds())} \nRoller: ${azureGroups()}"
             logger.info(msg)
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
         }
@@ -51,7 +51,7 @@ class ClientValidator(
             if (azureClientIds.contains(entry)) {
                 return true
             } else if (azureClientIds.contains("$AzureIssuer/$audience")) { // true for tokens opprettet via OpenAPI-flyt
-                return azureGroups().any { it.contains(forvalterRolleTeamfamilie) }
+                return forvalterRolleTeamfamilie.isNotEmpty() && azureGroups().any { it.contains(forvalterRolleTeamfamilie) }
             }
         }
 
