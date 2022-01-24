@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
+import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakPersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
@@ -59,6 +60,9 @@ internal class BarnetrygdServiceTest {
     @Autowired
     private lateinit var statusRepository: StatusRepository
 
+    @Autowired
+    private lateinit var hendelseRepository: HendelseRepository
+
     private val environment: Environment = mockk(relaxed = true)
 
     private lateinit var barnetrygdService: BarnetrygdService
@@ -72,7 +76,8 @@ internal class BarnetrygdServiceTest {
             vedtakRepository,
             utbetalingRepository,
             statusRepository,
-            environment
+            environment,
+            hendelseRepository
         )
     }
 
@@ -127,7 +132,7 @@ internal class BarnetrygdServiceTest {
         val barnRepositoryMock = mockk<BarnRepository>()
         every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
                 SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
-        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk(), mockk())
+        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk(), mockk(), mockk())
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }

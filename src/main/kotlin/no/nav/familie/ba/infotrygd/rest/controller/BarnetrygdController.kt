@@ -141,6 +141,20 @@ class BarnetrygdController(
         }
     }
 
+
+    @Operation(summary = "Finn om brev med brevkode er sendt for en person i forrige måned")
+    @PostMapping(path = [""])
+    fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<Boolean> {
+        clientValidator.authorizeClient()
+
+        return ResponseEntity.ok(
+            barnetrygdService.harSendtBrevForrigeMåned(
+                FoedselsNr(sendtBrevRequest.personIdent),
+                sendtBrevRequest.brevkoder
+            )
+        )
+    }
+
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,
                                             historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {
@@ -166,6 +180,11 @@ class BarnetrygdController(
         val iverksattFom: String,
         val virkningFom: String,
         val region: String
+    )
+
+    class SendtBrevRequest(
+        val personIdent: String,
+        val brevkoder: List<String>
     )
 
     companion object {
