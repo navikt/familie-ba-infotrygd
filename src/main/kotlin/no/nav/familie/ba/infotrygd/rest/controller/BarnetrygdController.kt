@@ -143,7 +143,7 @@ class BarnetrygdController(
 
 
     @Operation(summary = "Finn om brev med brevkode er sendt for en person i forrige måned")
-    @PostMapping(path = [""])
+    @PostMapping(path = ["/brev"])
     fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<Boolean> {
         clientValidator.authorizeClient()
 
