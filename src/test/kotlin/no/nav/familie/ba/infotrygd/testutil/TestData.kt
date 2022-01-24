@@ -8,6 +8,7 @@ import no.nav.familie.ba.infotrygd.model.db2.DelytelseId
 import no.nav.familie.ba.infotrygd.model.db2.Utbetaling
 import no.nav.familie.ba.infotrygd.model.db2.Vedtak
 import no.nav.familie.ba.infotrygd.model.dl1.Barn
+import no.nav.familie.ba.infotrygd.model.dl1.Hendelse
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import no.nav.familie.ba.infotrygd.model.dl1.Sak
 import no.nav.familie.ba.infotrygd.model.dl1.SakPerson
@@ -199,6 +200,21 @@ object TestData {
 
     fun sakPerson(person: Person): SakPerson {
         return SakPerson(nextId(), person.region, person.personKey, person.fnr)
+    }
+
+    fun hendelse(person: Person, aksjondatoSeq: Long, tekstKode: String): Hendelse {
+        return Hendelse(
+            id = nextId(),
+            personKey = person.personKey,
+            fnr = person.fnr,
+            tkNr = person.tkNr,
+            saksnummer = "01",
+            saksblokk = "A",
+            region = "1",
+            aksjonsdatoSeq = aksjondatoSeq,
+            tekstKode1 = tekstKode
+        )
+
     }
 
     private val fnrGenerator = FoedselsnummerGenerator()

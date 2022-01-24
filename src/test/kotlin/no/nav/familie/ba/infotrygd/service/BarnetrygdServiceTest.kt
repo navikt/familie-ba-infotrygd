@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
+import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakPersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
@@ -29,6 +30,7 @@ import java.sql.SQLException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @RunWith(SpringRunner::class)
 @DataJpaTest
@@ -59,6 +61,9 @@ internal class BarnetrygdServiceTest {
     @Autowired
     private lateinit var statusRepository: StatusRepository
 
+    @Autowired
+    private lateinit var hendelseRepository: HendelseRepository
+
     private val environment: Environment = mockk(relaxed = true)
 
     private lateinit var barnetrygdService: BarnetrygdService
@@ -72,7 +77,8 @@ internal class BarnetrygdServiceTest {
             vedtakRepository,
             utbetalingRepository,
             statusRepository,
-            environment
+            environment,
+            hendelseRepository
         )
     }
 
@@ -127,7 +133,7 @@ internal class BarnetrygdServiceTest {
         val barnRepositoryMock = mockk<BarnRepository>()
         every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
                 SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
-        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk(), mockk())
+        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk(), mockk(), mockk())
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }
@@ -500,6 +506,37 @@ internal class BarnetrygdServiceTest {
         assertThat(personerKlareForMigreringIPreprod).hasSize(1).contains(person.fnr.asString)
         assertThat(personerKlareForMigreringIProd).hasSize(2)
     }
+
+    @Test
+    fun `harSendtBrevForrigeMåned skal returnere false hvis det ikke er sendt ut noen brev med brevkode B002 siste måned`() {
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        hendelseRepository.saveAll(listOf(
+            TestData.hendelse(person, 79779884, "B001"), //2022-01-15
+        ))
+
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B002"))).isFalse()
+    }
+
+    @Test
+    fun `harSendtBrevForrigeMåned skal returnere false hvis det er sendt ut brev med kode B001 for lengre enn en måned siden`() {
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        hendelseRepository.saveAll(listOf(
+            TestData.hendelse(person, 79788868, "B001"), //2021-11-31
+        ))
+
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B001"))).isFalse()
+    }
+
+    @Test
+    fun `harSendtBrevForrigeMåned skal returnere true hvis det er sendt ut brev med kode B001 nylig`() {
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        hendelseRepository.saveAll(listOf(
+            TestData.hendelse(person, 99999999 - LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong(), "B001"),
+        ))
+
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B001"))).isTrue()
+    }
+
 
     private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
         val person = personRepository.save(TestData.person())

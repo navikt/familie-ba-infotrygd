@@ -9,6 +9,7 @@ import no.nav.familie.ba.infotrygd.model.db2.toDelytelseDto
 import no.nav.familie.ba.infotrygd.model.dl1.*
 import no.nav.familie.ba.infotrygd.model.kodeverk.SakStatus.IKKE_BEHANDLET
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
+import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -44,6 +46,7 @@ class BarnetrygdService(
     private val utbetalingRepository: UtbetalingRepository,
     private val statusRepository: StatusRepository,
     private val environment: Environment,
+    private val hendelseRepository: HendelseRepository
     ) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
@@ -405,6 +408,15 @@ class BarnetrygdService(
         val personKey = tknr + ReversedFoedselNrConverter().convertToDatabaseColumn(FoedselsNr(personIdent))
         val stønad = stonadRepository.findStønad(personKey.toLong(), iverksattFom, virkningFom, region)
         return hentDelytelseOgKonverterTilDto(stønad)
+    }
+
+    fun harSendtBrevForrigeMåned(personIdent: FoedselsNr, brevkoder: List<String>): Boolean {
+        val date = YearMonth.now().minusMonths(1).atDay(1)
+        val seqNumber = (99999999 - date.format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong())
+
+        val hendelser = hendelseRepository.findHendelseByFnrAndTekstKoderIn(personIdent, brevkoder, seqNumber)
+
+        return hendelser.isNotEmpty()
     }
 
     companion object {
