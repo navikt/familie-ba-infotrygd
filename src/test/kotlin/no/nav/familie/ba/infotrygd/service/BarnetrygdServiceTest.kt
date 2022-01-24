@@ -30,6 +30,7 @@ import java.sql.SQLException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @RunWith(SpringRunner::class)
 @DataJpaTest
@@ -505,6 +506,37 @@ internal class BarnetrygdServiceTest {
         assertThat(personerKlareForMigreringIPreprod).hasSize(1).contains(person.fnr.asString)
         assertThat(personerKlareForMigreringIProd).hasSize(2)
     }
+
+    @Test
+    fun `harSendtBrevForrigeMåned skal returnere false hvis det ikke er sendt ut noen brev med brevkode B002 siste måned`() {
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        hendelseRepository.saveAll(listOf(
+            TestData.hendelse(person, 79779884, "B001"), //2022-01-15
+        ))
+
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B002"))).isFalse()
+    }
+
+    @Test
+    fun `harSendtBrevForrigeMåned skal returnere false hvis det er sendt ut brev med kode B001 for lengre enn en måned siden`() {
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        hendelseRepository.saveAll(listOf(
+            TestData.hendelse(person, 79788868, "B001"), //2021-11-31
+        ))
+
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B001"))).isFalse()
+    }
+
+    @Test
+    fun `harSendtBrevForrigeMåned skal returnere true hvis det er sendt ut brev med kode B001 nylig`() {
+        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
+        hendelseRepository.saveAll(listOf(
+            TestData.hendelse(person, 99999999 - LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong(), "B001"),
+        ))
+
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B001"))).isTrue()
+    }
+
 
     private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
         val person = personRepository.save(TestData.person())

@@ -742,10 +742,10 @@ create table INFOTRYGD_Q0.SA_HENDELSE_20
     S01_PERSONKEY NUMBER(15, 0) not null,
     S05_SAKSBLOKK CHAR(1) not null,
     S20_AKSJONSDATO_SEQ NUMBER(8,0) not null,
-    S20_OPPLYSNING VARCHAR2(38) not null,
+    S20_OPPLYSNING VARCHAR2(38),
     S20_SAKSNR VARCHAR2(2) not null,
     S20_TEKSTKODE_1 VARCHAR2(4) not null,
-    S20_DATO_DANNET NUMBER(8,0) not null,
+    S20_DATO_DANNET NUMBER(8,0),
     TK_NR VARCHAR2(4) not null,
     F_NR VARCHAR2(11) not null,
     REGION CHAR(1) default ' ' not null

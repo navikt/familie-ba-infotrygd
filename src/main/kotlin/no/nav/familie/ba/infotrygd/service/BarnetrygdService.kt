@@ -416,7 +416,7 @@ class BarnetrygdService(
 
         val hendelser = hendelseRepository.findHendelseByFnrAndTekstKoderIn(personIdent, brevkoder, seqNumber)
 
-        return hendelser.size > 0
+        return hendelser.isNotEmpty()
     }
 
     companion object {
