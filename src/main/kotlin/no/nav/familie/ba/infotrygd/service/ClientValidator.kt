@@ -16,6 +16,10 @@ class ClientValidator(
     private val environment: Environment,
     private val ctxHolder: TokenValidationContextHolder?,
 
+    @Value("\${rolle.teamfamilie.forvalter}")
+    private val forvalterRolleTeamfamilie: String,
+    @Value("\${no.nav.security.jwt.issuer.azure.accepted_audience}")
+    private val audience: String,
     @Value("\${app.security.clientWhitelist}")
     clientWhitelistStr: String
 ) {
@@ -24,7 +28,7 @@ class ClientValidator(
 
     fun authorizeClient() {
         if(!authorized()) {
-            val msg = "Klienten er ikke autorisert: ${issuerSubjects().plus(azureClientIds())}"
+            val msg = "Klienten er ikke autorisert: ${issuerSubjects().plus(azureClientIds())} \nRoller: ${azureGroups()}"
             logger.info(msg)
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
         }
@@ -46,6 +50,8 @@ class ClientValidator(
         for (entry in clientWhitelist) {
             if (azureClientIds.contains(entry)) {
                 return true
+            } else if (azureClientIds.contains("$AzureIssuer/$audience")) { // true for tokens opprettet via OpenAPI-flyt
+                return forvalterRolleTeamfamilie.isNotEmpty() && azureGroups().any { it.contains(forvalterRolleTeamfamilie) }
             }
         }
 
@@ -72,6 +78,17 @@ class ClientValidator(
             .filterNotNull()
             .filter { it.get(AzureV2ClientIdClaim) != null || it.get(AzureV1ClientIdClaim) != null }
             .map { "${AzureIssuer}/${it.get(AzureV2ClientIdClaim)?:it.get(AzureV1ClientIdClaim)!!}" }
+    }
+
+    private fun azureGroups(): List<String> {
+        val oidcValidationContext: TokenValidationContext = ctxHolder?.tokenValidationContext
+            ?: return emptyList()
+
+        return oidcValidationContext.issuers
+            .filter { it == AzureIssuer }
+            .map { oidcValidationContext.getClaims(it) }
+            .filterNotNull()
+            .map { "${it.get("groups")}" }
     }
 
     private companion object {

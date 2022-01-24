@@ -1,10 +1,10 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
 @Protected
@@ -32,15 +33,9 @@ class SkatteetatenController(
     private val logger = LoggerFactory.getLogger(javaClass)
 
 
-    @ApiOperation("Hent alle perioder for utvidet for en liste personer")
+    @Operation(summary = "Hent alle perioder for utvidet for en liste personer")
     @PostMapping(path = ["utvidet/skatteetaten/perioder"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(
-            name = "request",
-            dataType = "SkatteetatenPerioderRequest",
-            value = """{"identer": ["12345678910"], "aar": 2020}"""
-        )
-    )
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": 2020}""")])])
     fun skatteetatenPerioderUtvidetPersoner(
         @RequestBody
         request: SkatteetatenPerioderRequest
@@ -52,9 +47,9 @@ class SkatteetatenController(
         }
     }
 
-    @ApiOperation("Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
+    @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
     @GetMapping(path = ["utvidet"])
-    fun utvidet(@ApiParam("år") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
+    fun utvidet(@Parameter(name = "år") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
         clientValidator.authorizeClient()
         return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år))
     }

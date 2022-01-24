@@ -9,7 +9,7 @@ val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
 val tokenSupportVersion = "1.3.9"
 val jacksonVersion = "2.9.9"
-val swaggerVersion = "3.0.0"
+val springdocVersion = "1.6.4"
 val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
@@ -82,7 +82,8 @@ dependencies {
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.springfox:springfox-boot-starter:$swaggerVersion")
+    implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
+    implementation("org.springdoc:springdoc-openapi-kotlin:$springdocVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:6.6")
     implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$skattKontraktVersjon")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")

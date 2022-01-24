@@ -1,9 +1,9 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -35,12 +36,9 @@ class BarnetrygdController(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @ApiOperation("Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
+    @Operation(summary = "Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
     @PostMapping(path = ["lopende-barnetrygd"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-            dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun harLopendeBarnetrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
         clientValidator.authorizeClient()
 
@@ -50,12 +48,9 @@ class BarnetrygdController(
 
         return ResponseEntity.ok(InfotrygdLøpendeBarnetrygdResponse(harLøpendeBarnetrygd))
     }
-    @ApiOperation("Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
+    @Operation(summary = "Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
     @PostMapping(path = ["aapen-sak"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-            dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun harÅpenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
         clientValidator.authorizeClient()
 
@@ -64,14 +59,13 @@ class BarnetrygdController(
         }
     }
 
-    @ApiOperation("Uttrekk fra tabellen \"BA_STOENAD_20\".")
-        @PostMapping(path = ["stonad"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-            dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
-    fun stønad(@RequestBody request: InfotrygdSøkRequest,
-               @RequestParam(required = false) historikk: Boolean?): ResponseEntity<InfotrygdSøkResponse<StønadDto>> {
+    @Operation(summary = "Uttrekk fra tabellen \"BA_STOENAD_20\".")
+    @PostMapping(path = ["stonad"], consumes = ["application/json"])
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
+    fun stønad(
+        @RequestBody request: InfotrygdSøkRequest,
+        @RequestParam(required = false) historikk: Boolean?
+    ): ResponseEntity<InfotrygdSøkResponse<StønadDto>> {
         clientValidator.authorizeClient()
 
         return hentStønaderPåBrukereOgBarn(request.brukere, request.barn, historikk).let {
@@ -79,12 +73,9 @@ class BarnetrygdController(
         }
     }
 
-    @ApiOperation("Uttrekk fra tabellen \"SA_SAK_10\".")
+    @Operation(summary = "Uttrekk fra tabellen \"SA_SAK_10\".")
     @PostMapping(path = ["saker"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-            dataType = "InfotrygdSøkRequest",
-            value = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"))
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         clientValidator.authorizeClient()
 
@@ -95,7 +86,7 @@ class BarnetrygdController(
                                            barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
     }
 
-    @ApiOperation("Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
+    @Operation(summary = "Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
     @PostMapping(path = ["migrering"])
     fun migrering(@RequestBody request: MigreringRequest): ResponseEntity<Set<String>> {
         clientValidator.authorizeClient()
@@ -113,7 +104,7 @@ class BarnetrygdController(
     }
 
 
-    @ApiOperation("Finn stønad med id")
+    @Operation(summary = "Finn stønad med id")
     @GetMapping(path = ["stonad/{id}"])
     @Deprecated(message="Erstattes av findStønad som henter basert på B01_PERSONKEY, B20_IVERFOM_SEQ, B20_VIRKFOM_SEQ og REGION")
     fun findStønadById(@PathVariable id: Long): ResponseEntity<StønadDto> {
@@ -130,7 +121,7 @@ class BarnetrygdController(
 
     }
 
-    @ApiOperation("Finn stønad basert på personKey, iverksattFom, virkningFom og region")
+    @Operation(summary = "Finn stønad basert på personKey, iverksattFom, virkningFom og region")
     @PostMapping(path = ["stonad/sok"])
     fun findStønad(@RequestBody stønadRequest: StønadRequest): ResponseEntity<StønadDto> {
         clientValidator.authorizeClient()
@@ -176,6 +167,10 @@ class BarnetrygdController(
         val virkningFom: String,
         val region: String
     )
+
+    companion object {
+        const val INFOTRYGD_SØK_EKSEMPEL = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"
+    }
 }
 
 

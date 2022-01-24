@@ -1,4 +1,10 @@
 <configuration>
+    <!-- Logger for sensitive data -->
+    <appender name="secureLoggerRestAppender" class="no.nav.familie.log.appender.SecureLoggerRestAppender"/>
+    <logger name="secureLogger" level="INFO" additivity="false">
+        <appender-ref ref="secureLoggerRestAppender"/>
+    </logger>
+
     <springProfile name="!dev">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder" />

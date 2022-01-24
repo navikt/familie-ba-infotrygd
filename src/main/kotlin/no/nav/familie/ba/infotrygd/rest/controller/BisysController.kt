@@ -1,10 +1,12 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiModelProperty
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.Parameters
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
+import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import java.time.YearMonth
+import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
 @Protected
@@ -30,12 +33,9 @@ class BisysController(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @ApiOperation("Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet måned. Maks 5 år tilbake i tid")
+    @Operation(summary = "Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet måned. Maks 5 år tilbake i tid")
     @PostMapping(path = ["utvidet"], consumes = ["application/json"])
-    @ApiImplicitParams(
-        ApiImplicitParam(name = "request",
-                         dataType = "InfotrygdUtvidetBarnetrygdRequest",
-                         value = """{"bruker": "12345678910", "fraDato": "2020-05"}"""))
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"bruker": "12345678910", "fraDato": "2020-05"}""")])])
     fun utvidet(@RequestBody request: InfotrygdUtvidetBarnetrygdRequest): InfotrygdUtvidetBarnetrygdResponse {
         clientValidator.authorizeClient()
 
@@ -49,7 +49,7 @@ class BisysController(
 
 
     data class InfotrygdUtvidetBarnetrygdRequest( val personIdent: String,
-                                                  @ApiModelProperty(dataType = "java.lang.String", example = "2020-05") val fraDato: YearMonth)
+                                                  @Schema(implementation = String::class, example = "2020-05") val fraDato: YearMonth)
 
 
 
@@ -59,9 +59,9 @@ class BisysController(
 
 
     data class UtvidetBarnetrygdPeriode(val stønadstype: Stønadstype,
-                                        @ApiModelProperty(dataType = "java.lang.String", example = "2020-05")
+                                        @Schema(implementation = String::class, example = "2020-05")
                                         val fomMåned: YearMonth,
-                                        @ApiModelProperty(dataType = "java.lang.String", example = "2020-12")
+                                        @Schema(implementation = String::class, example = "2020-12")
                                         val tomMåned: YearMonth?,
                                         val beløp: Double,
                                         val manueltBeregnet: Boolean,
