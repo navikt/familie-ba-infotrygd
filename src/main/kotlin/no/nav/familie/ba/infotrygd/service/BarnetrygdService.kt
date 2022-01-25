@@ -410,13 +410,11 @@ class BarnetrygdService(
         return hentDelytelseOgKonverterTilDto(stønad)
     }
 
-    fun harSendtBrevForrigeMåned(personIdent: FoedselsNr, brevkoder: List<String>): Boolean {
+    fun harSendtBrevForrigeMåned(personidenter: List<FoedselsNr>, brevkoder: List<String>): List<Hendelse> {
         val date = YearMonth.now().minusMonths(1).atDay(1)
         val seqNumber = (99999999 - date.format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong())
 
-        val hendelser = hendelseRepository.findHendelseByFnrAndTekstKoderIn(personIdent, brevkoder, seqNumber)
-
-        return hendelser.isNotEmpty()
+        return hendelseRepository.findHendelseByFnrInAndTekstKoderIn(personidenter, brevkoder, seqNumber)
     }
 
     companion object {
