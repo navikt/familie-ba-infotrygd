@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.infotrygd.model.dl1.Hendelse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
@@ -144,14 +145,16 @@ class BarnetrygdController(
 
     @Operation(summary = "Finn om brev med brevkode er sendt for en person i forrige måned")
     @PostMapping(path = ["/brev"])
-    fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<Boolean> {
+    fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<SendtBrevResponse> {
         clientValidator.authorizeClient()
 
+        val listeMedBrevhendelser = barnetrygdService.harSendtBrevForrigeMåned(
+            sendtBrevRequest.personidenter.map { FoedselsNr(it)},
+            sendtBrevRequest.brevkoder
+        )
+
         return ResponseEntity.ok(
-            barnetrygdService.harSendtBrevForrigeMåned(
-                FoedselsNr(sendtBrevRequest.personIdent),
-                sendtBrevRequest.brevkoder
-            )
+            SendtBrevResponse(listeMedBrevhendelser.isNotEmpty(), listeMedBrevhendelser)
         )
     }
 
@@ -183,8 +186,13 @@ class BarnetrygdController(
     )
 
     class SendtBrevRequest(
-        val personIdent: String,
+        val personidenter: List<String>,
         val brevkoder: List<String>
+    )
+
+    class SendtBrevResponse(
+        val harSendtBrev: Boolean,
+        val listeBrevhendelser: List<Hendelse> = emptyList()
     )
 
     companion object {
