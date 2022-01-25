@@ -508,33 +508,33 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
-    fun `harSendtBrevForrigeMåned skal returnere false hvis det ikke er sendt ut noen brev med brevkode B002 siste måned`() {
+    fun `harSendtBrevForrigeMåned skal returnere tom liste hvis det ikke er sendt ut noen brev med brevkode B002 siste måned`() {
         val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
         hendelseRepository.saveAll(listOf(
             TestData.hendelse(person, 79779884, "B001"), //2022-01-15
         ))
 
-        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B002"))).isFalse()
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(listOf(person.fnr), listOf("B002"))).hasSize(0)
     }
 
     @Test
-    fun `harSendtBrevForrigeMåned skal returnere false hvis det er sendt ut brev med kode B001 for lengre enn en måned siden`() {
+    fun `harSendtBrevForrigeMåned skal returnere tom liste hvis det er sendt ut brev med kode B001 for lengre enn en måned siden`() {
         val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
         hendelseRepository.saveAll(listOf(
             TestData.hendelse(person, 79788868, "B001"), //2021-11-31
         ))
 
-        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B001"))).isFalse()
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(listOf(person.fnr), listOf("B001"))).hasSize(0)
     }
 
     @Test
-    fun `harSendtBrevForrigeMåned skal returnere true hvis det er sendt ut brev med kode B001 nylig`() {
+    fun `harSendtBrevForrigeMåned skal returnere liste med hendleser hvis det er sendt ut brev med kode B001 nylig`() {
         val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
         hendelseRepository.saveAll(listOf(
             TestData.hendelse(person, 99999999 - LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong(), "B001"),
         ))
 
-        assertThat(barnetrygdService.harSendtBrevForrigeMåned(person.fnr, listOf("B001"))).isTrue()
+        assertThat(barnetrygdService.harSendtBrevForrigeMåned(listOf(person.fnr), listOf("B001"))).hasSize(1)
     }
 
 
