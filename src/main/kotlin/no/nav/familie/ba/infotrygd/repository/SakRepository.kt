@@ -18,8 +18,8 @@ interface SakRepository : JpaRepository<Sak, Long> {
                     s.region = p.region)
             WHERE p.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
-    )  // søknad, revurdering, klage, anke, flyttesak
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+    )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
 
     @Query(
@@ -30,8 +30,8 @@ interface SakRepository : JpaRepository<Sak, Long> {
                        sak.region = barn.region)
            WHERE barn.barnFnr IN :barnFnr
              AND sak.kapittelNr = 'BA' 
-             AND sak.type IN ('S', 'R', 'K', 'A', 'FL')"""
-    ) // søknad, revurdering, klage, anke, flyttesak
+             AND sak.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+    ) // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
 
 
@@ -45,8 +45,8 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.saksblokk = :#{#stonad.saksblokk}
               AND s.saksnummer = :#{#stonad.sakNr}
               AND s.region = :#{#stonad.region}
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
-    )  // søknad, revurdering, klage, anke, flyttesak
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+    )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByStønad(stonad: Stønad, valg: String, undervalg: String): List<Sak>
 
     @Query(
@@ -75,7 +75,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.saksblokk = :#{#stonad.saksblokk}
               AND s.saksnummer = :#{#stonad.sakNr}
               AND s.region = :#{#stonad.region}
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL')"""
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
     )
     fun hentUtvidetBarnetrygdsakerForStønad(stonad: Stønad): List<Sak>
 
