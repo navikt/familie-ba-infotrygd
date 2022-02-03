@@ -28,6 +28,7 @@ import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerson
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.env.Environment
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -367,14 +368,13 @@ class BarnetrygdService(
         undervalg: String,
         maksAntallBarn: Int,
         minimumAlder: Int
-    ): Set<String> {
-        val stønader = if (environment.activeProfiles.contains(PREPROD)) {
+    ): Pair<Set<String>, Int> {
+        val stønader: Page<Stønad> = if (environment.activeProfiles.contains(PREPROD)) {
             stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
         } else {
             stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
         }
-
-        var filtrerteStønader =  stønader.filter{
+        var filtrerteStønader =  stønader.content.filter{
             val barnPåStønad = barnRepository.findBarnByStønad(it)
             //filterer bort om antall barn på stønad ikke stemmer med antall barn i barnRepo og om stønadstype ikke er N, FJ osv.
             //Dette gjøres for å unngå å migrere saker som bl.a. er fosterbarn og andre uvanlige saker i denne fasen
@@ -391,8 +391,7 @@ class BarnetrygdService(
             barn == null
         }
 
-        return filtrerteStønader
-            .map { it.fnr.asString }.toSet()
+        return Pair(filtrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {

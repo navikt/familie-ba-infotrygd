@@ -436,7 +436,7 @@ internal class BarnetrygdServiceTest {
 
         barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
             .also {
-                assertThat(it).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
+                assertThat(it.first).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
             }
     }
 
@@ -457,7 +457,7 @@ internal class BarnetrygdServiceTest {
 
         barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 99, 3)
             .also {
-                assertThat(it).hasSize(0)
+                assertThat(it.first).hasSize(0)
             }
     }
 
@@ -477,7 +477,7 @@ internal class BarnetrygdServiceTest {
 
         barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 99, 3)
             .also {
-                assertThat(it).hasSize(0)
+                assertThat(it.first).hasSize(0)
             }
     }
 
@@ -503,8 +503,8 @@ internal class BarnetrygdServiceTest {
         val personerKlareForMigreringIPreprod = barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
         val personerKlareForMigreringIProd = barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
 
-        assertThat(personerKlareForMigreringIPreprod).hasSize(1).contains(person.fnr.asString)
-        assertThat(personerKlareForMigreringIProd).hasSize(2)
+        assertThat(personerKlareForMigreringIPreprod.first).hasSize(1).contains(person.fnr.asString)
+        assertThat(personerKlareForMigreringIProd.first).hasSize(2)
     }
 
     @Test

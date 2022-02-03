@@ -100,7 +100,24 @@ class BarnetrygdController(
                 request.undervalg,
                 request.maksAntallBarn,
                 request.minimumAlder
-            )
+            ).first
+        )
+    }
+
+    @Operation(summary = "Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
+    @PostMapping(path = ["migrering/v2"])
+    fun migreringV2(@RequestBody request: MigreringRequest): ResponseEntity<MigreringResponse> {
+        clientValidator.authorizeClient()
+
+        return ResponseEntity.ok(
+            barnetrygdService.finnPersonerKlarForMigrering(
+                request.page,
+                request.size,
+                request.valg,
+                request.undervalg,
+                request.maksAntallBarn,
+                request.minimumAlder
+            ).let { MigreringResponse(it.first, it.second) }
         )
     }
 
@@ -175,6 +192,11 @@ class BarnetrygdController(
         val undervalg: String,
         val maksAntallBarn: Int = 99,
         val minimumAlder: Int = 7
+    )
+
+    data class MigreringResponse(
+        val personerKlarForMigrering: Set<String>,
+        val totalPages: Int
     )
 
     class StønadRequest(

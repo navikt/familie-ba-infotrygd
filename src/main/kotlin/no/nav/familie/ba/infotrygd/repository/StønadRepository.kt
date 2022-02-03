@@ -3,6 +3,7 @@ package no.nav.familie.ba.infotrygd.repository
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.dl1.Sak
 import no.nav.familie.ba.infotrygd.model.dl1.Stønad
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -106,7 +107,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND sa.undervalg = :undervalg
         AND s.antallBarn <= :maksAntallBarn
     """)
-    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
+    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): Page<Stønad>
 
     @Query(
         """
@@ -123,7 +124,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND s.antallBarn <= :maksAntallBarn
         AND s.tkNr IN ('0312','0315')
     """)
-    fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): List<Stønad>
+    fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): Page<Stønad>
 
     @Query(
         value = """
