@@ -81,7 +81,7 @@ spec:
           - id: 3d718ae5-f25e-47a4-b4b3-084a97604c1d # teamfamilie-forvaltning
           - id: 87190cf3-b278-457d-8ab7-1a5c55a9edd7 # Group_87190cf3-b278-457d-8ab7-1a5c55a9edd7 tilgang til prosessering
       replyURLs:
-        - "https://familie-ba-infotrygd.nais.adeo.no/swagger-ui/oauth2-redirect.html"
+        - "https://familie-ba-infotrygd.intern.nav.no/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
   env:
     - name: APP_DATASOURCE_URL
