@@ -104,6 +104,38 @@ class BarnetrygdController(
         )
     }
 
+    @Operation(summary = "Teller antall migreringer igjen fra side i input")
+    @PostMapping(path = ["migrering/antall"])
+    fun tellKlarTilMigrering(@RequestBody request: MigreringRequest): ResponseEntity<Long> {
+        clientValidator.authorizeClient()
+
+        val result = barnetrygdService.finnPersonerKlarForMigrering(
+            request.page,
+            request.size,
+            request.valg,
+            request.undervalg,
+            request.maksAntallBarn,
+            request.minimumAlder
+        )
+
+        var antall = result.first.size
+        val antallSider = result.second
+
+        for(i in request.page + 1..antallSider) {
+            barnetrygdService.finnPersonerKlarForMigrering(
+                i,
+                request.size,
+                request.valg,
+                request.undervalg,
+                request.maksAntallBarn,
+                request.minimumAlder
+            )
+            antall += result.first.size
+        }
+        logger.info("Antall migreringer igjen: $antall")
+        return ResponseEntity.ok(antall.toLong())
+    }
+
     @Operation(summary = "Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
     @PostMapping(path = ["migrering/v2"])
     fun migreringV2(@RequestBody request: MigreringRequest): ResponseEntity<MigreringResponse> {
