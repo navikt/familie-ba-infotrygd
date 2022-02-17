@@ -10,11 +10,11 @@ abstract class AbstractCharConverter(private val size: Int) : AttributeConverter
     }
 
     override fun convertToEntityAttribute(dbData: String?): String? {
-        if(dbData.isNullOrBlank()) {
+        if(dbData?.replace("\u0000", "").isNullOrBlank()) {
             return null
         }
 
-        return dbData.trimEnd()
+        return dbData?.trimEnd()
     }
 
 }
