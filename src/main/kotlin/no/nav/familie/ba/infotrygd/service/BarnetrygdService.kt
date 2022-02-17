@@ -376,7 +376,7 @@ class BarnetrygdService(
         }
         logger.info("Fant ${stønader.content.size} stønader på side $page")
         var filtrerteStønader =  stønader.content.filter{
-            val barnPåStønad = barnRepository.findBarnByStønad(it)
+            val barnPåStønad = barnRepository.findBarnByStønad(it).filter { barn -> barn.barnetrygdTom == "000000" }
             //filterer bort om antall barn på stønad ikke stemmer med antall barn i barnRepo og om stønadstype ikke er N, FJ osv.
             //Dette gjøres for å unngå å migrere saker som bl.a. er fosterbarn og andre uvanlige saker i denne fasen
             barnPåStønad.size == it.antallBarn && barnPåStønad.all { it.stønadstype == null }
