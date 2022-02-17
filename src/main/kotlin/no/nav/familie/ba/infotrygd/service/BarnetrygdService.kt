@@ -381,7 +381,10 @@ class BarnetrygdService(
             barnRepository.findBarnByStønad(it).all { barn -> barn.stønadstype.isNullOrBlank() }
         }
         logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
-
+        filtrerteStønader.forEach {
+            secureLogger.info("Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
+                                      "${barnRepository.findBarnByStønad(it).map { it.toString() }}")
+        }
 
         //filterer bort personer med barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
         //og personer med løpende barnetrygd for barn over 18 år
@@ -393,10 +396,6 @@ class BarnetrygdService(
             barn == null
         }
         logger.info("Fant ${ikkeFiltrerteStønader.size} etter at filtrering på alder er satt")
-        filtrerteStønader.forEach {
-            secureLogger.info("Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
-                                      "${barnRepository.findBarnByStønad(it).map { it.toString() }}")
-        }
 
         return Pair(ikkeFiltrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
     }
