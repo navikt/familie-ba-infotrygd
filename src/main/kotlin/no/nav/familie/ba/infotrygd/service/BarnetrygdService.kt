@@ -378,7 +378,7 @@ class BarnetrygdService(
         logger.info("Fant ${stønader.content.size} stønader på side $page")
         var (ikkeFiltrerteStønader, filtrerteStønader) =  stønader.content.partition {
             //filterer bort om stønadstype er N, FJ osv. Dette gjøres for å unngå uvanlige saker i denne fasen
-            barnRepository.findBarnByStønad(it).all { barn -> barn.stønadstype.isNullOrBlank() || barn.stønadstype == "\u0000"}
+            barnRepository.findBarnByStønad(it).all { barn -> barn.stønadstype.isNullOrBlank() }
         }
         logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
 
