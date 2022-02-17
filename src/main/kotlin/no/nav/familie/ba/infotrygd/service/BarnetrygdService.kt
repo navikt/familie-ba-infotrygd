@@ -73,7 +73,6 @@ class BarnetrygdService(
             }
             .distinct()
             .map {
-                logger.info("Konverterer til SakDto for ${it.id} ${it.saksblokk} ${it.saksnummer} ${it.region}")
                 konverterTilDto(it)
             }
     }
