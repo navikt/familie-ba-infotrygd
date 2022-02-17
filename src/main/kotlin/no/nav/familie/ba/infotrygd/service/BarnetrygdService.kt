@@ -51,6 +51,7 @@ class BarnetrygdService(
     ) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     fun findStønadByBrukerFnr(brukerFnr: List<FoedselsNr>, historikk: Boolean? = false): List<StønadDto> {
         return if (brukerFnr.isEmpty()) emptyList() else when (historikk) {
@@ -375,24 +376,29 @@ class BarnetrygdService(
             stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
         }
         logger.info("Fant ${stønader.content.size} stønader på side $page")
-        var filtrerteStønader =  stønader.content.filter{
+        var (ikkeFiltrerteStønader, filtrerteStønader) =  stønader.content.partition {
             //filterer bort om stønadstype er N, FJ osv. Dette gjøres for å unngå uvanlige saker i denne fasen
             barnRepository.findBarnByStønad(it).all { barn -> barn.stønadstype == null }
         }
-        logger.info("Fant ${filtrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
+        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
+
 
         //filterer bort personer med barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
         //og personer med løpende barnetrygd for barn over 18 år
-        filtrerteStønader = filtrerteStønader.filter {
+        ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
             val barn = barnRepository.findBarnByStønad(it).firstOrNull {
                 it.barnFnr.foedselsdato.isAfter(LocalDate.now().minusYears(minimumAlder.toLong())) ||//Settes til 3 når vi bare vil filtere bort småbarnstillegg
                 it.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && it.barnetrygdTom == "000000"
             }
             barn == null
         }
-        logger.info("Fant ${filtrerteStønader.size} etter at filtrering på alder er satt")
+        logger.info("Fant ${ikkeFiltrerteStønader.size} etter at filtrering på alder er satt")
+        filtrerteStønader.forEach {
+            secureLogger.info("Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
+                                      "${barnRepository.findBarnByStønad(it).map { it.toString() }}")
+        }
 
-        return Pair(filtrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
+        return Pair(ikkeFiltrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
