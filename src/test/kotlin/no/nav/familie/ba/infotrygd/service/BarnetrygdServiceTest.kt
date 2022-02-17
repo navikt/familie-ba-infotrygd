@@ -401,45 +401,38 @@ internal class BarnetrygdServiceTest {
     @Test
     fun `skal hente personer klar for migrering`() {
         val person = personRepository.saveAndFlush(TestData.person())
-        val personSomFiltreresVekkPgaAntallBarnIStønadIkkeSamsvarerMedAntallBarnIBarnRepo =
-            personRepository.saveAndFlush(TestData.person())
         val personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn =
             personRepository.saveAndFlush(TestData.person())
         val personSomFiltreresVekkPgaBarnMedSpesiellStønadstype =
             personRepository.saveAndFlush(TestData.person())
         val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
+
         val stønad2 = TestData.stønad(
-            personSomFiltreresVekkPgaAntallBarnIStønadIkkeSamsvarerMedAntallBarnIBarnRepo,
-            virkningFom = (999999 - 202001).toString(),
-            status = "02"
-        )
-        val stønad3 = TestData.stønad(
             personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn,
             virkningFom = (999999 - 202001).toString(),
             status = "02",
             antallBarn = 2
         )
-        val stønad4 = TestData.stønad(
+        val stønad3 = TestData.stønad(
             personSomFiltreresVekkPgaBarnMedSpesiellStønadstype,
             virkningFom = (999999 - 202001).toString(),
             status = "01",
             antallBarn = 1
         )
 
-        stonadRepository.saveAll(listOf(stønad1, stønad2, stønad3, stønad4)).also {
+        stonadRepository.saveAll(listOf(stønad1, stønad2, stønad3)).also {
             sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
         }
 
         barnRepository.saveAll(listOf(TestData.barn(stønad1),
-                                      TestData.barn(stønad3),
-                                      TestData.barn(stønad4, stønadstype = "N")))
+                                      TestData.barn(stønad2),
+                                      TestData.barn(stønad3, stønadstype = "N")))
 
         barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS", 1, 0)
             .also {
                 assertThat(it.first).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
             }
     }
-
 
     @Test
     fun `skal filtrere bort barn under 7 år ved migreirng`() {
