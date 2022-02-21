@@ -24,4 +24,16 @@ interface BarnRepository : JpaRepository<Barn, Long> {
         AND b.region = :#{#stonad.region}
     """)
     fun findBarnByStønad(stonad: Stønad): List<Barn>
+
+
+    @Query("""
+        SELECT b FROM Barn b
+        WHERE b.personKey = :personKey
+        AND b.barnetrygdTom = '000000'
+        AND b.stønadstype is null
+    """)
+    fun findBarnByPersonkey(personKey: Long): List<Barn>
+
+
+
 }
