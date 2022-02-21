@@ -423,8 +423,8 @@ internal class BarnetrygdServiceTest {
         stonadRepository.saveAll(listOf(stønad1, stønad2, stønad3)).also {
             sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
         }
-
-        barnRepository.saveAll(listOf(TestData.barn(stønad1),
+        val barn1 = TestData.barn(stønad1)
+        barnRepository.saveAll(listOf(barn1,
                                       TestData.barn(stønad2),
                                       TestData.barn(stønad3, stønadstype = "N")))
 
