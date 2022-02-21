@@ -92,7 +92,7 @@ class BarnetrygdService(
             opphørtIver = stønad.opphørtIver,
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
-            barn = barnRepository.findBarnByPersonkey(stønad.personKey).map { it.toBarnDto() },
+            barn = barnRepository.findBarnByPersonkey(stønad.personKey).filter { it.stønadstype.isNullOrBlank() }.map { it.toBarnDto() },
             delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk).sortedBy { it.vedtakId }
                 .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList()
         )
@@ -376,8 +376,7 @@ class BarnetrygdService(
         }
         logger.info("Fant ${stønader.content.size} stønader på side $page")
         var (ikkeFiltrerteStønader, filtrerteStønader) =  stønader.content.partition {
-            //filterer bort om stønadstype er N, FJ osv. Dette gjøres for å unngå uvanlige saker i denne fasen
-            barnRepository.findBarnByStønad(it).all { barn -> barn.stønadstype.isNullOrBlank() }
+            it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey).filter { barn -> barn.stønadstype.isNullOrBlank() }.size
         }
         logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
         filtrerteStønader.forEach {
