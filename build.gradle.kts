@@ -14,7 +14,7 @@ val oracleusername = "richard.martinsen@nav.no"
 val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20210920094114_9c74239"
-val fellesVersjon = "1.20211217154554_3bb883e"
+val fellesVersjon = "1.20220221162703_957e034"
 val kontrakterVersjon = "2.0_20220221124047_9506016"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
