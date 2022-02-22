@@ -25,12 +25,18 @@ class MålerService(private val stønadRepository: StønadRepository, private va
         logger.info("Oppdaterer metrikker")
         val rows = mutableListOf<MultiGauge.Row<Number>>()
         if (erPreprod()) {
-            val antall = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"OR", "OS").size
+            val antallOrdinær = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"OR", "OS").size
             rows.add(
                 MultiGauge.Row.of(
                     Tags.of("valg", "OR",
                             "undervalg", "OS"),
-                    antall))
+                    antallOrdinær))
+            val antallUtvidet = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"UT", "EF").size
+            rows.add(
+                MultiGauge.Row.of(
+                    Tags.of("valg", "UT",
+                            "undervalg", "EF"),
+                    antallUtvidet))
         } else {
             stønadRepository.countLøpendeStønader().map {
                 rows.add(
