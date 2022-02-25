@@ -243,6 +243,7 @@ class BarnetrygdService(
         val allePerioder = mutableListOf<SkatteetatenPeriode>()
 
         utvidetBarnetrygdStønader.forEach {
+            secureLogger.info("Utvidet barnetrygd stønad: $it")
 
             if (sisteVedtakPaaIdent == null) {
                 sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay()
@@ -255,12 +256,15 @@ class BarnetrygdService(
                     delingsprosent = delingsprosent(it)))
 
         }
+        secureLogger.info("Alle perioder før slå sammen: $allePerioder")
         SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
         //Slå sammen perioder basert på delingsprosent
         val sammenslåttePerioderDelingsprosent =
             allePerioder.groupBy { it.delingsprosent }.values
                 .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
+
+        secureLogger.info("Alle perioder etter slått sammen: $sammenslåttePerioderDelingsprosent")
 
         return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = sammenslåttePerioderDelingsprosent, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
     }
