@@ -243,28 +243,26 @@ class BarnetrygdService(
         val allePerioder = mutableListOf<SkatteetatenPeriode>()
 
         utvidetBarnetrygdStønader.forEach {
-            secureLogger.info("Utvidet barnetrygd stønad: $it")
-
             if (sisteVedtakPaaIdent == null) {
-                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay()
+                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay() //skatt bruker siste vedtak på en person for å sjekke om de har lest den før. Hvis dato opprettes så leser de den på nytt
+            }
+            val fraMåned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!
+            val tomMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
+            if (fraMåned != tomMåned) {
+                allePerioder.add(
+                    SkatteetatenPeriode(
+                        fraMaaned = fraMåned.toString(),
+                        tomMaaned = tomMåned?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
+                        delingsprosent = delingsprosent(it)))
             }
 
-            allePerioder.add(
-                SkatteetatenPeriode(
-                    fraMaaned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.toString(),
-                    tomMaaned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
-                    delingsprosent = delingsprosent(it)))
-
         }
-        secureLogger.info("Alle perioder før slå sammen: $allePerioder")
         SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
         //Slå sammen perioder basert på delingsprosent
         val sammenslåttePerioderDelingsprosent =
             allePerioder.groupBy { it.delingsprosent }.values
                 .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
-
-        secureLogger.info("Alle perioder etter slått sammen: $sammenslåttePerioderDelingsprosent")
 
         return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = sammenslåttePerioderDelingsprosent, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
     }
