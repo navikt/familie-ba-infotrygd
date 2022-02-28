@@ -243,16 +243,18 @@ class BarnetrygdService(
         val allePerioder = mutableListOf<SkatteetatenPeriode>()
 
         utvidetBarnetrygdStønader.forEach {
-
             if (sisteVedtakPaaIdent == null) {
-                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay()
+                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay() //skatt bruker siste vedtak på en person for å sjekke om de har lest den før. Hvis dato opprettes så leser de den på nytt
             }
-
-            allePerioder.add(
-                SkatteetatenPeriode(
-                    fraMaaned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.toString(),
-                    tomMaaned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
-                    delingsprosent = delingsprosent(it)))
+            val fraMåned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!
+            val tomMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
+            if (fraMåned != tomMåned) {
+                allePerioder.add(
+                    SkatteetatenPeriode(
+                        fraMaaned = fraMåned.toString(),
+                        tomMaaned = tomMåned?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
+                        delingsprosent = delingsprosent(it)))
+            }
 
         }
         SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
