@@ -31,7 +31,7 @@ jobs:
         run: |
           curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@6af3c118c8376c675363897acf1757f7a9be6583
+        uses: docker/login-action@bb984efc561711aaa26e433c32c3521176eae55b
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
