@@ -48,7 +48,7 @@ class BarnetrygdService(
     private val statusRepository: StatusRepository,
     private val environment: Environment,
     private val hendelseRepository: HendelseRepository
-    ) {
+) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -69,8 +69,8 @@ class BarnetrygdService(
 
     fun findSakerByBrukerFnr(brukerFnr: List<FoedselsNr>): List<SakDto> {
         return brukerFnr.flatMap {
-                sakRepository.findBarnetrygdsakerByFnr(it)
-            }
+            sakRepository.findBarnetrygdsakerByFnr(it)
+        }
             .distinct()
             .map {
                 konverterTilDto(it)
@@ -92,8 +92,10 @@ class BarnetrygdService(
             opphørtIver = stønad.opphørtIver,
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
-            barn = barnRepository.findBarnByPersonkey(stønad.personKey).filter { it.stønadstype.isNullOrBlank() }.map { it.toBarnDto() },
-            delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk).sortedBy { it.vedtakId }
+            barn = barnRepository.findBarnByPersonkey(stønad.personKey).filter { it.stønadstype.isNullOrBlank() }
+                .map { it.toBarnDto() },
+            delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
+                .sortedBy { it.vedtakId }
                 .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList()
         )
     }
@@ -114,7 +116,8 @@ class BarnetrygdService(
             resultat = sak.resultat,
             vedtaksdato = sak.vedtaksdato,
             // minByOrNull er pga at det på en del gamle saker finnes flere stønader på samme sak, noe som egentlig er feil, men må sees på ved migrering.
-            stønad = stonadRepository.findStønadBySak(sak).minByOrNull { it.virkningFom.toInt() }?.let { hentDelytelseOgKonverterTilDto(it) },
+            stønad = stonadRepository.findStønadBySak(sak).minByOrNull { it.virkningFom.toInt() }
+                ?.let { hentDelytelseOgKonverterTilDto(it) },
             iverksattdato = sak.iverksattdato,
             årsakskode = sak.aarsakskode,
             behenEnhet = sak.behenEnhet,
@@ -151,12 +154,15 @@ class BarnetrygdService(
     }
 
     @Cacheable(cacheManager = "perioderCacheManager", value = ["skatt_perioder"], unless = "#result == null")
-    fun finnPerioderMedUtvidetBarnetrygdForÅr(brukerFnr: String,
-                                              år: Int
+    fun finnPerioderMedUtvidetBarnetrygdForÅr(
+        brukerFnr: String,
+        år: Int
     ): SkatteetatenPerioderResponse {
         val bruker = FoedselsNr(brukerFnr)
 
-        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03").filter { erUtvidetBarnetrygd(it) }
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
+            .filter { erUtvidetBarnetrygd(it) }
+            .filter { DatoUtils.seqDatoTilYearMonth(it.virkningFom)!! != DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
 
@@ -167,6 +173,7 @@ class BarnetrygdService(
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
+            .filter { DatoUtils.seqDatoTilYearMonth(it.virkningFom)!! != DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)  }
 
         val personer = mutableMapOf<String, YearMonth>()
 
@@ -231,31 +238,31 @@ class BarnetrygdService(
     }
 
 
-    private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
-    ): List<SkatteetatenPerioder>
-    {
+    private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(
+        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
+    ): List<SkatteetatenPerioder> {
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
         }
 
-        var sisteVedtakPaaIdent:LocalDateTime? = null
+        var sisteVedtakPaaIdent: LocalDateTime? = null
 
         val allePerioder = mutableListOf<SkatteetatenPeriode>()
 
         utvidetBarnetrygdStønader.forEach {
             if (sisteVedtakPaaIdent == null) {
-                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1).atStartOfDay() //skatt bruker siste vedtak på en person for å sjekke om de har lest den før. Hvis dato opprettes så leser de den på nytt
+                sisteVedtakPaaIdent = finnSisteVedtakPåPerson(it.personKey).atDay(1)
+                    .atStartOfDay() //skatt bruker siste vedtak på en person for å sjekke om de har lest den før. Hvis dato opprettes så leser de den på nytt
             }
             val fraMåned = DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!
             val tomMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
-            if (fraMåned != tomMåned) {
-                allePerioder.add(
-                    SkatteetatenPeriode(
-                        fraMaaned = fraMåned.toString(),
-                        tomMaaned = tomMåned?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
-                        delingsprosent = delingsprosent(it)))
-            }
-
+            allePerioder.add(
+                SkatteetatenPeriode(
+                    fraMaaned = fraMåned.toString(),
+                    tomMaaned = tomMåned?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
+                    delingsprosent = delingsprosent(it)
+                )
+            )
         }
         SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
@@ -264,7 +271,13 @@ class BarnetrygdService(
             allePerioder.groupBy { it.delingsprosent }.values
                 .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
 
-        return listOf(SkatteetatenPerioder(ident = brukerFnr.asString, perioder = sammenslåttePerioderDelingsprosent, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!))
+        return listOf(
+            SkatteetatenPerioder(
+                ident = brukerFnr.asString,
+                perioder = sammenslåttePerioderDelingsprosent,
+                sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
+            )
+        )
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
@@ -332,7 +345,11 @@ class BarnetrygdService(
 
         if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
 
-        if (it.status.toInt() != 0) return Triple(finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling), false, erDeltBosted)
+        if (it.status.toInt() != 0) return Triple(
+            finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling),
+            false,
+            erDeltBosted
+        )
 
         return Triple(utbetaling.beløp, true, erDeltBosted)
     }
@@ -347,7 +364,8 @@ class BarnetrygdService(
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
                 if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)
                     && sammenslåttePerioder.lastOrNull()?.manueltBeregnet == nesteUtbetaling.manueltBeregnet
-                    && sammenslåttePerioder.lastOrNull()?.deltBosted == nesteUtbetaling.deltBosted) {
+                    && sammenslåttePerioder.lastOrNull()?.deltBosted == nesteUtbetaling.deltBosted
+                ) {
                     sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
@@ -377,21 +395,25 @@ class BarnetrygdService(
             stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
         }
         logger.info("Fant ${stønader.content.size} stønader på side $page")
-        var (ikkeFiltrerteStønader, filtrerteStønader) =  stønader.content.partition {
-            it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey).filter { barn -> barn.stønadstype.isNullOrBlank() }.size
+        var (ikkeFiltrerteStønader, filtrerteStønader) = stønader.content.partition {
+            it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
+                .filter { barn -> barn.stønadstype.isNullOrBlank() }.size
         }
         logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
         filtrerteStønader.forEach {
             secureLogger.info("Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
-                                      "${barnRepository.findBarnByStønad(it).map { it.toString() }}")
+                                      "${barnRepository.findBarnByStønad(it).map { it.toString() }}"
+            )
         }
 
         //filterer bort personer med barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
         //og personer med løpende barnetrygd for barn over 18 år
         ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
             val barn = barnRepository.findBarnByStønad(it).firstOrNull {
-                it.barnFnr.foedselsdato.isAfter(LocalDate.now().minusYears(minimumAlder.toLong())) ||//Settes til 3 når vi bare vil filtere bort småbarnstillegg
-                it.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && it.barnetrygdTom == "000000"
+                it.barnFnr.foedselsdato.isAfter(
+                    LocalDate.now().minusYears(minimumAlder.toLong())
+                ) ||//Settes til 3 når vi bare vil filtere bort småbarnstillegg
+                        it.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && it.barnetrygdTom == "000000"
             }
             barn == null
         }
@@ -405,7 +427,7 @@ class BarnetrygdService(
     }
 
     fun findStønadById(id: Long): StønadDto {
-        val stønad = stonadRepository.findById(id).orElseThrow{ NoSuchElementException("Fant ikke stønad med id $id")}
+        val stønad = stonadRepository.findById(id).orElseThrow { NoSuchElementException("Fant ikke stønad med id $id") }
         return hentDelytelseOgKonverterTilDto(stønad)
     }
 
