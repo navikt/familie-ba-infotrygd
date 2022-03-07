@@ -21,6 +21,7 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.UTVIDET
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
+import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
@@ -382,10 +383,6 @@ class BarnetrygdService(
                     sammenslåttePerioder.apply { add(nySammenslåing) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
-    }
-
-    fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean {
-        return this.isAfter(toCompare) || this == toCompare
     }
 
     fun finnPersonerKlarForMigrering(
