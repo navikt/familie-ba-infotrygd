@@ -67,6 +67,16 @@ class StønadRepositoryTest {
     }
 
     @Test
+    fun `sjekk at man filterer bort utvidede stønader hvor tomMåned er før fomMåned, for disse er feilregistrerte stønader som ikke skal med i uttrekket`() {
+        stønadRepository.saveAll(listOf(
+            TestData.stønad(TestData.person(), virkningFom = (999999-202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
+        ))
+        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
+            assertThat(it).hasSize(0)
+        }
+    }
+
+    @Test
     fun findSenesteIverksattFomByPersonKey() {
         val tidligsteIverksattFom = 201701
         val senesteIverksattFom = 201905
