@@ -27,7 +27,6 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -160,7 +159,6 @@ class BarnetrygdControllerTest {
     }
 
     @Test
-    @Ignore
     fun `skal finne riktig antall personer med utvidet barnetrygd året 2020`() {
         stønadRepository.saveAll(listOf(
             TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
