@@ -374,11 +374,18 @@ class BarnetrygdService(
     private fun slåSammenSkatteetatenPeriode(perioderAvEtGittDelingsprosent: List<SkatteetatenPeriode>): List<SkatteetatenPeriode> {
         return perioderAvEtGittDelingsprosent.sortedBy { it.fraMaaned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
-                val nesteUtbetalingFraaMåned = YearMonth.parse(nesteUtbetaling.fraMaaned)
-                if (sammenslåttePerioder.lastOrNull()?.tomMaaned == nesteUtbetalingFraaMåned.minusMonths(1).toString()) {
-                    sammenslåttePerioder.apply { add(removeLast().copy(tomMaaned = nesteUtbetaling.tomMaaned)) }
+                val nesteUtbetalingFraMåned = YearMonth.parse(nesteUtbetaling.fraMaaned)
+                val forrigeUtbetalingTomMåned = sammenslåttePerioder.lastOrNull()?.tomMaaned?.let { YearMonth.parse(it) }
+
+                if (forrigeUtbetalingTomMåned?.isSameOrAfter(nesteUtbetalingFraMåned.minusMonths(1)) == true) {
+                    val nySammenslåing = sammenslåttePerioder.removeLast().copy(tomMaaned = nesteUtbetaling.tomMaaned)
+                    sammenslåttePerioder.apply { add(nySammenslåing) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
+    }
+
+    fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean {
+        return this.isAfter(toCompare) || this == toCompare
     }
 
     fun finnPersonerKlarForMigrering(
