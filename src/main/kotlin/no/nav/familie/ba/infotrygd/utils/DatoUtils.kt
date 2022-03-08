@@ -14,4 +14,8 @@ object DatoUtils {
         if (stringDato == "000000") return null
         return YearMonth.parse(stringDato, DateTimeFormatter.ofPattern("MMyyyy"))
     }
+
+    fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean {
+        return this.isAfter(toCompare) || this == toCompare
+    }
 }

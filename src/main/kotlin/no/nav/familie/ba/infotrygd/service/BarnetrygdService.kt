@@ -21,6 +21,7 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.UTVIDET
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
+import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
@@ -162,7 +163,7 @@ class BarnetrygdService(
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
-            .filter { DatoUtils.seqDatoTilYearMonth(it.virkningFom)!! != DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) }
+            .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)) }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
 
@@ -173,7 +174,7 @@ class BarnetrygdService(
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
-            .filter { DatoUtils.seqDatoTilYearMonth(it.virkningFom)!! != DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)  }
+            .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom))  }
 
         val personer = mutableMapOf<String, YearMonth>()
 
@@ -374,9 +375,12 @@ class BarnetrygdService(
     private fun slåSammenSkatteetatenPeriode(perioderAvEtGittDelingsprosent: List<SkatteetatenPeriode>): List<SkatteetatenPeriode> {
         return perioderAvEtGittDelingsprosent.sortedBy { it.fraMaaned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
-                val nesteUtbetalingFraaMåned = YearMonth.parse(nesteUtbetaling.fraMaaned)
-                if (sammenslåttePerioder.lastOrNull()?.tomMaaned == nesteUtbetalingFraaMåned.minusMonths(1).toString()) {
-                    sammenslåttePerioder.apply { add(removeLast().copy(tomMaaned = nesteUtbetaling.tomMaaned)) }
+                val nesteUtbetalingFraMåned = YearMonth.parse(nesteUtbetaling.fraMaaned)
+                val forrigeUtbetalingTomMåned = sammenslåttePerioder.lastOrNull()?.tomMaaned?.let { YearMonth.parse(it) }
+
+                if (forrigeUtbetalingTomMåned?.isSameOrAfter(nesteUtbetalingFraMåned.minusMonths(1)) == true) {
+                    val nySammenslåing = sammenslåttePerioder.removeLast().copy(tomMaaned = nesteUtbetaling.tomMaaned)
+                    sammenslåttePerioder.apply { add(nySammenslåing) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
     }

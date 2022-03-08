@@ -413,6 +413,24 @@ internal class BarnetrygdServiceTest {
         }
     }
 
+    @Test
+    fun `Skal slå sammen overlappende måneder`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
+
+        stonadRepository.saveAll(listOf(
+            // utvidet barnetrygd stønad som er feilregistrert fordi opphørtFom == virkningFom
+            TestData.stønad(person, virkningFom = (999999-202108).toString(), opphørtFom = "092021", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
+            TestData.stønad(person, virkningFom = (999999-202108).toString(), opphørtFom = "122021", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
+            TestData.stønad(person, virkningFom = (999999-202201).toString(), opphørtFom = "000000", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
+        ))
+
+
+        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2021).also {
+            assertThat(it.brukere).hasSize(1)
+        }
+    }
+
 
     @Test
     fun `skal hente personer klar for migrering`() {
