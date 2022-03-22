@@ -22,6 +22,7 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
+import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrBefore
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
@@ -145,8 +146,9 @@ class BarnetrygdService(
         fraDato: YearMonth
     ): InfotrygdUtvidetBarnetrygdResponse {
 
-        val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { erUtvidetBarnetrygd(it) }
-
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
+            .filter { erUtvidetBarnetrygd(it) }
+            .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom))  }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
         return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
@@ -196,7 +198,7 @@ class BarnetrygdService(
     private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
         if (fraDato.isBefore(fom)) return true
 
-        return (fraDato.isAfter(fom) || fraDato == fom) && (tom == null || fraDato.isBefore(tom))
+        return fraDato.isSameOrAfter(fom) && (tom == null || fraDato.isBefore(tom))
     }
 
     private fun erUtvidetBarnetrygd(
@@ -363,9 +365,11 @@ class BarnetrygdService(
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
         return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
-                if (sammenslåttePerioder.lastOrNull()?.tomMåned == nesteUtbetaling.fomMåned.minusMonths(1)
-                    && sammenslåttePerioder.lastOrNull()?.manueltBeregnet == nesteUtbetaling.manueltBeregnet
-                    && sammenslåttePerioder.lastOrNull()?.deltBosted == nesteUtbetaling.deltBosted
+                val forrigeUtbetaling = sammenslåttePerioder.lastOrNull()
+
+                if (forrigeUtbetaling?.tomMåned?.isSameOrAfter(nesteUtbetaling.fomMåned.minusMonths(1)) == true
+                    && forrigeUtbetaling.manueltBeregnet == nesteUtbetaling.manueltBeregnet
+                    && forrigeUtbetaling.deltBosted == nesteUtbetaling.deltBosted
                 ) {
                     sammenslåttePerioder.apply { add(removeLast().copy(tomMåned = nesteUtbetaling.tomMåned)) }
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }

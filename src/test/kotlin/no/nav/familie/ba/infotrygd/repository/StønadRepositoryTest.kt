@@ -28,12 +28,15 @@ class StønadRepositoryTest {
     @Autowired
     lateinit var personRepository: PersonRepository
 
+    @Autowired
+    lateinit var utbetalingRepository: UtbetalingRepository
+
     lateinit var barnetrygdService: BarnetrygdService
 
     @Before
     fun setUp() {
         stønadRepository.deleteAll()
-        barnetrygdService = BarnetrygdService(stønadRepository, mockk(), mockk(), mockk(), mockk(), mockk(), mockk(), mockk())
+        barnetrygdService = BarnetrygdService(stønadRepository, mockk(), sakRepository, mockk(), utbetalingRepository, mockk(), mockk(), mockk())
     }
 
     @Test
@@ -68,11 +71,16 @@ class StønadRepositoryTest {
 
     @Test
     fun `sjekk at man filterer bort utvidede stønader hvor tomMåned er før fomMåned, for disse er feilregistrerte stønader som ikke skal med i uttrekket`() {
+        val person = personRepository.saveAndFlush(TestData.person())
         stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), virkningFom = (999999-202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
+            TestData.stønad(person, virkningFom = (999999-202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
+                .also { utbetalingRepository.saveAndFlush(TestData.utbetaling(it)) }
         ))
         barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
             assertThat(it).hasSize(0)
+        }
+        barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2021,3)).also {
+            assertThat(it.perioder).hasSize(0)
         }
     }
 
