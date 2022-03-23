@@ -423,11 +423,16 @@ internal class BarnetrygdServiceTest {
             TestData.stønad(person, virkningFom = (999999-202108).toString(), opphørtFom = "092021", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
             TestData.stønad(person, virkningFom = (999999-202108).toString(), opphørtFom = "122021", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
             TestData.stønad(person, virkningFom = (999999-202201).toString(), opphørtFom = "000000", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
-        ))
-
+        )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+        }
 
         barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2021).also {
             assertThat(it.brukere).hasSize(1)
+        }
+
+        barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2021, 1)).also {
+            assertThat(it.perioder).hasSize(1)
         }
     }
 

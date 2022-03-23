@@ -18,4 +18,9 @@ object DatoUtils {
     fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean {
         return this.isAfter(toCompare) || this == toCompare
     }
+
+    fun YearMonth.isSameOrBefore(toCompare: YearMonth): Boolean {
+        return this.isBefore(toCompare) || this == toCompare
+    }
+
 }
