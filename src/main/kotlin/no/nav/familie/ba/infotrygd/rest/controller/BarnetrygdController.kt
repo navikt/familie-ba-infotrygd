@@ -98,8 +98,6 @@ class BarnetrygdController(
                 request.size,
                 request.valg,
                 request.undervalg,
-                request.maksAntallBarn,
-                request.minimumAlder
             ).first
         )
     }
@@ -114,8 +112,6 @@ class BarnetrygdController(
             request.size,
             request.valg,
             request.undervalg,
-            request.maksAntallBarn,
-            request.minimumAlder
         )
 
         var antall = result.first.size
@@ -127,8 +123,6 @@ class BarnetrygdController(
                 request.size,
                 request.valg,
                 request.undervalg,
-                request.maksAntallBarn,
-                request.minimumAlder
             )
             antall += result.first.size
         }
@@ -147,8 +141,6 @@ class BarnetrygdController(
                 request.size,
                 request.valg,
                 request.undervalg,
-                request.maksAntallBarn,
-                request.minimumAlder
             ).let { MigreringResponse(it.first, it.second) }
         )
     }
@@ -221,9 +213,7 @@ class BarnetrygdController(
         val page: Int,
         val size: Int,
         val valg: String,
-        val undervalg: String,
-        val maksAntallBarn: Int = 99,
-        val minimumAlder: Int = 7
+        val undervalg: String
     )
 
     data class MigreringResponse(

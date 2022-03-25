@@ -37,6 +37,18 @@ class MålerService(private val stønadRepository: StønadRepository, private va
                     Tags.of("valg", "UT",
                             "undervalg", "EF"),
                     antallUtvidet))
+            val antallUtvidetDeltBosted = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"UT", "MD").size
+            rows.add(
+                MultiGauge.Row.of(
+                    Tags.of("valg", "UT",
+                            "undervalg", "MD"),
+                    antallUtvidetDeltBosted))
+            val antalOrdinærDeltBosted = stønadRepository.findKlarForMigreringIPreprod(Pageable.unpaged(),"OR", "MD").size
+            rows.add(
+                MultiGauge.Row.of(
+                    Tags.of("valg", "OR",
+                            "undervalg", "MD"),
+                    antalOrdinærDeltBosted))
         } else {
             stønadRepository.countLøpendeStønader().map {
                 rows.add(

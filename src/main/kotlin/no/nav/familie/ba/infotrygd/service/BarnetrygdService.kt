@@ -22,7 +22,6 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
-import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrBefore
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
@@ -394,13 +393,11 @@ class BarnetrygdService(
         size: Int,
         valg: String,
         undervalg: String,
-        maksAntallBarn: Int,
-        minimumAlder: Int
     ): Pair<Set<String>, Int> {
         val stønader: Page<Stønad> = if (environment.activeProfiles.contains(PREPROD)) {
-            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg)
         } else {
-            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg, maksAntallBarn)
+            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
         }
         logger.info("Fant ${stønader.content.size} stønader på side $page")
         var (ikkeFiltrerteStønader, filtrerteStønader) = stønader.content.partition {
@@ -414,13 +411,9 @@ class BarnetrygdService(
             )
         }
 
-        //filterer bort personer med barn som evt kan kvalifisere for småbarnstillegg eller satsendring fordi de er under 6 år
-        //og personer med løpende barnetrygd for barn over 18 år
+        //filterer barn over 18 år
         ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
             val barn = barnRepository.findBarnByStønad(it).firstOrNull {
-                it.barnFnr.foedselsdato.isAfter(
-                    LocalDate.now().minusYears(minimumAlder.toLong())
-                ) ||//Settes til 3 når vi bare vil filtere bort småbarnstillegg
                         it.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && it.barnetrygdTom == "000000"
             }
             barn == null
