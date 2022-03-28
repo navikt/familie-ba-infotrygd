@@ -105,9 +105,8 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND sa.kapittelNr = 'BA'
         AND sa.valg = :valg
         AND sa.undervalg = :undervalg
-        AND s.antallBarn <= :maksAntallBarn
     """)
-    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): Page<Stønad>
+    fun findKlarForMigrering(page: Pageable, valg: String, undervalg: String): Page<Stønad>
 
     @Query(
         """
@@ -121,10 +120,9 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
         AND sa.kapittelNr = 'BA'
         AND sa.valg = :valg
         AND sa.undervalg = :undervalg
-        AND s.antallBarn <= :maksAntallBarn
         AND s.tkNr IN ('0312','0315')
     """)
-    fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String, maksAntallBarn: Int = 99): Page<Stønad>
+    fun findKlarForMigreringIPreprod(page: Pageable, valg: String, undervalg: String): Page<Stønad>
 
     @Query(
         value = """
