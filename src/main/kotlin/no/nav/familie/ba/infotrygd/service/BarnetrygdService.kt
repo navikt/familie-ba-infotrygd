@@ -176,6 +176,7 @@ class BarnetrygdService(
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom))  }
+            .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
 
         val personer = mutableMapOf<String, YearMonth>()
 
