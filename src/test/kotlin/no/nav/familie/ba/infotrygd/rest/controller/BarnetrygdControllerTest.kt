@@ -14,6 +14,7 @@ import no.nav.familie.ba.infotrygd.repository.SakPersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StønadDb2Repository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
+import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkRequest
@@ -80,6 +81,9 @@ class BarnetrygdControllerTest {
 
     @Autowired
     lateinit var barnetrygdService: BarnetrygdService
+
+    @Autowired
+    lateinit var utbetalingRepository: UtbetalingRepository
 
     private val uri = mapOf("stønad" to "/infotrygd/barnetrygd/stonad",
                             "sak" to "/infotrygd/barnetrygd/saker",
@@ -164,7 +168,9 @@ class BarnetrygdControllerTest {
             TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
             TestData.stønad(TestData.person(), status = "02"), // utvidet barnetrygd fra 2020-05 (by default)
             TestData.stønad(TestData.person(), opphørtFom = "122020", status = "02") // utvidet barnetrygd kun 2020
-        ))
+        )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+        }
 
         get("/infotrygd/barnetrygd/utvidet?aar=2020")
             .pakkUt(BisysController.InfotrygdUtvidetBaPersonerResponse::class.java).also {

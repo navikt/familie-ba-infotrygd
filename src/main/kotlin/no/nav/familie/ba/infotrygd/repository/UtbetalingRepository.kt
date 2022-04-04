@@ -31,4 +31,13 @@ interface UtbetalingRepository : JpaRepository<Utbetaling, Long> {
         AND utbet.utbetalingstype = 'M'
     """)
     fun hentUtbetalingerByStønad(stonad: Stønad): List<Utbetaling>
+
+    @Query("""
+        SELECT utbet FROM Utbetaling utbet
+        WHERE utbet.personKey = :#{#stonad.personKey}   
+        AND utbet.startUtbetalingMåned = :#{#stonad.iverksattFom}
+        AND utbet.virksomFom = :#{#stonad.virkningFom}
+        AND utbet.utbetalingstype = 'M'
+    """)
+    fun hentUtbetalingerByTrunkertStønad(stonad: TrunkertStønad): List<Utbetaling>
 }

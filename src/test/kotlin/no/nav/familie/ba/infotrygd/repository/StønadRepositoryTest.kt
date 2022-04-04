@@ -46,7 +46,9 @@ class StønadRepositoryTest {
             TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
             TestData.stønad(personFraInneværendeÅr, status = "02"), // utvidet barnetrygd fra 2020
             TestData.stønad(TestData.person(), opphørtFom = "122020", status = "02") // utvidet barnetrygd kun 2020
-        ))
+        )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+        }
         barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2019").also {
             assertThat(it).hasSize(0)
         }
