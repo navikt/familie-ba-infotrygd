@@ -355,7 +355,9 @@ internal class BarnetrygdServiceTest {
             //Dette er testdata fra en annen person og skal ikke bli med i uttrekket
             TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
             TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
-        ))
+        )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+        }
 
         //Denne verifiserer at stønaden er deltbosted
         barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2019).also {

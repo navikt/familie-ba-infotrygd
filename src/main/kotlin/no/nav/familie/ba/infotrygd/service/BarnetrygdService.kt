@@ -165,6 +165,7 @@ class BarnetrygdService(
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)) }
+            .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
 
