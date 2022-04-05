@@ -36,6 +36,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -147,7 +148,7 @@ class BarnetrygdService(
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
             .filter { erUtvidetBarnetrygd(it) }
-            .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom))  }
+            .filter { filtrerStønaderSomErFeilregistrert(it)  }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
         return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
@@ -164,7 +165,7 @@ class BarnetrygdService(
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
-            .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
             .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
@@ -172,11 +173,34 @@ class BarnetrygdService(
         return SkatteetatenPerioderResponse(perioder)
     }
 
+
+    private fun filtrerStønaderSomErFeilregistrert(stønad: Stønad): Boolean {
+        try {
+            val opphørtFom = DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
+            val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
+            return opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
+        } catch (e: DateTimeParseException) {
+            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
+            return false
+        }
+    }
+
+    private fun filtrerStønaderSomErFeilregistrert(stønad: TrunkertStønad): Boolean {
+        try {
+            val opphørtFom = DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
+            val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
+            return opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
+        } catch (e: DateTimeParseException) {
+            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
+            return false
+        }
+    }
+
     @Cacheable(cacheManager = "personerCacheManager", value = ["skatt_personer"], unless = "#result == null")
     fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
-            .filter { DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom) == null || DatoUtils.seqDatoTilYearMonth(it.virkningFom)!!.isBefore(DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom))  }
+            .filter { filtrerStønaderSomErFeilregistrert(it)  }
             .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
 
         val personer = mutableMapOf<String, YearMonth>()
