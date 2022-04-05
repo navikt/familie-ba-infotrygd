@@ -35,7 +35,8 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
                 WHERE p.fnr = :fnr
                 AND (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år)
                 AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år)
-                AND s.status in :statusKoder""")
+                AND s.status in :statusKoder
+                AND s.antallBarn > 0""")
     fun findStønadByÅrAndStatusKoderAndFnr(fnr: FoedselsNr, år: Int, vararg statusKoder: String): List<Stønad>
 
     @Query("""
