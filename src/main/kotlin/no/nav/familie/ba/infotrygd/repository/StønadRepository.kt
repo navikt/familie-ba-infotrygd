@@ -24,7 +24,8 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     @Query("SELECT new no.nav.familie.ba.infotrygd.repository.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region, s.virkningFom, s.opphørtFom, s.iverksattFom) FROM Stønad s " +
            "WHERE (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år) " +
            "AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år) " + //datoformatet er av typen "seq" derav 9999 - år
-           "AND s.status in :statusKoder")
+           "AND s.status in :statusKoder " +
+           "AND s.antallBarn > 0")
     fun findStønadByÅrAndStatusKoder(år: Int, vararg statusKoder: String): List<TrunkertStønad>
 
     @Query("""SELECT s FROM Stønad s
@@ -34,7 +35,8 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
                 WHERE p.fnr = :fnr
                 AND (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år)
                 AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år)
-                AND s.status in :statusKoder""")
+                AND s.status in :statusKoder
+                AND s.antallBarn > 0""")
     fun findStønadByÅrAndStatusKoderAndFnr(fnr: FoedselsNr, år: Int, vararg statusKoder: String): List<Stønad>
 
     @Query("""
@@ -174,5 +176,5 @@ data class TrunkertStønad(
 
     val opphørtFom: String,
 
-    val iverksattFom: String,
+    val iverksattFom: String
 )
