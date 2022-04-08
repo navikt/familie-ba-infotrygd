@@ -303,7 +303,7 @@ class BarnetrygdService(
                 .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
 
         val sammenslåttePerioderFiltrert = sammenslåttePerioderDelingsprosent.filter {// fjerner perioder som ikke er med i årets uttrekk, som kan komme med i sql uttrekket når opphørtFom er færste måned i året
-            val sisteMåned = it.tomMaaned?.let { tom -> DatoUtils.stringDatoMMyyyyTilYearMonth(tom) }
+            val sisteMåned = it.tomMaaned?.let { tom -> YearMonth.parse(tom) }
             sisteMåned == null || sisteMåned.year >= år
         }
         return if (sammenslåttePerioderFiltrert.isNotEmpty()) {
