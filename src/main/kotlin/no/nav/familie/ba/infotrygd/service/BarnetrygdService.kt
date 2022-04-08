@@ -166,6 +166,10 @@ class BarnetrygdService(
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
+            .filter {
+                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
+                sisteMåned == null || sisteMåned?.minusMonths(1).year == år
+            }
             .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
@@ -201,6 +205,10 @@ class BarnetrygdService(
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it)  }
+            .filter {
+                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
+                sisteMåned == null || sisteMåned?.minusMonths(1).year == år.toInt()
+            }
             .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
 
         val personer = mutableMapOf<String, YearMonth>()
