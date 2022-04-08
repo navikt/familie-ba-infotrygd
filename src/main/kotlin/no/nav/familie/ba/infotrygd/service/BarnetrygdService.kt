@@ -168,7 +168,7 @@ class BarnetrygdService(
             .filter { filtrerStønaderSomErFeilregistrert(it) }
             .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
-        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader, år)
+        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
 
         return SkatteetatenPerioderResponse(perioder)
     }
@@ -201,10 +201,6 @@ class BarnetrygdService(
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it)  }
-            .filter {
-                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
-                sisteMåned == null || sisteMåned?.minusMonths(1).year == år.toInt()
-            }
             .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
 
         val personer = mutableMapOf<String, YearMonth>()
@@ -271,7 +267,7 @@ class BarnetrygdService(
 
 
     private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(
-        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>, år: Int
+        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
     ): List<SkatteetatenPerioder> {
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
@@ -296,25 +292,20 @@ class BarnetrygdService(
                 )
             )
         }
+        SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
-        val allePerioderFiltrert = allePerioder.filter { skalFiltreresPåDato(YearMonth.of(år, 1), YearMonth.parse(it.fraMaaned), it.tomMaaned?.let {måned ->  YearMonth.parse(måned) }) } // fjerner perioder som ikke er med i årets uttrekk, som kan komme med fordi opphørtFom for de som slutter i siste måned i året kommer med i sql utttrekk
+        //Slå sammen perioder basert på delingsprosent
+        val sammenslåttePerioderDelingsprosent =
+            allePerioder.groupBy { it.delingsprosent }.values
+                .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
 
-        return if (allePerioderFiltrert.isNotEmpty()) {
-            //Slå sammen perioder basert på delingsprosent
-            val sammenslåttePerioderDelingsprosent =
-                allePerioderFiltrert.groupBy { it.delingsprosent }.values
-                    .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
-
-            listOf(
-                SkatteetatenPerioder(
-                    ident = brukerFnr.asString,
-                    perioder = sammenslåttePerioderDelingsprosent,
-                    sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
-                )
+        return listOf(
+            SkatteetatenPerioder(
+                ident = brukerFnr.asString,
+                perioder = sammenslåttePerioderDelingsprosent,
+                sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
             )
-        } else {
-            emptyList()
-        }
+        )
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {

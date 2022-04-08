@@ -49,7 +49,7 @@ class SkatteetatenController(
 
     @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
     @GetMapping(path = ["utvidet"])
-    fun personerMedUtvidet(@Parameter(name = "aar") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
+    fun utvidet(@Parameter(name = "aar") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
         clientValidator.authorizeClient()
         return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år))
     }
