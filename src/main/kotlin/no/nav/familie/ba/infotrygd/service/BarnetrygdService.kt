@@ -166,13 +166,9 @@ class BarnetrygdService(
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
-            .filter {
-                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)
-                sisteMåned == null || sisteMåned?.minusMonths(1).year == år
-            }
             .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
-        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
+        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader, år)
 
         return SkatteetatenPerioderResponse(perioder)
     }
@@ -275,7 +271,7 @@ class BarnetrygdService(
 
 
     private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(
-        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
+        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>, år: Int
     ): List<SkatteetatenPerioder> {
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
@@ -300,20 +296,25 @@ class BarnetrygdService(
                 )
             )
         }
-        SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
-        //Slå sammen perioder basert på delingsprosent
-        val sammenslåttePerioderDelingsprosent =
-            allePerioder.groupBy { it.delingsprosent }.values
-                .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
+        val allePerioderFiltrert = allePerioder.filter { skalFiltreresPåDato(YearMonth.of(år, 1), YearMonth.parse(it.fraMaaned), it.tomMaaned?.let {måned ->  YearMonth.parse(måned) }) } // fjerner perioder som ikke er med i årets uttrekk, som kan komme med fordi opphørtFom for de som slutter i siste måned i året kommer med i sql utttrekk
 
-        return listOf(
-            SkatteetatenPerioder(
-                ident = brukerFnr.asString,
-                perioder = sammenslåttePerioderDelingsprosent,
-                sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
+        return if (allePerioderFiltrert.isNotEmpty()) {
+            //Slå sammen perioder basert på delingsprosent
+            val sammenslåttePerioderDelingsprosent =
+                allePerioderFiltrert.groupBy { it.delingsprosent }.values
+                    .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
+
+            listOf(
+                SkatteetatenPerioder(
+                    ident = brukerFnr.asString,
+                    perioder = sammenslåttePerioderDelingsprosent,
+                    sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
+                )
             )
-        )
+        } else {
+            emptyList()
+        }
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
