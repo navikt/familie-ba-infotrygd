@@ -168,7 +168,7 @@ class BarnetrygdService(
             .filter { filtrerStønaderSomErFeilregistrert(it) }
             .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
-        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader, år)
+        val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader)
 
         return SkatteetatenPerioderResponse(perioder)
     }
@@ -201,10 +201,6 @@ class BarnetrygdService(
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it)  }
-            .filter {
-                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
-                sisteMåned == null || sisteMåned.year >= år.toInt()
-            }
             .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
 
         val personer = mutableMapOf<String, YearMonth>()
@@ -271,7 +267,7 @@ class BarnetrygdService(
 
 
     private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(
-        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>, år: Int
+        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>
     ): List<SkatteetatenPerioder> {
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
@@ -296,27 +292,20 @@ class BarnetrygdService(
                 )
             )
         }
+        SkatteetatenPerioder(ident = brukerFnr.asString, perioder = allePerioder, sisteVedtakPaaIdent = sisteVedtakPaaIdent!!)
 
         //Slå sammen perioder basert på delingsprosent
         val sammenslåttePerioderDelingsprosent =
             allePerioder.groupBy { it.delingsprosent }.values
                 .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
 
-        val sammenslåttePerioderFiltrert = sammenslåttePerioderDelingsprosent.filter {// fjerner perioder som ikke er med i årets uttrekk, som kan komme med i sql uttrekket når opphørtFom er færste måned i året
-            val sisteMåned = it.tomMaaned?.let { tom -> YearMonth.parse(tom) }
-            sisteMåned == null || sisteMåned.year >= år
-        }
-        return if (sammenslåttePerioderFiltrert.isNotEmpty()) {
-            listOf(
-                SkatteetatenPerioder(
-                    ident = brukerFnr.asString,
-                    perioder = sammenslåttePerioderDelingsprosent,
-                    sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
-                )
+        return listOf(
+            SkatteetatenPerioder(
+                ident = brukerFnr.asString,
+                perioder = sammenslåttePerioderDelingsprosent,
+                sisteVedtakPaaIdent = sisteVedtakPaaIdent!!
             )
-        } else {
-            emptyList()
-        }
+        )
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
@@ -450,17 +439,10 @@ class BarnetrygdService(
 
         //filterer barn over 18 år
         ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
-            val barnOver18 = barnRepository.findBarnByStønad(it).filter { barn ->
-                barn.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && barn.barnetrygdTom == "000000"
+            val barn = barnRepository.findBarnByStønad(it).firstOrNull {
+                        it.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && it.barnetrygdTom == "000000"
             }
-            if (barnOver18.isEmpty())
-                true
-            else {
-                secureLogger.info("Filtrerte vekk stønad ${it.id} med ${barnOver18.size} barn over 18: " +
-                                          "${barnOver18.map { barn -> barn.toString() }}"
-                )
-                false
-            }
+            barn == null
         }
         logger.info("Fant ${ikkeFiltrerteStønader.size} etter at filtrering på alder er satt")
 
