@@ -35,7 +35,7 @@ class SkatteetatenController(
 
     @Operation(summary = "Hent alle perioder for utvidet for en liste personer")
     @PostMapping(path = ["utvidet/skatteetaten/perioder"], consumes = ["application/json"])
-    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": 2020}""")])])
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": "2020"}""")])])
     fun skatteetatenPerioderUtvidetPersoner(
         @RequestBody
         request: SkatteetatenPerioderRequest
