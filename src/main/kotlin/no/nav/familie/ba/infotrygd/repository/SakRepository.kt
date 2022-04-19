@@ -49,22 +49,6 @@ interface SakRepository : JpaRepository<Sak, Long> {
     )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByStønad(stonad: Stønad, valg: String, undervalg: String): List<Sak>
 
-    @Query(
-        """
-        SELECT CASE WHEN count(s) > 0 THEN true ELSE false END FROM Sak s
-        INNER JOIN SakPerson p
-                ON (s.personKey = p.personKey AND
-                    s.region = p.region)
-            WHERE p.fnr = :fnr 
-              AND s.kapittelNr = 'BA'
-              AND s.valg = 'UT'
-              AND s.undervalg IN ('MD', 'ME', 'MB')
-              AND s.saksblokk = :saksblokk
-              AND s.saksnummer = :saksnummer
-              AND s.region = :region"""
-    )
-    fun erUtvidetBarnetrygd(fnr: FoedselsNr, saksblokk: String, saksnummer:String, region: String): Boolean
-
 
     @Query(
         """

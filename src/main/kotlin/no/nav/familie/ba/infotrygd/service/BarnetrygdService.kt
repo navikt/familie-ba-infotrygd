@@ -256,11 +256,19 @@ class BarnetrygdService(
     ): Boolean {
         return when (stønad.status.toLong()) {
             0L -> { //Manuell beregning ved Stønadsklasse BA UT MB/MD/ME.
+
                 if (stønad.fnr == null) {
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                sakRepository.erUtvidetBarnetrygd(stønad.fnr, stønad.saksblokk, stønad.sakNr, stønad.region)
+                sakRepository.findBarnetrygdsakerByFnr(stønad.fnr!!)
+                    .filter { sak ->
+                        sak.saksblokk == stønad.saksblokk &&
+                                sak.saksnummer == stønad.sakNr &&
+                                sak.kapittelNr == KAPITTEL_BARNETRYGD &&
+                                sak.valg == VALG_UTVIDET_BARNETRYG &&
+                                sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
+                    }.isNotEmpty()
             }
 
             2L -> true //Utvidet barnetrygd.
