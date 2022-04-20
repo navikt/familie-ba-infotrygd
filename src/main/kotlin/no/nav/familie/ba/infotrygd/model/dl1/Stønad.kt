@@ -61,3 +61,42 @@ data class Stønad(
     @Column(name = "B20_ANT_BARN", columnDefinition = "DECIMAL")
     val antallBarn: Int,
 ) : Serializable
+
+
+fun Stønad.tilTrunkertStønad(): TrunkertStønad {
+    return TrunkertStønad(
+        id = id,
+        personKey = personKey,
+        fnr = fnr,
+        sakNr = sakNr,
+        saksblokk = saksblokk,
+        status = status,
+        region = region,
+        virkningFom = virkningFom,
+        opphørtFom = opphørtFom,
+        iverksattFom = iverksattFom,
+    )
+}
+
+
+data class TrunkertStønad(
+    val id: Long,
+
+    val personKey: Long,
+
+    val fnr: FoedselsNr?,
+
+    val sakNr: String,
+
+    val saksblokk: String,
+
+    val status: String,
+
+    val region: String,
+
+    val virkningFom: String,
+
+    val opphørtFom: String,
+
+    val iverksattFom: String
+)
