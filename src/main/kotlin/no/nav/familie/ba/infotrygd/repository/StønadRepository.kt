@@ -3,6 +3,7 @@ package no.nav.familie.ba.infotrygd.repository
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.dl1.Sak
 import no.nav.familie.ba.infotrygd.model.dl1.Stønad
+import no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -21,7 +22,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
     """)
     fun findStønadByFnr(fnr: List<FoedselsNr>): List<Stønad>
 
-    @Query("SELECT new no.nav.familie.ba.infotrygd.repository.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region, s.virkningFom, s.opphørtFom, s.iverksattFom) FROM Stønad s " +
+    @Query("SELECT new no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region, s.virkningFom, s.opphørtFom, s.iverksattFom) FROM Stønad s " +
            "WHERE (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år) " +
            "AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år) " + //datoformatet er av typen "seq" derav 9999 - år
            "AND s.status in :statusKoder " +
@@ -157,24 +158,3 @@ interface AntallLøpendeStønader {
     val antall: Int
 }
 
-data class TrunkertStønad(
-    val id: Long,
-
-    val personKey: Long,
-
-    val fnr: FoedselsNr?,
-
-    val sakNr: String,
-
-    val saksblokk: String,
-
-    val status: String,
-
-    val region: String,
-
-    val virkningFom: String,
-
-    val opphørtFom: String,
-
-    val iverksattFom: String
-)

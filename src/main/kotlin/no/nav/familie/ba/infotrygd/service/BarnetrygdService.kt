@@ -13,7 +13,6 @@ import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
-import no.nav.familie.ba.infotrygd.repository.TrunkertStønad
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.InfotrygdUtvidetBarnetrygdResponse
@@ -147,7 +146,7 @@ class BarnetrygdService(
     ): InfotrygdUtvidetBarnetrygdResponse {
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
-            .filter { erUtvidetBarnetrygd(it) }
+            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
             .filter { filtrerStønaderSomErFeilregistrert(it)  }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
@@ -164,9 +163,9 @@ class BarnetrygdService(
         val bruker = FoedselsNr(brukerFnr)
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
-            .filter { erUtvidetBarnetrygd(it) }
+            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
-            .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
+            .filter { utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad()).isNotEmpty() }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader, år)
 
@@ -205,7 +204,7 @@ class BarnetrygdService(
                 val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
                 sisteMåned == null || sisteMåned.year >= år.toInt()
             }
-            .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
+            .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
 
         val personer = mutableMapOf<String, YearMonth>()
 
@@ -231,27 +230,6 @@ class BarnetrygdService(
     }
 
     private fun erUtvidetBarnetrygd(
-        stønad: Stønad
-    ): Boolean {
-        return when (stønad.status.toLong()) {
-            0L -> { //Manuell beregning ved Stønadsklasse BA UT MB/MD/ME.
-                sakRepository.findBarnetrygdsakerByFnr(stønad.fnr)
-                    .filter { sak ->
-                        sak.saksblokk == stønad.saksblokk &&
-                                sak.saksnummer == stønad.sakNr &&
-                                sak.kapittelNr == KAPITTEL_BARNETRYGD &&
-                                sak.valg == VALG_UTVIDET_BARNETRYG &&
-                                sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
-                    }.isNotEmpty()
-            }
-
-            2L -> true //Utvidet barnetrygd.
-            3L -> true //Sykt barn (Ikke lenger i bruk, kan forekomme i gamle tilfeller),
-            else -> false
-        }
-    }
-
-    private fun erUtvidetBarnetrygd(
         stønad: TrunkertStønad
     ): Boolean {
         return when (stønad.status.toLong()) {
@@ -261,14 +239,9 @@ class BarnetrygdService(
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                sakRepository.findBarnetrygdsakerByFnr(stønad.fnr!!)
-                    .filter { sak ->
-                        sak.saksblokk == stønad.saksblokk &&
-                                sak.saksnummer == stønad.sakNr &&
-                                sak.kapittelNr == KAPITTEL_BARNETRYGD &&
-                                sak.valg == VALG_UTVIDET_BARNETRYG &&
-                                sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
-                    }.isNotEmpty()
+                sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).any { sak ->
+                    sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
+                }
             }
 
             2L -> true //Utvidet barnetrygd.
@@ -328,7 +301,7 @@ class BarnetrygdService(
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
-        val undervalgSaker = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it).map { it.undervalg }
+        val undervalgSaker = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it.tilTrunkertStønad()).map { it.undervalg }
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
         if (undervalgSaker.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
@@ -359,7 +332,7 @@ class BarnetrygdService(
 
         val allePerioder = mutableListOf<UtvidetBarnetrygdPeriode>()
         utvidetBarnetrygdStønader.forEach {
-            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad())
             allePerioder.addAll(utbetalinger.map { utbetaling ->
                 val (beløp, manueltBeregnet, deltBosted) = kalkulerBeløp(it, utbetaling)
 
@@ -388,7 +361,8 @@ class BarnetrygdService(
     }
 
     private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
-        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it, "UT", MANUELL_BEREGNING_DELT_BOSTED).isNotEmpty()
+        val erDeltBosted = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it.tilTrunkertStønad())
+            .any { it.undervalg == MANUELL_BEREGNING_DELT_BOSTED }
 
         if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
 
@@ -499,8 +473,6 @@ class BarnetrygdService(
 
     companion object {
 
-        const val KAPITTEL_BARNETRYGD = "BA"
-        const val VALG_UTVIDET_BARNETRYG = "UT"
         const val UTVIDET_BARNETRYGD_ELDRE_SATS = 970
         const val UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS = 1054
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"

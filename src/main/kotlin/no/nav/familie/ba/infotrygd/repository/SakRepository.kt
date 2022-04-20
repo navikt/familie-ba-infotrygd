@@ -2,7 +2,7 @@ package no.nav.familie.ba.infotrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.dl1.Sak
-import no.nav.familie.ba.infotrygd.model.dl1.Stønad
+import no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -34,22 +34,6 @@ interface SakRepository : JpaRepository<Sak, Long> {
     ) // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
 
-
-    @Query(
-        """
-        SELECT s FROM Sak s 
-            WHERE s.personKey = :#{#stonad.personKey}
-              AND s.kapittelNr = 'BA'
-              AND s.valg = :valg
-              AND s.undervalg = :undervalg
-              AND s.saksblokk = :#{#stonad.saksblokk}
-              AND s.saksnummer = :#{#stonad.sakNr}
-              AND s.region = :#{#stonad.region}
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
-    )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
-    fun findBarnetrygdsakerByStønad(stonad: Stønad, valg: String, undervalg: String): List<Sak>
-
-
     @Query(
         """
         SELECT s FROM Sak s 
@@ -61,7 +45,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.region = :#{#stonad.region}
               AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
     )
-    fun hentUtvidetBarnetrygdsakerForStønad(stonad: Stønad): List<Sak>
+    fun hentUtvidetBarnetrygdsakerForStønad(stonad: TrunkertStønad): List<Sak>
 
 
 
