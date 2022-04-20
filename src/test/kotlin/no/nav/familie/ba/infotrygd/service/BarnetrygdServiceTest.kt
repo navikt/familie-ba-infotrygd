@@ -552,6 +552,47 @@ internal class BarnetrygdServiceTest {
     }
 
 
+    @Test
+    fun `fdsfds`() {
+        val liste = listOf(
+            BisysController.UtvidetBarnetrygdPeriode(
+                BisysController.Stønadstype.UTVIDET,
+                YearMonth.of(2010, 7),
+                YearMonth.of(2010, 10),
+                100.0,
+                true,
+                deltBosted = false
+            ),
+            BisysController.UtvidetBarnetrygdPeriode(
+                BisysController.Stønadstype.UTVIDET,
+                YearMonth.of(2010, 7),
+                null,
+                100.0,
+                false,
+                deltBosted = false
+            ),
+            BisysController.UtvidetBarnetrygdPeriode(
+                BisysController.Stønadstype.UTVIDET,
+                YearMonth.of(2010, 3),
+                YearMonth.of(2010, 6),
+                100.0,
+                true,
+                deltBosted = false
+            ),
+            BisysController.UtvidetBarnetrygdPeriode(
+                BisysController.Stønadstype.UTVIDET,
+                YearMonth.of(2010, 2),
+                YearMonth.of(2010, 2),
+                100.0,
+                true,
+                deltBosted = false
+            ),
+        )
+        println(barnetrygdService.slåSammenSammenhengendePerioder(liste))
+
+    }
+
+
     private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
         val person = personRepository.save(TestData.person())
         val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = stønadStatus, opphørtFom = "000000"))

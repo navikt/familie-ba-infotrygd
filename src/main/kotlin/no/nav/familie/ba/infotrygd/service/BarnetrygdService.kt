@@ -145,14 +145,21 @@ class BarnetrygdService(
         fraDato: YearMonth
     ): InfotrygdUtvidetBarnetrygdResponse {
 
+        val stønader = stonadRepository.findStønadByFnr(listOf(brukerFnr));
+        secureLogger.info("Fant ${stønader} stønader for $brukerFnr stønader for $brukerFnr")
+
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
             .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
             .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad())  }
+
+        secureLogger.info("2 ${utvidetBarnetrygdStønader} stønader for $brukerFnr stønader for $brukerFnr")
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
-        InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
+        val filtrerete = perioder.filter {
+            secureLogger.info("fraDato: $fraDato, it.fom: ${it.fomMåned}, it.tom: ${it.tomMåned} + $it")
             skalFiltreresPåDato(fraDato, it.fomMåned, it.tomMåned)
-        })
+        }
+        secureLogger.info("før:$perioder etter: ${filtrerete} utvidet barnetrygdperioder for $brukerFnr")
         return InfotrygdUtvidetBarnetrygdResponse(perioder)
 
     }
@@ -213,7 +220,7 @@ class BarnetrygdService(
         }
     }
 
-    private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
+    fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
         if (fraDato.isBefore(fom)) return true
 
         return fraDato.isSameOrAfter(fom) && (tom == null || fraDato.isBefore(tom))
@@ -337,7 +344,9 @@ class BarnetrygdService(
                 )
             })
         }
-
+        allePerioder.forEach {
+            secureLogger.info("Utvidet barnetrygd periode: $it")
+        }
         val perioder =
             allePerioder.filter { it.stønadstype == UTVIDET }.groupBy { it.beløp }.values
                 .flatMap(::slåSammenSammenhengendePerioder).toMutableList()
@@ -370,7 +379,7 @@ class BarnetrygdService(
         else UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()
     }
 
-    private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
+    fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
         return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
                 val forrigeUtbetaling = sammenslåttePerioder.lastOrNull()
