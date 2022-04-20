@@ -147,12 +147,14 @@ class BarnetrygdService(
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
             .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
-            .filter { filtrerStønaderSomErFeilregistrert(it)  }
+            .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad())  }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
-        return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
+        InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
             skalFiltreresPåDato(fraDato, it.fomMåned, it.tomMåned)
         })
+        return InfotrygdUtvidetBarnetrygdResponse(perioder)
+
     }
 
     @Cacheable(cacheManager = "perioderCacheManager", value = ["skatt_perioder"], unless = "#result == null")
@@ -164,24 +166,12 @@ class BarnetrygdService(
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
-            .filter { filtrerStønaderSomErFeilregistrert(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad()) }
             .filter { utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad()).isNotEmpty() }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader, år)
 
         return SkatteetatenPerioderResponse(perioder)
-    }
-
-
-    private fun filtrerStønaderSomErFeilregistrert(stønad: Stønad): Boolean {
-        try {
-            val opphørtFom = DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
-            val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
-            return opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
-        } catch (e: DateTimeParseException) {
-            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
-            return false
-        }
     }
 
     private fun filtrerStønaderSomErFeilregistrert(stønad: TrunkertStønad): Boolean {
@@ -375,7 +365,7 @@ class BarnetrygdService(
         return Triple(utbetaling.beløp, true, erDeltBosted)
     }
 
-    fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
+    private fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
         return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
         else UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()
     }
