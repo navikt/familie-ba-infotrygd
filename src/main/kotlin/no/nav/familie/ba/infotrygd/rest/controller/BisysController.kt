@@ -42,7 +42,7 @@ class BisysController(
 
         val bruker = FoedselsNr(request.personIdent)
 
-        return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
+        return barnetrygdService.finnUtvidetBarnetrygdBisys(bruker, request.fraDato)
     }
 
 
