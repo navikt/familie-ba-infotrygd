@@ -204,7 +204,9 @@ class BarnetrygdService(
                 val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
                 sisteMåned == null || sisteMåned.year >= år.toInt()
             }
-            .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
+            .filter { utbetalingRepository.hentUtbetalingerByStønad(it)
+                .filter { it.tom() == null || it.tom()!!.year >= år.toInt() }
+                .isNotEmpty()  }
 
         val personer = mutableMapOf<String, YearMonth>()
 
