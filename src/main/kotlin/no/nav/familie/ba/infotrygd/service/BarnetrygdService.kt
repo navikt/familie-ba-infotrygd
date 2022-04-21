@@ -13,7 +13,6 @@ import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
-import no.nav.familie.ba.infotrygd.repository.TrunkertStønad
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.InfotrygdUtvidetBarnetrygdResponse
@@ -141,14 +140,14 @@ class BarnetrygdService(
         return personer.map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
     }
 
-    fun finnUtvidetBarnetrygd(
+    fun finnUtvidetBarnetrygdBisys(
         brukerFnr: FoedselsNr,
         fraDato: YearMonth
     ): InfotrygdUtvidetBarnetrygdResponse {
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
-            .filter { erUtvidetBarnetrygd(it) }
-            .filter { filtrerStønaderSomErFeilregistrert(it)  }
+            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
+            .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad()) }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
         return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
@@ -157,16 +156,19 @@ class BarnetrygdService(
     }
 
     @Cacheable(cacheManager = "perioderCacheManager", value = ["skatt_perioder"], unless = "#result == null")
-    fun finnPerioderMedUtvidetBarnetrygdForÅr(
+    fun finnPerioderUtvidetBarnetrygdSkatt(
         brukerFnr: String,
         år: Int
     ): SkatteetatenPerioderResponse {
         val bruker = FoedselsNr(brukerFnr)
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
-            .filter { erUtvidetBarnetrygd(it) }
-            .filter { filtrerStønaderSomErFeilregistrert(it) }
-            .filter { utbetalingRepository.hentUtbetalingerByStønad(it).isNotEmpty() }
+            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
+            .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad()) }
+            .filter {
+                utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad())
+                    .any { it.tom() == null || it.tom()!!.year >= år }
+            }
 
         val perioder = konverterTilDtoUtvidetBarnetrygdForSkatteetaten(bruker, utvidetBarnetrygdStønader, år)
 
@@ -174,38 +176,18 @@ class BarnetrygdService(
     }
 
 
-    private fun filtrerStønaderSomErFeilregistrert(stønad: Stønad): Boolean {
-        try {
-            val opphørtFom = DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
-            val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
-            return opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
-        } catch (e: DateTimeParseException) {
-            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
-            return false
-        }
-    }
-
-    private fun filtrerStønaderSomErFeilregistrert(stønad: TrunkertStønad): Boolean {
-        try {
-            val opphørtFom = DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
-            val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
-            return opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
-        } catch (e: DateTimeParseException) {
-            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
-            return false
-        }
-    }
-
     @Cacheable(cacheManager = "personerCacheManager", value = ["skatt_personer"], unless = "#result == null")
-    fun finnPersonerMedUtvidetBarnetrygd(år: String): List<SkatteetatenPerson> {
+    fun finnPersonerUtvidetBarnetrygdSkatt(år: String): List<SkatteetatenPerson> {
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "02", "03")
             .filter { erUtvidetBarnetrygd(it) }
-            .filter { filtrerStønaderSomErFeilregistrert(it)  }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
             .filter {
                 val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
                 sisteMåned == null || sisteMåned.year >= år.toInt()
             }
-            .filter { utbetalingRepository.hentUtbetalingerByTrunkertStønad(it).isNotEmpty() }
+            .filter {
+                utbetalingRepository.hentUtbetalingerByStønad(it).any { it.tom() == null || it.tom()!!.year >= år.toInt() }
+            }
 
         val personer = mutableMapOf<String, YearMonth>()
 
@@ -224,6 +206,90 @@ class BarnetrygdService(
         }
     }
 
+
+
+    fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
+        return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
+        else UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()
+    }
+
+    fun finnPersonerKlarForMigrering(
+        page: Int,
+        size: Int,
+        valg: String,
+        undervalg: String,
+    ): Pair<Set<String>, Int> {
+        val stønader: Page<Stønad> = if (environment.activeProfiles.contains(PREPROD)) {
+            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg)
+        } else {
+            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
+        }
+        logger.info("Fant ${stønader.content.size} stønader på side $page")
+        var (ikkeFiltrerteStønader, filtrerteStønader) = stønader.content.partition {
+            it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
+                .filter { barn -> barn.stønadstype.isNullOrBlank() }.size
+        }
+        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
+        filtrerteStønader.forEach {
+            secureLogger.info(
+                "Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
+                        "${barnRepository.findBarnByStønad(it).map { it.toString() }}"
+            )
+        }
+
+        //filterer barn over 18 år
+        ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
+            val barnOver18 = barnRepository.findBarnByStønad(it).filter { barn ->
+                barn.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && barn.barnetrygdTom == "000000"
+            }
+            if (barnOver18.isEmpty())
+                true
+            else {
+                secureLogger.info(
+                    "Filtrerte vekk stønad ${it.id} med ${barnOver18.size} barn over 18: " +
+                            "${barnOver18.map { barn -> barn.toString() }}"
+                )
+                false
+            }
+        }
+        logger.info("Fant ${ikkeFiltrerteStønader.size} etter at filtrering på alder er satt")
+
+        return Pair(ikkeFiltrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
+    }
+
+    fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
+        return stonadRepository.findSenesteIverksattFomByPersonKey(personKey).let { DatoUtils.seqDatoTilYearMonth(it)!! }
+    }
+
+    fun findStønadById(id: Long): StønadDto {
+        val stønad = stonadRepository.findById(id).orElseThrow { NoSuchElementException("Fant ikke stønad med id $id") }
+        return hentDelytelseOgKonverterTilDto(stønad)
+    }
+
+    fun findStønad(personIdent: String, tknr: String, iverksattFom: String, virkningFom: String, region: String): StønadDto {
+        val personKey = tknr + ReversedFoedselNrConverter().convertToDatabaseColumn(FoedselsNr(personIdent))
+        val stønad = stonadRepository.findStønad(personKey.toLong(), iverksattFom, virkningFom, region)
+        return hentDelytelseOgKonverterTilDto(stønad)
+    }
+
+    fun harSendtBrevForrigeMåned(personidenter: List<FoedselsNr>, brevkoder: List<String>): List<Hendelse> {
+        val date = YearMonth.now().minusMonths(1).atDay(1)
+        val seqNumber = (99999999 - date.format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong())
+
+        return hendelseRepository.findHendelseByFnrInAndTekstKoderIn(personidenter, brevkoder, seqNumber)
+    }
+
+    private fun filtrerStønaderSomErFeilregistrert(stønad: TrunkertStønad): Boolean {
+        return try {
+            val opphørtFom = DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
+            val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
+            opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
+        } catch (e: DateTimeParseException) {
+            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
+            false
+        }
+    }
+
     private fun skalFiltreresPåDato(fraDato: YearMonth, fom: YearMonth, tom: YearMonth?): Boolean {
         if (fraDato.isBefore(fom)) return true
 
@@ -231,36 +297,18 @@ class BarnetrygdService(
     }
 
     private fun erUtvidetBarnetrygd(
-        stønad: Stønad
-    ): Boolean {
-        return when (stønad.status.toLong()) {
-            0L -> { //Manuell beregning ved Stønadsklasse BA UT MB/MD/ME.
-                sakRepository.findBarnetrygdsakerByFnr(stønad.fnr)
-                    .filter { sak ->
-                        sak.saksblokk == stønad.saksblokk &&
-                                sak.saksnummer == stønad.sakNr &&
-                                sak.kapittelNr == KAPITTEL_BARNETRYGD &&
-                                sak.valg == VALG_UTVIDET_BARNETRYG &&
-                                sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
-                    }.isNotEmpty()
-            }
-
-            2L -> true //Utvidet barnetrygd.
-            3L -> true //Sykt barn (Ikke lenger i bruk, kan forekomme i gamle tilfeller),
-            else -> false
-        }
-    }
-
-    private fun erUtvidetBarnetrygd(
         stønad: TrunkertStønad
     ): Boolean {
         return when (stønad.status.toLong()) {
             0L -> { //Manuell beregning ved Stønadsklasse BA UT MB/MD/ME.
+
                 if (stønad.fnr == null) {
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                sakRepository.erUtvidetBarnetrygd(stønad.fnr, stønad.saksblokk, stønad.sakNr, stønad.region)
+                sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).any { sak ->
+                    sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
+                }
             }
 
             2L -> true //Utvidet barnetrygd.
@@ -302,10 +350,11 @@ class BarnetrygdService(
             allePerioder.groupBy { it.delingsprosent }.values
                 .flatMap(::slåSammenSkatteetatenPeriode).toMutableList()
 
-        val sammenslåttePerioderFiltrert = sammenslåttePerioderDelingsprosent.filter {// fjerner perioder som ikke er med i årets uttrekk, som kan komme med i sql uttrekket når opphørtFom er færste måned i året
-            val sisteMåned = it.tomMaaned?.let { tom -> YearMonth.parse(tom) }
-            sisteMåned == null || sisteMåned.year >= år
-        }
+        val sammenslåttePerioderFiltrert =
+            sammenslåttePerioderDelingsprosent.filter {// fjerner perioder som ikke er med i årets uttrekk, som kan komme med i sql uttrekket når opphørtFom er færste måned i året
+                val sisteMåned = it.tomMaaned?.let { tom -> YearMonth.parse(tom) }
+                sisteMåned == null || sisteMåned.year >= år
+            }
         return if (sammenslåttePerioderFiltrert.isNotEmpty()) {
             listOf(
                 SkatteetatenPerioder(
@@ -320,7 +369,7 @@ class BarnetrygdService(
     }
 
     private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
-        val undervalgSaker = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it).map { it.undervalg }
+        val undervalgSaker = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it.tilTrunkertStønad()).map { it.undervalg }
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
         if (undervalgSaker.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
@@ -351,7 +400,7 @@ class BarnetrygdService(
 
         val allePerioder = mutableListOf<UtvidetBarnetrygdPeriode>()
         utvidetBarnetrygdStønader.forEach {
-            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad())
             allePerioder.addAll(utbetalinger.map { utbetaling ->
                 val (beløp, manueltBeregnet, deltBosted) = kalkulerBeløp(it, utbetaling)
 
@@ -380,7 +429,8 @@ class BarnetrygdService(
     }
 
     private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
-        val erDeltBosted = sakRepository.findBarnetrygdsakerByStønad(it, "UT", MANUELL_BEREGNING_DELT_BOSTED).isNotEmpty()
+        val erDeltBosted = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it.tilTrunkertStønad())
+            .any { it.undervalg == MANUELL_BEREGNING_DELT_BOSTED }
 
         if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
 
@@ -391,11 +441,6 @@ class BarnetrygdService(
         )
 
         return Triple(utbetaling.beløp, true, erDeltBosted)
-    }
-
-    fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
-        return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
-        else UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()
     }
 
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
@@ -425,74 +470,8 @@ class BarnetrygdService(
             }
     }
 
-    fun finnPersonerKlarForMigrering(
-        page: Int,
-        size: Int,
-        valg: String,
-        undervalg: String,
-    ): Pair<Set<String>, Int> {
-        val stønader: Page<Stønad> = if (environment.activeProfiles.contains(PREPROD)) {
-            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg)
-        } else {
-            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
-        }
-        logger.info("Fant ${stønader.content.size} stønader på side $page")
-        var (ikkeFiltrerteStønader, filtrerteStønader) = stønader.content.partition {
-            it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
-                .filter { barn -> barn.stønadstype.isNullOrBlank() }.size
-        }
-        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
-        filtrerteStønader.forEach {
-            secureLogger.info("Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
-                                      "${barnRepository.findBarnByStønad(it).map { it.toString() }}"
-            )
-        }
-
-        //filterer barn over 18 år
-        ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
-            val barnOver18 = barnRepository.findBarnByStønad(it).filter { barn ->
-                barn.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && barn.barnetrygdTom == "000000"
-            }
-            if (barnOver18.isEmpty())
-                true
-            else {
-                secureLogger.info("Filtrerte vekk stønad ${it.id} med ${barnOver18.size} barn over 18: " +
-                                          "${barnOver18.map { barn -> barn.toString() }}"
-                )
-                false
-            }
-        }
-        logger.info("Fant ${ikkeFiltrerteStønader.size} etter at filtrering på alder er satt")
-
-        return Pair(ikkeFiltrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
-    }
-
-    fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
-        return stonadRepository.findSenesteIverksattFomByPersonKey(personKey).let { DatoUtils.seqDatoTilYearMonth(it)!! }
-    }
-
-    fun findStønadById(id: Long): StønadDto {
-        val stønad = stonadRepository.findById(id).orElseThrow { NoSuchElementException("Fant ikke stønad med id $id") }
-        return hentDelytelseOgKonverterTilDto(stønad)
-    }
-
-    fun findStønad(personIdent: String, tknr: String, iverksattFom: String, virkningFom: String, region: String): StønadDto {
-        val personKey = tknr + ReversedFoedselNrConverter().convertToDatabaseColumn(FoedselsNr(personIdent))
-        val stønad = stonadRepository.findStønad(personKey.toLong(), iverksattFom, virkningFom, region)
-        return hentDelytelseOgKonverterTilDto(stønad)
-    }
-
-    fun harSendtBrevForrigeMåned(personidenter: List<FoedselsNr>, brevkoder: List<String>): List<Hendelse> {
-        val date = YearMonth.now().minusMonths(1).atDay(1)
-        val seqNumber = (99999999 - date.format(DateTimeFormatter.ofPattern("yyyyMMdd")).toLong())
-
-        return hendelseRepository.findHendelseByFnrInAndTekstKoderIn(personidenter, brevkoder, seqNumber)
-    }
-
     companion object {
 
-        const val KAPITTEL_BARNETRYGD = "BA"
-        const val VALG_UTVIDET_BARNETRYG = "UT"
         const val UTVIDET_BARNETRYGD_ELDRE_SATS = 970
         const val UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS = 1054
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"

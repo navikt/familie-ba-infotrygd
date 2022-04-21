@@ -15,20 +15,20 @@ class WarmupCacheService(val barnetrygdService: BarnetrygdService) {
         val inneværendeÅr = Year.now()
 
         logger.info("Henter personer med utvidet barnetrygd for å oppdatere cache ${inneværendeÅr.plusYears(1)}")
-        val nextYearResponse = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(inneværendeÅr.plusYears(1).toString())
+        val nextYearResponse = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(inneværendeÅr.plusYears(1).toString())
         logger.info("Henter personer med utvidet barnetrygd for å oppdatere cache $inneværendeÅr")
-        val inneværendeÅrResponse = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(inneværendeÅr.toString())
+        val inneværendeÅrResponse = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(inneværendeÅr.toString())
         logger.info("Henter perioder med utvidet barnetrygd for å oppdatere cache $inneværendeÅr")
-        inneværendeÅrResponse.forEach { barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(it.ident, inneværendeÅr.value) }
+        inneværendeÅrResponse.forEach { barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it.ident, inneværendeÅr.value) }
         logger.info("Henter perioder med utvidet barnetrygd for å oppdatere cache ${inneværendeÅr.plusYears(1).value}")
         nextYearResponse.forEach {
-            barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(
+            barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(
                 it.ident,
                 inneværendeÅr.plusYears(1).value
             )
         }
         logger.info("Perioder for neste år lagt i cache")
 
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd(inneværendeÅr.minusYears(1).toString())
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(inneværendeÅr.minusYears(1).toString())
     }
 }

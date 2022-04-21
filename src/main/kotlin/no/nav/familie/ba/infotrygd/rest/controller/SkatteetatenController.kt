@@ -43,7 +43,7 @@ class SkatteetatenController(
         clientValidator.authorizeClient()
 
         return request.identer.map {
-            barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(it, request.aar.toInt())
+            barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it, request.aar.toInt())
         }
     }
 
@@ -51,7 +51,7 @@ class SkatteetatenController(
     @GetMapping(path = ["utvidet"])
     fun personerMedUtvidet(@Parameter(name = "aar") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
         clientValidator.authorizeClient()
-        return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år))
+        return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(år))
     }
 }
 

@@ -145,7 +145,7 @@ internal class BarnetrygdServiceTest {
         leggTilUtgåttUtvidetBarnetrygdSak(person) //2019-05 - 2020-04
 
 
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.now())
+        val response = barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.now())
         assertThat(response.perioder).hasSize(2)
         assertThat(response.perioder).contains(
             BisysController.UtvidetBarnetrygdPeriode(
@@ -171,7 +171,7 @@ internal class BarnetrygdServiceTest {
         val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(person)
 
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
+        val response = barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2019, 10))
         assertThat(response.perioder).hasSize(2)
         assertThat(response.perioder).contains(
             BisysController.UtvidetBarnetrygdPeriode(
@@ -197,7 +197,7 @@ internal class BarnetrygdServiceTest {
         leggTilUtgåttUtvidetBarnetrygdSak(person, stønadStatus = "2", beløp = 42.00, iverksattFom = "798097") // februar 2019
         leggTilUtgåttUtvidetBarnetrygdSak(person, stønadStatus = "2", beløp = 42.00, iverksattFom = "798096") // mars 2019
 
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 1))
+        val response = barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2019, 1))
 
         assertThat(response.perioder).hasSize(2)
         assertThat(response.perioder).contains(
@@ -237,7 +237,7 @@ internal class BarnetrygdServiceTest {
         utbetalingRepository.save(TestData.utbetaling(opphørtStønad))
 
 
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
+        val response = barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2019, 10))
         assertThat(response.perioder).hasSize(3)
         assertThat(response.perioder).contains(
             BisysController.UtvidetBarnetrygdPeriode(
@@ -270,7 +270,7 @@ internal class BarnetrygdServiceTest {
         val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(person, 1000.00)
 
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
+        val response = barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2019, 10))
         assertThat(response.perioder).hasSize(3)
         assertThat(response.perioder).contains(
             BisysController.UtvidetBarnetrygdPeriode(
@@ -322,7 +322,7 @@ internal class BarnetrygdServiceTest {
             )
         )
 
-        val response = barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2019, 10))
+        val response = barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2019, 10))
 
         assertThat(response.perioder).hasSize(1)
         assertThat(response.perioder).contains(
@@ -360,7 +360,7 @@ internal class BarnetrygdServiceTest {
         }
 
         //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2019).also {
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2019).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2019-01")
@@ -371,7 +371,7 @@ internal class BarnetrygdServiceTest {
         }
 
         //Denne verifiserer at stønaden er ikke deltbosted
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2020).also {
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
@@ -380,7 +380,7 @@ internal class BarnetrygdServiceTest {
             assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
         //Denne verifiserer samme stønad som over, bare at stønaden er løpende og input er året etter
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2021).also {
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2021).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
@@ -390,7 +390,7 @@ internal class BarnetrygdServiceTest {
         }
 
         //Denne verifiserer at stønaden er manuelt  beregnet og vi dermed ikke kan utlede delt bosted
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2017).also {
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2017).also {
             assertThat(it.brukere).hasSize(1)
             assertThat(it.brukere.first().perioder).hasSize(1)
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2017-01")
@@ -410,7 +410,7 @@ internal class BarnetrygdServiceTest {
         ))
 
 
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2019).also {
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2019).also {
             assertThat(it.brukere).hasSize(0)
         }
     }
@@ -429,11 +429,11 @@ internal class BarnetrygdServiceTest {
             utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
         }
 
-        barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(person.fnr.asString, 2021).also {
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2021).also {
             assertThat(it.brukere).hasSize(1)
         }
 
-        barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2021, 1)).also {
+        barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2021, 1)).also {
             assertThat(it.perioder).hasSize(1)
         }
     }
