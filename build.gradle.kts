@@ -28,7 +28,7 @@ plugins {
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 group = "no.nav"
