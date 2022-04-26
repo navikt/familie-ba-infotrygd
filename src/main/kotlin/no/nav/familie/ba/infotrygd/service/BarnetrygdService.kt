@@ -226,10 +226,10 @@ class BarnetrygdService(
         }
         logger.info("Fant ${stønader.content.size} stønader på side $page")
         var (ikkeFiltrerteStønader, filtrerteStønader) = stønader.content.partition {
-            it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
+            it.antallBarn > 0 && it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
                 .filter { barn -> barn.stønadstype.isNullOrBlank() }.size
         }
-        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
+        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad eller antallBarn = 0")
         filtrerteStønader.forEach {
             secureLogger.info(
                 "Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
@@ -240,7 +240,9 @@ class BarnetrygdService(
         //filterer barn over 18 år
         ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
             val barnOver18 = barnRepository.findBarnByStønad(it).filter { barn ->
-                barn.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L)) && barn.barnetrygdTom == "000000"
+                barn.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L))
+                        && barn.barnetrygdTom == "000000"
+                        && barn.stønadstype.isNullOrBlank()
             }
             if (barnOver18.isEmpty())
                 true
