@@ -229,7 +229,7 @@ class BarnetrygdService(
             it.antallBarn > 0 && it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
                 .filter { barn -> barn.stønadstype.isNullOrBlank() }.size
         }
-        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad")
+        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad eller antallBarn = 0")
         filtrerteStønader.forEach {
             secureLogger.info(
                 "Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
