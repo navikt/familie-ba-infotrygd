@@ -495,6 +495,22 @@ internal class BarnetrygdServiceTest {
             }
     }
 
+
+    @Test
+    fun `skal filtrere bort person med 0 antall barn på stønaden`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val stønadMed0AntallBarn = TestData.stønad(person, antallBarn = 0)
+
+        stonadRepository.saveAndFlush(stønadMed0AntallBarn).also {
+            sakRepository.saveAndFlush(TestData.sak(it, valg = "OR", undervalg = "OS"))
+            barnRepository.saveAndFlush(TestData.barn(stønad = it))
+        }
+        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
+            .also {
+                assertThat(it.first).hasSize(0)
+            }
+    }
+
     @Test
     fun `skal filtrere på tknr ved migreirng i preprod`() {
         every { environment.activeProfiles } returns listOf("preprod").toTypedArray() andThen listOf("prod").toTypedArray()
