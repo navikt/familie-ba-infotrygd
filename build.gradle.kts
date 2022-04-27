@@ -7,22 +7,20 @@ val mockkVersion = "1.12.3"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "1.3.19"
+val tokenSupportVersion = "2.0.14"
 val jacksonVersion = "2.9.9"
 val springdocVersion = "1.6.7"
-val oracleusername = "richard.martinsen@nav.no"
-val oraclepassword = "Infotrygd1"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20210920094114_9c74239"
-val fellesVersjon = "1.20220406145421_5f46d64"
+val fellesVersjon = "1.20220406150627_c699e0a"
 val kontrakterVersjon = "2.0_20220412101553_5627657"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.5.31"
-    val springBootVersion = "2.5.5"
+    val kotlinVersion = "1.6.21"
+    val springBootVersion = "2.6.6"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version kotlinVersion
@@ -33,7 +31,7 @@ plugins {
 
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -78,7 +76,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.ttddyy:datasource-proxy:1.7")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    testImplementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
+    testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -100,7 +98,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
