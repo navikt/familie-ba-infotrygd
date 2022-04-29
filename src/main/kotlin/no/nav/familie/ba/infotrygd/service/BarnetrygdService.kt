@@ -146,7 +146,7 @@ class BarnetrygdService(
     ): InfotrygdUtvidetBarnetrygdResponse {
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
-            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
+            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) && it.antallBarn > 0 }
             .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad()) }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
@@ -384,17 +384,6 @@ class BarnetrygdService(
     private fun konverterTilDtoUtvidetBarnetrygd(
         utvidetBarnetrygdStønader: List<Stønad>
     ): List<UtvidetBarnetrygdPeriode> {
-        logger.info(
-            "StønadsID med utvidet barnetrygd = ${
-                utvidetBarnetrygdStønader.map {
-                    Triple(
-                        it.id,
-                        it.virkningFom,
-                        it.opphørtFom
-                    )
-                }
-            }"
-        )
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
         }
