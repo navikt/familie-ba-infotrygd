@@ -93,6 +93,8 @@ dependencies {
     testImplementation("org.testcontainers:oracle-xe:1.17.1")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2")
+    testImplementation("com.opencsv:opencsv:5.6")
+
 }
 
 tasks.withType<KotlinCompile> {
