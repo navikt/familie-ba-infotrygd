@@ -2,8 +2,6 @@ package no.nav.familie.ba.infotrygd.rest.controller
 
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.Parameters
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
@@ -35,7 +33,7 @@ class BisysController(
 
     @Operation(summary = "Uttrekk utvidet barnetrygd/småbarnstillegg utbetaling på en person fra en bestemet måned. Maks 5 år tilbake i tid")
     @PostMapping(path = ["utvidet"], consumes = ["application/json"])
-    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"bruker": "12345678910", "fraDato": "2020-05"}""")])])
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"personIdent": "12345678910", "fraDato": "2020-05"}""")])])
     fun utvidet(@RequestBody request: InfotrygdUtvidetBarnetrygdRequest): InfotrygdUtvidetBarnetrygdResponse {
         clientValidator.authorizeClient()
 
@@ -44,7 +42,7 @@ class BisysController(
 
         val bruker = FoedselsNr(request.personIdent)
 
-        return barnetrygdService.finnUtvidetBarnetrygd(bruker, request.fraDato)
+        return barnetrygdService.finnUtvidetBarnetrygdBisys(bruker, request.fraDato)
     }
 
 

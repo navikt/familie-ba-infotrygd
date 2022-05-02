@@ -49,13 +49,13 @@ class StønadRepositoryTest {
         )).also { stønader ->
             utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
         }
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2019").also {
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2019").also {
             assertThat(it).hasSize(0)
         }
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2020").also {
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2020").also {
             assertThat(it).hasSize(2)
         }
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
             assertThat(it).hasSize(1).extracting("ident").contains(personFraInneværendeÅr.fnr.asString)
         }
     }
@@ -66,7 +66,7 @@ class StønadRepositoryTest {
         stønadRepository.saveAll(listOf(
             TestData.stønad(TestData.person(), virkningFom = (999999-202101).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
         ))
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
             assertThat(it).hasSize(0)
         }
     }
@@ -76,7 +76,7 @@ class StønadRepositoryTest {
         stønadRepository.saveAll(listOf(
             TestData.stønad(TestData.person(), virkningFom = (999999-202101).toString(), opphørtFom = "404021", status = "02") // utvidet barnetrygd kun 2020
         ))
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
             assertThat(it).hasSize(0)
         }
     }
@@ -88,10 +88,10 @@ class StønadRepositoryTest {
             TestData.stønad(person, virkningFom = (999999-202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
                 .also { utbetalingRepository.saveAndFlush(TestData.utbetaling(it)) }
         ))
-        barnetrygdService.finnPersonerMedUtvidetBarnetrygd("2021").also {
+        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
             assertThat(it).hasSize(0)
         }
-        barnetrygdService.finnUtvidetBarnetrygd(person.fnr, YearMonth.of(2021,3)).also {
+        barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2021, 3)).also {
             assertThat(it.perioder).hasSize(0)
         }
     }

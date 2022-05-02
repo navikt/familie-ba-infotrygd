@@ -35,7 +35,7 @@ class SkatteetatenController(
 
     @Operation(summary = "Hent alle perioder for utvidet for en liste personer")
     @PostMapping(path = ["utvidet/skatteetaten/perioder"], consumes = ["application/json"])
-    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": 2020}""")])])
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"identer": ["12345678910"], "aar": "2020"}""")])])
     fun skatteetatenPerioderUtvidetPersoner(
         @RequestBody
         request: SkatteetatenPerioderRequest
@@ -43,15 +43,15 @@ class SkatteetatenController(
         clientValidator.authorizeClient()
 
         return request.identer.map {
-            barnetrygdService.finnPerioderMedUtvidetBarnetrygdForÅr(it, request.aar.toInt())
+            barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it, request.aar.toInt())
         }
     }
 
     @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
     @GetMapping(path = ["utvidet"])
-    fun utvidet(@Parameter(name = "aar") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
+    fun personerMedUtvidet(@Parameter(name = "aar") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
         clientValidator.authorizeClient()
-        return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerMedUtvidetBarnetrygd(år))
+        return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(år))
     }
 }
 

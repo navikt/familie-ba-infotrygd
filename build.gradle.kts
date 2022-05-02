@@ -7,33 +7,31 @@ val mockkVersion = "1.12.3"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "1.3.19"
+val tokenSupportVersion = "2.0.15"
 val jacksonVersion = "2.9.9"
-val springdocVersion = "1.6.6"
-val oracleusername = "richard.martinsen@nav.no"
-val oraclepassword = "Infotrygd1"
+val springdocVersion = "1.6.8"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20210920094114_9c74239"
-val fellesVersjon = "1.20220329165814_c0860ec"
-val kontrakterVersjon = "2.0_20220329151411_82df2c6"
+val fellesVersjon = "1.20220406150627_c699e0a"
+val kontrakterVersjon = "2.0_20220426142031_2f610f8"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.5.31"
-    val springBootVersion = "2.5.5"
+    val kotlinVersion = "1.6.21"
+    val springBootVersion = "2.6.6"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -78,21 +76,21 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.ttddyy:datasource-proxy:1.7")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    testImplementation("no.nav.security:token-validation-test-support:$tokenSupportVersion")
+    testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
     implementation("org.springdoc:springdoc-openapi-kotlin:$springdocVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:6.6")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.1.1")
     implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$skattKontraktVersjon")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
-    implementation("com.oracle.database.jdbc:ojdbc8:19.12.0.0")
+    implementation("com.oracle.database.jdbc:ojdbc8:21.5.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.16.3")
+    testImplementation("org.testcontainers:oracle-xe:1.17.1")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("com.opencsv:opencsv:5.6")
@@ -102,7 +100,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
