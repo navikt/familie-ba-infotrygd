@@ -310,7 +310,9 @@ class BarnetrygdService(
                     return false
                 }
                 sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).map { sak -> sak.undervalg }.ifEmpty {
-                    hentUtvidetBarnetrygdUndervalgFraDb2(stønad)
+                    hentUtvidetBarnetrygdUndervalgFraDb2(stønad).also {
+                        logger.info("Stønad(${stønad.id}) mangler sak i dl1. Hentet undervalg fra db2: $it")
+                    }
                 }.any { undervalg ->
                     undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
                 }
