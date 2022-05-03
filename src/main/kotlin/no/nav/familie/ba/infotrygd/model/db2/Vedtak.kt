@@ -36,6 +36,9 @@ data class Vedtak(
     @Convert(converter = Char2Converter::class)
     val kodeResultat: String?,
 
+    @Column(name = "TKNR", columnDefinition = "CHAR(4)")
+    val tkNr: String? = null,
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "VEDTAK_ID", referencedColumnName = "VEDTAK_ID")
     @Cascade(value = [CascadeType.MERGE])

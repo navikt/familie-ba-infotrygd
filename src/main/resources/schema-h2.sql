@@ -261,6 +261,15 @@ Create table INFOTRYGD_Q0.T_STONAD (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
+-- Create Table INFOTRYGD_Q0.T_STONADSKLASSE
+--------------------------------------------------
+create table INFOTRYGD_Q0.T_STONADSKLASSE (
+    VEDTAK_ID                      NUMBER              NOT NULL,
+    KODE_NIVAA                     VARCHAR2(2 char)    NOT NULL,
+    KODE_KLASSE                    VARCHAR2(2 char)    NOT NULL,
+    OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp);
+
+--------------------------------------------------
 -- Create Table INFOTRYGD_Q0.T_VEDTAK
 --------------------------------------------------
 Create table INFOTRYGD_Q0.T_VEDTAK (

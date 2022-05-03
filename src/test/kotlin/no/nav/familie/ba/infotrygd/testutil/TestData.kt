@@ -91,14 +91,15 @@ object TestData {
 
     fun vedtak(sak: Sak, kodeRutine: String = "BA", kodeResultat: String = "  "): Vedtak {
         return Vedtak(
-            1L,
-            1L,
-            sak.saksnummer.toLong(),
-            sak.saksblokk,
-            1L,
-            kodeRutine,
-            kodeResultat,
-            listOf(Delytelse(DelytelseId(1, 1), LocalDate.of(2020, 1, 1), LocalDate.now().minusDays(1), 1900.0, "MS", typeUtbetaling = "M"), Delytelse(DelytelseId(1, 2), LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M"))
+            vedtakId = 1L,
+            stønadId = 1L,
+            saksnummer = sak.saksnummer.toLong(),
+            saksblokk = sak.saksblokk,
+            løpenummer = 1L,
+            kodeRutine = kodeRutine,
+            kodeResultat = kodeResultat,
+            tkNr = sak.tkNr,
+            delytelse = listOf(Delytelse(DelytelseId(1, 1), LocalDate.of(2020, 1, 1), LocalDate.now().minusDays(1), 1900.0, "MS", typeUtbetaling = "M"), Delytelse(DelytelseId(1, 2), LocalDate.now(), null, 1940.0, "MS", typeUtbetaling = "M"))
         )
     }
 
@@ -195,6 +196,7 @@ object TestData {
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
             fnr = stønad.fnr,
+            tkNr = stønad.tkNr
         )
     }
 

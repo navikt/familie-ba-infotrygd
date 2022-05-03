@@ -2,14 +2,19 @@ package no.nav.familie.ba.infotrygd.service
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
+import no.nav.familie.ba.infotrygd.model.db2.Stønadsklasse
 import no.nav.familie.ba.infotrygd.model.dl1.Person
+import no.nav.familie.ba.infotrygd.model.dl1.Sak
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
 import no.nav.familie.ba.infotrygd.repository.HendelseRepository
+import no.nav.familie.ba.infotrygd.repository.LøpeNrFnrRepository
 import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakPersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
+import no.nav.familie.ba.infotrygd.repository.StønadsklasseRepository
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController
@@ -63,6 +68,13 @@ internal class BarnetrygdServiceTest {
 
     @Autowired
     private lateinit var hendelseRepository: HendelseRepository
+
+    @Autowired
+    private lateinit var stønadsklasseRepository: StønadsklasseRepository
+
+    @Autowired
+    private lateinit var løpeNrFnrRepository: LøpeNrFnrRepository
+
 
     private val environment: Environment = mockk(relaxed = true)
 
@@ -400,6 +412,26 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
+    fun `Skal hente avgjørende data om utvidet barnetrygd fra db2 dersom en stønad med status 0 mangler sak i dl1`() {
+        val person = personRepository.save(TestData.person())
+        val stønadMedStatus0 = stonadRepository.save(TestData.stønad(person, status = "00"))
+        val sak = sakRepository.save(TestData.sak(stønadMedStatus0, "UT", "MD"))
+        utbetalingRepository.save(TestData.utbetaling(stønadMedStatus0))
+
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
+            assertThat(it.brukere).hasSize(1)
+        }
+            sakRepository.delete(sak)
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
+            assertThat(it.brukere).hasSize(0)
+        }
+            lagraRelevantDb2Data(sak)
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
+            assertThat(it.brukere).hasSize(1)
+        }
+    }
+
+    @Test
     fun `Skal returnere tom SkatteetatenPerioderResponse hvor en person ikke har noen perioder med utvidet barnetrygd stønader`() {
         val person = personRepository.saveAndFlush(TestData.person())
         val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
@@ -604,6 +636,17 @@ internal class BarnetrygdServiceTest {
             utbetalingRepository.save(TestData.utbetaling(opphørtStønad, beløp = beløp))
         }
 
+    }
+
+    private fun lagraRelevantDb2Data(
+        sak: Sak
+    ) {
+        vedtakRepository.save(TestData.vedtak(sak)).also {
+            løpeNrFnrRepository.save(LøpeNrFnr(it.løpenummer, sak.fnr.asString))
+            stønadsklasseRepository.save(Stønadsklasse(it.vedtakId, kodeNivå = "01", sak.kapittelNr))
+            stønadsklasseRepository.save(Stønadsklasse(it.vedtakId, kodeNivå = "02", sak.valg))
+            stønadsklasseRepository.save(Stønadsklasse(it.vedtakId, kodeNivå = "03", sak.undervalg!!))
+        }
     }
 
     companion object {

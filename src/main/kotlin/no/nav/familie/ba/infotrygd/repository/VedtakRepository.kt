@@ -41,4 +41,28 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
     """
     )
     fun tellAntallÅpneSakerPåPerson(fnr: String): Long
+
+    @Query("""
+        SELECT s.vedtak_id vedtakId, s.kode_nivaa kodeNivaa, s.kode_klasse kodeKlasse FROM {h-schema}T_STONADSKLASSE s
+        WHERE s.VEDTAK_ID IN (
+            SELECT v.vedtak_id FROM {h-schema}T_VEDTAK v
+                INNER JOIN {h-schema}T_LOPENR_FNR l
+                ON v.PERSON_LOPENR = l.PERSON_LOPENR
+            WHERE l.PERSONNR = :fnr
+            AND v.KODE_RUTINE = 'BA'
+            AND v.TKNR = :tkNr
+            AND v.SAKSBLOKK = :saksblokk
+            AND v.SAKSNR = :saksnummer
+        )""",
+        nativeQuery = true)
+    fun hentStønadsklassifisering(fnr: String,
+                                  tkNr: String,
+                                  saksblokk: String,
+                                  saksnummer: Long): List<Stønadsklasse>
+}
+
+interface Stønadsklasse {
+    val vedtakId: Long
+    val kodeNivaa: String
+    val kodeKlasse: String
 }

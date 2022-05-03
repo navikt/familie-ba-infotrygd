@@ -3,6 +3,7 @@ package no.nav.familie.ba.infotrygd.testutil
 import no.nav.familie.ba.infotrygd.model.db2.Beslutning
 import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
 import no.nav.familie.ba.infotrygd.model.db2.StønadDb2
+import no.nav.familie.ba.infotrygd.model.db2.Stønadsklasse
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
 import no.nav.familie.ba.infotrygd.repository.BeslutningRepository
 import no.nav.familie.ba.infotrygd.repository.LøpeNrFnrRepository
@@ -10,6 +11,7 @@ import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StønadDb2Repository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
+import no.nav.familie.ba.infotrygd.repository.StønadsklasseRepository
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import org.slf4j.LoggerFactory
@@ -32,6 +34,7 @@ class DemoData(
     private val utbetalingRepository: UtbetalingRepository,
     private val beslutningRepository: BeslutningRepository,
     private val stønadDb2Repository: StønadDb2Repository,
+    private val stønadsklasseRepository: StønadsklasseRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -50,6 +53,9 @@ class DemoData(
         vedtakRepository.saveAndFlush(TestData.vedtak(sak)).also {
             stønadDb2Repository.saveAndFlush(StønadDb2(1, "BA", 1))
             beslutningRepository.saveAndFlush(Beslutning(1, it.vedtakId, "J"))
+            stønadsklasseRepository.saveAndFlush(Stønadsklasse(it.vedtakId, "01", sak.kapittelNr))
+            stønadsklasseRepository.saveAndFlush(Stønadsklasse(it.vedtakId, "02", sak.valg))
+            stønadsklasseRepository.saveAndFlush(Stønadsklasse(it.vedtakId, "03", sak.undervalg!!))
         }
         stønadRepository.saveAndFlush(TestData.stønad(mottaker = person, opphørtFom = LocalDate.now()
             .format(DateTimeFormatter.ofPattern("ddMMyy"))))

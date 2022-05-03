@@ -13,6 +13,7 @@ import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
+import no.nav.familie.ba.infotrygd.repository.Stønadsklasse
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.InfotrygdUtvidetBarnetrygdResponse
@@ -308,8 +309,12 @@ class BarnetrygdService(
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).any { sak ->
-                    sak.undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
+                sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).map { sak -> sak.undervalg }.ifEmpty {
+                    hentUtvidetBarnetrygdUndervalgFraDb2(stønad).also {
+                        if (it.isNotEmpty()) logger.info("Stønad(${stønad.id}) mangler sak i dl1. Hentet undervalg fra db2: $it")
+                    }
+                }.any { undervalg ->
+                    undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
                 }
             }
 
@@ -460,6 +465,29 @@ class BarnetrygdService(
                 } else sammenslåttePerioder.apply { add(nesteUtbetaling) }
             }
     }
+
+    private fun hentUtvidetBarnetrygdUndervalgFraDb2(
+        stønad: TrunkertStønad
+    ) = stønad.fnr?.let {
+        vedtakRepository.hentStønadsklassifisering(
+            fnr = stønad.fnr.asString,
+            tkNr = stønad.personKey.toString().padStart(15, '0').substring(0, 4),
+            saksblokk = stønad.saksblokk,
+            saksnummer = stønad.sakNr.toLong()
+        ).groupBy { stønadsklasse -> stønadsklasse.vedtakId }.values
+            .filter { it.kodeNivå2 == "UT" }
+            .map { it.kodeNivå3 }
+    } ?: emptyList()
+
+    private val List<Stønadsklasse>.kodeNivå2: String?
+        get() {
+            return find { it.kodeNivaa == "02" }?.kodeKlasse  // vil f.eks være "OR" for en sak av type BA OR OS
+        }
+
+    private val List<Stønadsklasse>.kodeNivå3: String?
+        get() {
+            return find { it.kodeNivaa == "03" }?.kodeKlasse  // vil f.eks være "MD" for en sak av type BA OR MD
+        }
 
     companion object {
 
