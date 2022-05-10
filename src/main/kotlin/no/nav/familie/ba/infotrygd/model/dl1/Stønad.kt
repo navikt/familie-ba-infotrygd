@@ -99,6 +99,7 @@ data class TrunkertStønad(
     val opphørtFom: String,
 
     val iverksattFom: String,
+) {
+    var stønadsklasse: List<String> = emptyList()
+}
 
-    var stønadsklasse: List<String> = emptyList(),
-)
