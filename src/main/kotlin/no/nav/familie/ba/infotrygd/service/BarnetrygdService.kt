@@ -146,9 +146,10 @@ class BarnetrygdService(
         fraDato: YearMonth
     ): InfotrygdUtvidetBarnetrygdResponse {
 
-        val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr))
-            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) && it.antallBarn > 0 }
-            .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad()) }
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { it.antallBarn > 0 }
+            .map { it.tilTrunkertStønad() }
+            .filter { erUtvidetBarnetrygd(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
         val perioder = konverterTilDtoUtvidetBarnetrygd(utvidetBarnetrygdStønader)
 
         return InfotrygdUtvidetBarnetrygdResponse(perioder.filter {
@@ -164,10 +165,11 @@ class BarnetrygdService(
         val bruker = FoedselsNr(brukerFnr)
 
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(bruker, år, "00", "02", "03")
-            .filter { erUtvidetBarnetrygd(it.tilTrunkertStønad()) }
-            .filter { filtrerStønaderSomErFeilregistrert(it.tilTrunkertStønad()) }
+            .map { it.tilTrunkertStønad() }
+            .filter { erUtvidetBarnetrygd(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
             .filter {
-                utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad())
+                utbetalingRepository.hentUtbetalingerByStønad(it)
                     .any { it.tom() == null || it.tom()!!.year >= år }
             }
 
@@ -309,11 +311,7 @@ class BarnetrygdService(
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).map { sak -> sak.undervalg }.ifEmpty {
-                    hentUtvidetBarnetrygdUndervalgFraDb2(stønad).also {
-                        if (it.isNotEmpty()) logger.info("Stønad(${stønad.id}) mangler sak i dl1. Hentet undervalg fra db2: $it")
-                    }
-                }.any { undervalg ->
+                hentUndervalg(stønad).any { undervalg ->
                     undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
                 }
             }
@@ -326,7 +324,7 @@ class BarnetrygdService(
 
 
     private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(
-        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<Stønad>, år: Int
+        brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<TrunkertStønad>, år: Int
     ): List<SkatteetatenPerioder> {
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
@@ -375,19 +373,19 @@ class BarnetrygdService(
         }
     }
 
-    private fun delingsprosent(it: Stønad): SkatteetatenPeriode.Delingsprosent {
-        val undervalgSaker = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it.tilTrunkertStønad()).map { it.undervalg }
+    private fun delingsprosent(stønad: TrunkertStønad): SkatteetatenPeriode.Delingsprosent {
+        val undervalg = hentUndervalg(stønad)
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
-        if (undervalgSaker.any { it == "EF" || it == "EU" }) {
+        if (undervalg.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
-        } else if (undervalgSaker.contains("MD")) {
+        } else if (undervalg.contains("MD")) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._50
         }
         return delingsprosent
     }
 
     private fun konverterTilDtoUtvidetBarnetrygd(
-        utvidetBarnetrygdStønader: List<Stønad>
+        utvidetBarnetrygdStønader: List<TrunkertStønad>
     ): List<UtvidetBarnetrygdPeriode> {
         if (utvidetBarnetrygdStønader.isEmpty()) {
             return emptyList()
@@ -396,7 +394,7 @@ class BarnetrygdService(
 
         val allePerioder = mutableListOf<UtvidetBarnetrygdPeriode>()
         utvidetBarnetrygdStønader.forEach {
-            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it.tilTrunkertStønad())
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
             allePerioder.addAll(utbetalinger.map { utbetaling ->
                 val (beløp, manueltBeregnet, deltBosted) = kalkulerBeløp(it, utbetaling)
 
@@ -424,13 +422,13 @@ class BarnetrygdService(
         return perioder
     }
 
-    private fun kalkulerBeløp(it: Stønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
-        val erDeltBosted = sakRepository.hentUtvidetBarnetrygdsakerForStønad(it.tilTrunkertStønad())
-            .any { it.undervalg == MANUELL_BEREGNING_DELT_BOSTED }
+    private fun kalkulerBeløp(stønad: TrunkertStønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
+        val undervalg = hentUndervalg(stønad)
+        val erDeltBosted = undervalg.any { it == MANUELL_BEREGNING_DELT_BOSTED }
 
         if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
 
-        if (it.status.toInt() != 0) return Triple(
+        if (stønad.status.toInt() != 0) return Triple(
             finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling),
             false,
             erDeltBosted
@@ -438,6 +436,13 @@ class BarnetrygdService(
 
         return Triple(utbetaling.beløp, true, erDeltBosted)
     }
+
+    private fun hentUndervalg(stønad: TrunkertStønad) =
+        sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).map { it.undervalg }.filterNotNull().ifEmpty {
+            hentUtvidetBarnetrygdUndervalgFraDb2(stønad).filterNotNull().also {
+                if (it.isNotEmpty()) logger.info("Stønad(${stønad.id}) mangler sak i dl1. Hentet undervalg fra db2: $it")
+            }
+        }
 
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
         return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }

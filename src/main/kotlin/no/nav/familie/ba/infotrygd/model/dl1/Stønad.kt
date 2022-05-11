@@ -98,5 +98,6 @@ data class TrunkertStønad(
 
     val opphørtFom: String,
 
-    val iverksattFom: String
+    val iverksattFom: String,
 )
+
