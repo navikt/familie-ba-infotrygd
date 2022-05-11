@@ -311,7 +311,7 @@ class BarnetrygdService(
                     logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
                     return false
                 }
-                hentUndervalg(stønad).also { stønad.stønadsklasse = it }.any { undervalg ->
+                hentUndervalg(stønad).any { undervalg ->
                     undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
                 }
             }
@@ -374,7 +374,7 @@ class BarnetrygdService(
     }
 
     private fun delingsprosent(stønad: TrunkertStønad): SkatteetatenPeriode.Delingsprosent {
-        val undervalg = stønad.stønadsklasse.ifEmpty { hentUndervalg(stønad) }
+        val undervalg = hentUndervalg(stønad)
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
         if (undervalg.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
@@ -423,7 +423,7 @@ class BarnetrygdService(
     }
 
     private fun kalkulerBeløp(stønad: TrunkertStønad, utbetaling: Utbetaling): Triple<Double, Boolean, Boolean> {
-        val undervalg = stønad.stønadsklasse.ifEmpty { hentUndervalg(stønad) }
+        val undervalg = hentUndervalg(stønad)
         val erDeltBosted = undervalg.any { it == MANUELL_BEREGNING_DELT_BOSTED }
 
         if (utbetaling.erSmåbarnstillegg()) return Triple(utbetaling.beløp, false, erDeltBosted)
