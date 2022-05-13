@@ -98,7 +98,8 @@ class BarnetrygdService(
                 .map { it.toBarnDto() },
             delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
                 .sortedBy { it.vedtakId }
-                .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList()
+                .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList(),
+            antallBarn = stønad.antallBarn
         )
     }
 
