@@ -480,69 +480,19 @@ internal class BarnetrygdServiceTest {
             personRepository.saveAndFlush(TestData.person())
         val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
 
-        val stønad2 = TestData.stønad(
-            personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn,
-            virkningFom = (999999 - 202001).toString(),
-            status = "02",
-            antallBarn = 2
-        )
-        val stønad3 = TestData.stønad(
-            personSomFiltreresVekkPgaBarnMedSpesiellStønadstype,
-            virkningFom = (999999 - 202001).toString(),
-            status = "01",
-            antallBarn = 1
-        )
 
-        stonadRepository.saveAll(listOf(stønad1, stønad2, stønad3)).also {
+
+        stonadRepository.saveAll(listOf(stønad1)).also {
             sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
         }
         val barn1 = TestData.barn(stønad1)
-        barnRepository.saveAll(listOf(barn1,
-                                      TestData.barn(stønad2),
-                                      TestData.barn(stønad3, stønadstype = "N")))
+        barnRepository.saveAll(listOf(barn1))
 
         barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
             .also {
                 assertThat(it.first as Iterable<String>).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
             }
     }
-
-    @Test
-    fun `skal filtrere bort person med løpende stønad på barn over 18 år ved migreirng`() {
-        val personMedStønadPåBarnOver18år = personRepository.saveAndFlush(TestData.person())
-
-        personRepository.saveAndFlush(TestData.person())
-        val stønad1 = TestData.stønad(personMedStønadPåBarnOver18år, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
-
-
-        stonadRepository.saveAll(listOf(stønad1)).also {
-            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
-        }
-
-        barnRepository.saveAll(listOf(TestData.barn(stønad = stønad1, barnFnr = foedselsNr(foedselsdato = LocalDate.now().minusMonths(18L*12 + 1)))))
-
-        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
-            .also {
-                assertThat(it.first).hasSize(0)
-            }
-    }
-
-
-    @Test
-    fun `skal filtrere bort person med 0 antall barn på stønaden`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val stønadMed0AntallBarn = TestData.stønad(person, antallBarn = 0)
-
-        stonadRepository.saveAndFlush(stønadMed0AntallBarn).also {
-            sakRepository.saveAndFlush(TestData.sak(it, valg = "OR", undervalg = "OS"))
-            barnRepository.saveAndFlush(TestData.barn(stønad = it))
-        }
-        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
-            .also {
-                assertThat(it.first).hasSize(0)
-            }
-    }
-
     @Test
     fun `skal filtrere på tknr ved migreirng i preprod`() {
         every { environment.activeProfiles } returns listOf("preprod").toTypedArray() andThen listOf("prod").toTypedArray()

@@ -228,39 +228,8 @@ class BarnetrygdService(
         } else {
             stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
         }
-        logger.info("Fant ${stønader.content.size} stønader på side $page")
-        var (ikkeFiltrerteStønader, filtrerteStønader) = stønader.content.partition {
-            it.antallBarn > 0 && it.antallBarn == barnRepository.findBarnByPersonkey(it.personKey)
-                .filter { barn -> barn.stønadstype.isNullOrBlank() }.size
-        }
-        logger.info("Fant ${ikkeFiltrerteStønader.size} stønader etter filtrering av antall barn i barnRepository ikke er like barn på stønad eller antallBarn = 0")
-        filtrerteStønader.forEach {
-            secureLogger.info(
-                "Filtrerte vekk stønad ${it.id} med ${it.antallBarn} barn: " +
-                        "${barnRepository.findBarnByStønad(it).map { it.toString() }}"
-            )
-        }
 
-        //filterer barn over 18 år
-        ikkeFiltrerteStønader = ikkeFiltrerteStønader.filter {
-            val barnOver18 = barnRepository.findBarnByStønad(it).filter { barn ->
-                barn.barnFnr.foedselsdato.isBefore(LocalDate.now().minusYears(18L))
-                        && barn.barnetrygdTom == "000000"
-                        && barn.stønadstype.isNullOrBlank()
-            }
-            if (barnOver18.isEmpty())
-                true
-            else {
-                secureLogger.info(
-                    "Filtrerte vekk stønad ${it.id} med ${barnOver18.size} barn over 18: " +
-                            "${barnOver18.map { barn -> barn.toString() }}"
-                )
-                false
-            }
-        }
-        logger.info("Fant ${ikkeFiltrerteStønader.size} etter at filtrering på alder er satt")
-
-        return Pair(ikkeFiltrerteStønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
+        return Pair(stønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
