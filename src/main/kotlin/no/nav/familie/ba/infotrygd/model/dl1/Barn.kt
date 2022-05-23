@@ -49,5 +49,6 @@ fun Barn.toBarnDto(): BarnDto {
     return BarnDto(
         barnFnr = barnFnr.asString,
         barnetrygdTom = barnetrygdTom,
+        stønadstype = stønadstype
     )
 }
