@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
@@ -53,5 +54,28 @@ class SkatteetatenController(
         clientValidator.authorizeClient()
         return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(år))
     }
+
+    @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
+    @GetMapping(path = ["delingsprosent"])
+    fun identifiserAntallUsikkerDelingsprosent(@Parameter(name = "aar") @RequestParam("aar") år: String): String {
+        clientValidator.authorizeClient()
+
+
+        val allePersoner = personerMedUtvidet(år).brukere
+        val usikreDelingsprosent = mutableSetOf<String>()
+        allePersoner.forEach {
+            val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it.ident, år.toInt())
+            val periode = perioder.brukere.firstOrNull()
+            val f = periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
+            if (f == true) {
+                usikreDelingsprosent.add(periode.ident)
+            }
+        }
+        return "${usikreDelingsprosent.size} \n $usikreDelingsprosent"
+    }
 }
+
+
+
+
 
