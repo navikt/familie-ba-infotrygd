@@ -32,6 +32,7 @@ class SkatteetatenController(
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
 
     @Operation(summary = "Hent alle perioder for utvidet for en liste personer")
@@ -71,6 +72,9 @@ class SkatteetatenController(
                 usikreDelingsprosent.add(periode.ident)
             }
         }
+
+        logger.info("Antall identer m ed usikker delingsprosent=${usikreDelingsprosent.size}")
+        secureLogger.info("Identern med usikker delingsprosent $usikreDelingsprosent")
         return "${usikreDelingsprosent.size} \n $usikreDelingsprosent"
     }
 }
