@@ -378,7 +378,7 @@ internal class BarnetrygdServiceTest {
             assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2019-01")
             assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2019-10")
             assertThat(it.brukere.first().perioder.first().
-            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
+            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent.usikker)
             assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
 

@@ -348,8 +348,6 @@ class BarnetrygdService(
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
         if (undervalg.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
-        } else if (undervalg.contains("MD")) {
-            delingsprosent = SkatteetatenPeriode.Delingsprosent._50
         }
         return delingsprosent
     }
