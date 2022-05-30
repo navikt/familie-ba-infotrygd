@@ -75,6 +75,7 @@ fun Stønad.tilTrunkertStønad(): TrunkertStønad {
         virkningFom = virkningFom,
         opphørtFom = opphørtFom,
         iverksattFom = iverksattFom,
+        antallBarn = antallBarn
     )
 }
 
@@ -99,5 +100,7 @@ data class TrunkertStønad(
     val opphørtFom: String,
 
     val iverksattFom: String,
+
+    val antallBarn: Int,
 )
 

@@ -412,6 +412,34 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
+    fun `Skal returnere SkatteetatenPerioderResponse med perioder usikker ved flere barn`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
+
+        stonadRepository.saveAll(listOf(
+            // utvidet barnetrygd 2020 med delt bosted
+            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 2),
+
+        )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+        }
+
+        //Denne verifiserer at stønaden er deltbosted
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
+            assertThat(it.brukere).hasSize(1)
+            assertThat(it.brukere.first().perioder).hasSize(1)
+            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
+            assertThat(it.brukere.first().perioder.first().
+            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent.usikker)
+            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+        }
+
+
+    }
+
+
+    @Test
     fun `Skal hente avgjørende data om utvidet barnetrygd fra db2 dersom en stønad med status 0 mangler sak i dl1`() {
         val person = personRepository.save(TestData.person())
         val stønadMedStatus0 = stonadRepository.save(TestData.stønad(person, status = "00"))
