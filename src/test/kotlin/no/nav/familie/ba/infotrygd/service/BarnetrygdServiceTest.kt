@@ -411,6 +411,59 @@ internal class BarnetrygdServiceTest {
         }
     }
 
+
+    @Test
+    fun `Skal returnere SkatteetatenPerioderResponse med perioder Delingsprosent_50 ved 1 barn over 6 år, med utvidet andel og delt på 2 personer`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
+
+        stonadRepository.saveAll(listOf(
+            // utvidet barnetrygd 2020 med delt bosted
+            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 1),
+
+            )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(stønad = it, beløp = (SATS_BARNETRYGD_OVER_6 + SATS_UTVIDET)/2) })
+        }
+
+        //Denne verifiserer at stønaden er deltbosted
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
+            assertThat(it.brukere).hasSize(1)
+            assertThat(it.brukere.first().perioder).hasSize(1)
+            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
+            assertThat(it.brukere.first().perioder.first().
+            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
+            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+        }
+    }
+
+    @Test
+    fun `Skal returnere SkatteetatenPerioderResponse med perioder Delingsprosent_50 ved 1 barn under 6 år i 2021, med utvidet andel og delt på 2 personer`() {
+        val person = personRepository.saveAndFlush(TestData.person())
+        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
+
+        stonadRepository.saveAll(listOf(
+            // utvidet barnetrygd 2020 med delt bosted
+            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 1),
+
+            )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(stønad = it, beløp = (SATS_BARNETRYGD_UNDER_6_2021 + SATS_UTVIDET)/2) })
+        }
+
+        //Denne verifiserer at stønaden er deltbosted
+        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
+            assertThat(it.brukere).hasSize(1)
+            assertThat(it.brukere.first().perioder).hasSize(1)
+            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
+            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
+            assertThat(it.brukere.first().perioder.first().
+            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
+            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
+        }
+    }
+
+
+
     @Test
     fun `Skal returnere SkatteetatenPerioderResponse med perioder Delingsprosent_50 ved flere barn og riktig beløp`() {
         val person = personRepository.saveAndFlush(TestData.person())
@@ -434,8 +487,6 @@ internal class BarnetrygdServiceTest {
             delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
             assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
-
-
     }
 
     @Test
@@ -656,5 +707,10 @@ internal class BarnetrygdServiceTest {
     companion object {
         const val MANUELT_BEREGNET_STATUS = "0"
         const val UTVIDET_BARNETRYGD_STATUS = "2"
+        const val SATS_BARNETRYGD_OVER_6 = 1054.0
+        const val SATS_BARNETRYGD_UNDER_6_2021 = 1654.0
+        const val SATS_BARNETRYGD_UNDER_6_2022 = 1676.0
+        const val SATS_UTVIDET = 1054.0
     }
+
 }
