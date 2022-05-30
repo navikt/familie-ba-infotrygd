@@ -63,17 +63,19 @@ class SkatteetatenController(
 
 
         val allePersoner = personerMedUtvidet(år).brukere
+        logger.info("Hentet personer med utvidet ${allePersoner.size}")
         val usikreDelingsprosent = mutableSetOf<String>()
         allePersoner.forEach {
             val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it.ident, år.toInt())
             val periode = perioder.brukere.firstOrNull()
-            val f = periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
-            if (f == true) {
+            val harUsikkerDelingsprosent = periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
+            if (harUsikkerDelingsprosent == true) {
+                secureLogger.info("Usikker delingsprosent ${periode.ident}")
                 usikreDelingsprosent.add(periode.ident)
             }
         }
 
-        logger.info("Antall identer m ed usikker delingsprosent=${usikreDelingsprosent.size}")
+        logger.info("Antall identer med usikker delingsprosent=${usikreDelingsprosent.size}")
         secureLogger.info("Identern med usikker delingsprosent $usikreDelingsprosent")
         return "${usikreDelingsprosent.size} \n $usikreDelingsprosent"
     }
