@@ -352,7 +352,13 @@ class BarnetrygdService(
             delingsprosent = if (stønad.antallBarn == 1) {
                 SkatteetatenPeriode.Delingsprosent._50
             } else {
-                SkatteetatenPeriode.Delingsprosent.usikker
+                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }.toInt()
+                val beregnetBeløp = (stønad.antallBarn * UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble() / 2).toInt()
+                if (sumUtbetaltBeløp != beregnetBeløp) {
+                    SkatteetatenPeriode.Delingsprosent.usikker
+                } else {
+                    SkatteetatenPeriode.Delingsprosent._50
+                }
             }
         }
         return delingsprosent
