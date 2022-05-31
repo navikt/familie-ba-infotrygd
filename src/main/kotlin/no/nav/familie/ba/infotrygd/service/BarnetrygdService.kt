@@ -349,7 +349,17 @@ class BarnetrygdService(
         if (undervalg.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
         } else if (undervalg.contains("MD")) {
-            delingsprosent = SkatteetatenPeriode.Delingsprosent._50
+            delingsprosent = if (stønad.antallBarn == 1) {
+                SkatteetatenPeriode.Delingsprosent._50
+            } else {
+                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }.toInt()
+                val beregnetBeløp = (stønad.antallBarn * UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble() / 2).toInt()
+                if (sumUtbetaltBeløp != beregnetBeløp) {
+                    SkatteetatenPeriode.Delingsprosent.usikker
+                } else {
+                    SkatteetatenPeriode.Delingsprosent._50
+                }
+            }
         }
         return delingsprosent
     }

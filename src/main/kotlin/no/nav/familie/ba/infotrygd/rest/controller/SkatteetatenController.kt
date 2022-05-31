@@ -5,8 +5,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
+import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
@@ -31,6 +34,7 @@ class SkatteetatenController(
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
 
     @Operation(summary = "Hent alle perioder for utvidet for en liste personer")
@@ -53,5 +57,37 @@ class SkatteetatenController(
         clientValidator.authorizeClient()
         return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(år))
     }
+
+    @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
+    @GetMapping(path = ["delingsprosent"])
+    fun identifiserAntallUsikkerDelingsprosent(@Parameter(name = "aar") @RequestParam("aar") år: String): String {
+        clientValidator.authorizeClient()
+
+
+        val allePersoner = personerMedUtvidet(år).brukere
+        logger.info("Hentet personer med utvidet ${allePersoner.size}")
+
+
+        GlobalScope.launch {
+            allePersoner.chunked(10000) {
+                it.forEach {
+                    val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it.ident, år.toInt())
+                    val periode = perioder.brukere.firstOrNull()
+                    val harUsikkerDelingsprosent =
+                        periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
+                    if (harUsikkerDelingsprosent == true) {
+                        secureLogger.info("Usikker delingsprosent ${periode.ident}")
+                    }
+                }
+                logger.info("Sjekket ${it.size} nye identer etter delingsprosent usikker")
+            }
+            logger.info("Ferdig med å sjekke etter delingsprosent usikker")
+        }
+        return "Sjekker ${allePersoner.size} saker for usikker delingsprosent. Sjekk securelogs"
+    }
 }
+
+
+
+
 
