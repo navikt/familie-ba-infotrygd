@@ -358,7 +358,7 @@ class BarnetrygdService(
                 if (gyldigeBeløp.contains(sumUtbetaltBeløp.roundToInt())) {
                     delingsprosent = SkatteetatenPeriode.Delingsprosent._50
                 } else {
-                    secureLogger.info("Usikker delingsprosent for ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp" +
+                    secureLogger.info("Delingsprosent usikker, ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp" +
                                               ", antallBarn: ${stønad.antallBarn}, år: $år")
                 }
             }
@@ -366,8 +366,8 @@ class BarnetrygdService(
         return delingsprosent
     }
 
-    private fun utledListeMedGyldigeUtbetalingsbeløp(antallBarn: Int, år: Int): MutableList<Int> {
-        val gyldigeBeløp = mutableListOf<Int>()
+    fun utledListeMedGyldigeUtbetalingsbeløp(antallBarn: Int, år: Int): Set<Int> {
+        val gyldigeBeløp = mutableSetOf<Int>()
         for (i in 0..antallBarn) {
             val antallBarnUnder6 = i
             val antallBarnOver6 = antallBarn - i
@@ -381,7 +381,7 @@ class BarnetrygdService(
                 val utbetalingsbeløpForBarna2 = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2021
                 val beløp1 = (utbetalingsbeløpForBarna1 + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
                 val beløp2 = (utbetalingsbeløpForBarna2 + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
-                gyldigeBeløp.addAll(listOf(beløp1.roundToInt(), beløp2.roundToInt()))
+                gyldigeBeløp.addAll(setOf(beløp1.roundToInt(), beløp2.roundToInt()))
             }
         }
         return gyldigeBeløp
