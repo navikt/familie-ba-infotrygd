@@ -32,11 +32,11 @@ import org.springframework.core.env.Environment
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import kotlin.math.roundToInt
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -315,7 +315,7 @@ class BarnetrygdService(
                 SkatteetatenPeriode(
                     fraMaaned = fraMåned.toString(),
                     tomMaaned = tomMåned?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
-                    delingsprosent = delingsprosent(it)
+                    delingsprosent = delingsprosent(it, år)
                 )
             )
         }
@@ -343,25 +343,47 @@ class BarnetrygdService(
         }
     }
 
-    private fun delingsprosent(stønad: TrunkertStønad): SkatteetatenPeriode.Delingsprosent {
+    private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
         val undervalg = hentUndervalg(stønad)
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
         if (undervalg.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
         } else if (undervalg.contains("MD")) {
-            delingsprosent = if (stønad.antallBarn == 1) {
-                SkatteetatenPeriode.Delingsprosent._50
-            } else {
-                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }.toInt()
-                val beregnetBeløp = (stønad.antallBarn * UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble() / 2).toInt()
-                if (sumUtbetaltBeløp != beregnetBeløp) {
-                    SkatteetatenPeriode.Delingsprosent.usikker
+            if (stønad.antallBarn == 1) {
+                delingsprosent = SkatteetatenPeriode.Delingsprosent._50
+            } else if (stønad.antallBarn < 7) {
+                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }
+                val gyldigeBeløp = utledListeMedGyldigeUtbetalingsbeløp(stønad.antallBarn, år)
+
+                if (gyldigeBeløp.contains(sumUtbetaltBeløp.roundToInt())) {
+                    delingsprosent = SkatteetatenPeriode.Delingsprosent._50
                 } else {
-                    SkatteetatenPeriode.Delingsprosent._50
+                    secureLogger.info("Usikker delingsprosent for ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp")
                 }
             }
         }
         return delingsprosent
+    }
+
+    private fun utledListeMedGyldigeUtbetalingsbeløp(antallBarn: Int, år: Int): MutableList<Int> {
+        val gyldigeBeløp = mutableListOf<Int>()
+        for (i in 0..antallBarn) {
+            val antallBarnUnder6 = i
+            val antallBarnOver6 = antallBarn - i
+
+            if (år >= 2022) {
+                val utbetalingsbeløpForBarna = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2022
+                val beløp = (utbetalingsbeløpForBarna + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
+                gyldigeBeløp.add(beløp.roundToInt())
+            } else {
+                val utbetalingsbeløpForBarna1 = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2020
+                val utbetalingsbeløpForBarna2 = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2021
+                val beløp1 = (utbetalingsbeløpForBarna1 + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
+                val beløp2 = (utbetalingsbeløpForBarna2 + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
+                gyldigeBeløp.addAll(listOf(beløp1.roundToInt(), beløp2.roundToInt()))
+            }
+        }
+        return gyldigeBeløp
     }
 
     private fun konverterTilDtoUtvidetBarnetrygd(
@@ -478,6 +500,10 @@ class BarnetrygdService(
 
         const val UTVIDET_BARNETRYGD_ELDRE_SATS = 970
         const val UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS = 1054
+        const val SATS_BARNETRYGD_OVER_6 = 1054.0
+        const val SATS_BARNETRYGD_UNDER_6_2020 = 1354.0
+        const val SATS_BARNETRYGD_UNDER_6_2021 = 1654.0
+        const val SATS_BARNETRYGD_UNDER_6_2022 = 1676.0
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"
         const val MANUELL_BEREGNING_EØS = "ME"
         const val MANUELL_BEREGNING = "MB"

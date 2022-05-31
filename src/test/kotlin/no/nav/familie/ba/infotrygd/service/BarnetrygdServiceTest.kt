@@ -474,7 +474,7 @@ internal class BarnetrygdServiceTest {
             TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 2),
 
         )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it, beløp = 1581.0) })
         }
 
         //Denne verifiserer at stønaden er deltbosted
