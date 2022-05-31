@@ -39,7 +39,7 @@ spec:
   resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
     limits:
       cpu: 3000m # app will have its cpu usage throttled if exceeding this limit
-      memory: 2048Mi  # app will be killed if exceeding these limits
+      memory: 4096Mi  # app will be killed if exceeding these limits
     requests: # App is guaranteed the requested resources and  will be scheduled on nodes with at least this amount of resources available
       cpu: 500m
       memory: 1024Mi
@@ -106,3 +106,5 @@ spec:
       value: /var/run/secrets/oracle/creds/password
     - name: SPRING_PROFILES_ACTIVE
       value: prod
+    - name: JAVA_OPTS
+      value: "-XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError"
