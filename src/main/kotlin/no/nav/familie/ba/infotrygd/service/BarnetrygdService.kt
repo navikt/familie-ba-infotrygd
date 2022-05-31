@@ -358,7 +358,8 @@ class BarnetrygdService(
                 if (gyldigeBeløp.contains(sumUtbetaltBeløp.roundToInt())) {
                     delingsprosent = SkatteetatenPeriode.Delingsprosent._50
                 } else {
-                    secureLogger.info("Usikker delingsprosent for ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp")
+                    secureLogger.info("Usikker delingsprosent for ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp" +
+                                              ", antallBarn: ${stønad.antallBarn}, år: $år")
                 }
             }
         }
