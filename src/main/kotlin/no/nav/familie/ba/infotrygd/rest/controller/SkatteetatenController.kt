@@ -65,23 +65,43 @@ class SkatteetatenController(
 
 
         val allePersoner = personerMedUtvidet(år).brukere
-        logger.info("Hentet personer med utvidet ${allePersoner.size}")
+        logger.info("Hentet personer med utvidet ${allePersoner.size} for  $år")
 
 
         GlobalScope.launch {
+            val identerMedUsikkerDelingsprosent = mutableSetOf<String>()
             allePersoner.chunked(10000) {
-                it.forEach {
-                    val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it.ident, år.toInt())
+                logger.info("Sjekket ${it.size} nye identer etter delingsprosent usikker for  $år")
+                it.forEach { skatteetatenPerson ->
+                    val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(skatteetatenPerson.ident, år.toInt())
                     val periode = perioder.brukere.firstOrNull()
                     val harUsikkerDelingsprosent =
                         periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
-                    if (harUsikkerDelingsprosent == true) {
-                        secureLogger.info("Usikker delingsprosent ${periode.ident}")
-                    }
+                    if (harUsikkerDelingsprosent == true) identerMedUsikkerDelingsprosent.add(skatteetatenPerson.ident)
                 }
-                logger.info("Sjekket ${it.size} nye identer etter delingsprosent usikker")
             }
-            logger.info("Ferdig med å sjekke etter delingsprosent usikker")
+
+            val identerGruppertByUndervalg = mutableMapOf<String, MutableSet<String>>()
+
+            identerMedUsikkerDelingsprosent.forEach {
+                val alleUndervalg = barnetrygdService.listUtvidetStønadstyperForPerson(år.toInt(), fnr = it )
+
+                    alleUndervalg.forEach { undervalg ->
+                        if (identerGruppertByUndervalg.containsKey(undervalg)) {
+                            identerGruppertByUndervalg[undervalg]!!.add(it)
+                        } else {
+                            identerGruppertByUndervalg[undervalg] = mutableSetOf(it)
+                        }
+                    }
+            }
+
+            identerGruppertByUndervalg.keys.forEach { undervalg ->
+                logger.info("Usikker delingsprosent $år: $undervalg: ${identerGruppertByUndervalg[undervalg]?.size}")
+                identerGruppertByUndervalg[undervalg]?.chunked(1000){ chunk ->
+                    secureLogger.info("Usikker delingsprosent $år: $undervalg: ${chunk.size} $chunk")
+                }
+            }
+            logger.info("Ferdig med å sjekke etter delingsprosent usikker for $år")
         }
         return "Sjekker ${allePersoner.size} saker for usikker delingsprosent. Sjekk securelogs"
     }

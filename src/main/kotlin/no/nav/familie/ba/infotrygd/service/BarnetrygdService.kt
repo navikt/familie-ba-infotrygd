@@ -211,6 +211,19 @@ class BarnetrygdService(
     }
 
 
+    fun listUtvidetStønadstyperForPerson(år: Int, fnr:String): List<String> {
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(FoedselsNr(fnr), år, "00", "02", "03").map { it.tilTrunkertStønad() }
+            .filter { erUtvidetBarnetrygd(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
+            .filter {
+                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
+                sisteMåned == null || sisteMåned.year >= år.toInt()
+            }
+            .filter {
+                utbetalingRepository.hentUtbetalingerByStønad(it).any { it.tom() == null || it.tom()!!.year >= år }
+            }
+        return utvidetBarnetrygdStønader.flatMap { hentUndervalg(it) }
+    }
 
     fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
         return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
