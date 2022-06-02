@@ -455,9 +455,7 @@ class BarnetrygdService(
 
     private fun hentUndervalg(stønad: TrunkertStønad) =
         sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).map { it.undervalg }.filterNotNull().ifEmpty {
-            hentUtvidetBarnetrygdUndervalgFraDb2(stønad).filterNotNull().also {
-                if (it.isNotEmpty()) logger.info("Stønad(${stønad.id}) mangler sak i dl1. Hentet undervalg fra db2: $it")
-            }
+            hentUtvidetBarnetrygdUndervalgFraDb2(stønad).filterNotNull()
         }
 
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
