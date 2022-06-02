@@ -77,7 +77,10 @@ class SkatteetatenController(
                     val periode = perioder.brukere.firstOrNull()
                     val harUsikkerDelingsprosent =
                         periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
-                    if (harUsikkerDelingsprosent == true) identerMedUsikkerDelingsprosent.add(skatteetatenPerson.ident)
+                    if (harUsikkerDelingsprosent == true) {
+                        secureLogger.info("${skatteetatenPerson.ident} har usikker delingsprosent")
+                        identerMedUsikkerDelingsprosent.add(skatteetatenPerson.ident)
+                    }
                 }
             }
 
@@ -101,7 +104,7 @@ class SkatteetatenController(
                     secureLogger.info("Usikker delingsprosent $år: $undervalg: ${chunk.size} $chunk")
                 }
             }
-            logger.info("Ferdig med å sjekke etter delingsprosent usikker for $år")
+            logger.info("Ferdig med å sjekke etter delingsprosent usikker for $år. Fant ${identerMedUsikkerDelingsprosent.size} totalt")
         }
         return "Sjekker ${allePersoner.size} saker for usikker delingsprosent. Sjekk securelogs"
     }
