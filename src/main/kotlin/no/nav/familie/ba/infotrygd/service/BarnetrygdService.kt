@@ -32,11 +32,11 @@ import org.springframework.core.env.Environment
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import kotlin.math.roundToInt
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
@@ -211,6 +211,19 @@ class BarnetrygdService(
     }
 
 
+    fun listUtvidetStønadstyperForPerson(år: Int, fnr:String): List<String> {
+        val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(FoedselsNr(fnr), år, "00", "02", "03").map { it.tilTrunkertStønad() }
+            .filter { erUtvidetBarnetrygd(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
+            .filter {
+                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
+                sisteMåned == null || sisteMåned.year >= år.toInt()
+            }
+            .filter {
+                utbetalingRepository.hentUtbetalingerByStønad(it).any { it.tom() == null || it.tom()!!.year >= år }
+            }
+        return utvidetBarnetrygdStønader.flatMap { hentUndervalg(it) }
+    }
 
     fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
         return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
@@ -315,7 +328,7 @@ class BarnetrygdService(
                 SkatteetatenPeriode(
                     fraMaaned = fraMåned.toString(),
                     tomMaaned = tomMåned?.minusMonths(1)?.toString(), //Leverer siste dato på stønaden eller null hvis løpenden
-                    delingsprosent = delingsprosent(it)
+                    delingsprosent = delingsprosent(it, år)
                 )
             )
         }
@@ -343,25 +356,48 @@ class BarnetrygdService(
         }
     }
 
-    private fun delingsprosent(stønad: TrunkertStønad): SkatteetatenPeriode.Delingsprosent {
+    private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
         val undervalg = hentUndervalg(stønad)
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
         if (undervalg.any { it == "EF" || it == "EU" }) {
             delingsprosent = SkatteetatenPeriode.Delingsprosent._0
         } else if (undervalg.contains("MD")) {
-            delingsprosent = if (stønad.antallBarn == 1) {
-                SkatteetatenPeriode.Delingsprosent._50
-            } else {
-                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }.toInt()
-                val beregnetBeløp = (stønad.antallBarn * UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble() / 2).toInt()
-                if (sumUtbetaltBeløp != beregnetBeløp) {
-                    SkatteetatenPeriode.Delingsprosent.usikker
+            if (stønad.antallBarn == 1) {
+                delingsprosent = SkatteetatenPeriode.Delingsprosent._50
+            } else if (stønad.antallBarn < 7) {
+                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }
+                val gyldigeBeløp = utledListeMedGyldigeUtbetalingsbeløp(stønad.antallBarn, år)
+
+                if (gyldigeBeløp.contains(sumUtbetaltBeløp.roundToInt())) {
+                    delingsprosent = SkatteetatenPeriode.Delingsprosent._50
                 } else {
-                    SkatteetatenPeriode.Delingsprosent._50
+                    secureLogger.info("Delingsprosent usikker, ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp" +
+                                              ", antallBarn: ${stønad.antallBarn}, år: $år")
                 }
             }
         }
         return delingsprosent
+    }
+
+    fun utledListeMedGyldigeUtbetalingsbeløp(antallBarn: Int, år: Int): Set<Int> {
+        val gyldigeBeløp = mutableSetOf<Int>()
+        for (i in 0..antallBarn) {
+            val antallBarnUnder6 = i
+            val antallBarnOver6 = antallBarn - i
+
+            if (år >= 2022) {
+                val utbetalingsbeløpForBarna = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2022
+                val beløp = (utbetalingsbeløpForBarna + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
+                gyldigeBeløp.add(beløp.roundToInt())
+            } else {
+                val utbetalingsbeløpForBarna1 = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2020
+                val utbetalingsbeløpForBarna2 = antallBarnOver6 * 1054 + antallBarnUnder6 * SATS_BARNETRYGD_UNDER_6_2021
+                val beløp1 = (utbetalingsbeløpForBarna1 + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
+                val beløp2 = (utbetalingsbeløpForBarna2 + UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS) / 2
+                gyldigeBeløp.addAll(setOf(beløp1.roundToInt(), beløp2.roundToInt()))
+            }
+        }
+        return gyldigeBeløp
     }
 
     private fun konverterTilDtoUtvidetBarnetrygd(
@@ -419,9 +455,7 @@ class BarnetrygdService(
 
     private fun hentUndervalg(stønad: TrunkertStønad) =
         sakRepository.hentUtvidetBarnetrygdsakerForStønad(stønad).map { it.undervalg }.filterNotNull().ifEmpty {
-            hentUtvidetBarnetrygdUndervalgFraDb2(stønad).filterNotNull().also {
-                if (it.isNotEmpty()) logger.info("Stønad(${stønad.id}) mangler sak i dl1. Hentet undervalg fra db2: $it")
-            }
+            hentUtvidetBarnetrygdUndervalgFraDb2(stønad).filterNotNull()
         }
 
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
@@ -478,6 +512,10 @@ class BarnetrygdService(
 
         const val UTVIDET_BARNETRYGD_ELDRE_SATS = 970
         const val UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS = 1054
+        const val SATS_BARNETRYGD_OVER_6 = 1054.0
+        const val SATS_BARNETRYGD_UNDER_6_2020 = 1354.0
+        const val SATS_BARNETRYGD_UNDER_6_2021 = 1654.0
+        const val SATS_BARNETRYGD_UNDER_6_2022 = 1676.0
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"
         const val MANUELL_BEREGNING_EØS = "ME"
         const val MANUELL_BEREGNING = "MB"

@@ -13,14 +13,17 @@ import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
+import no.nav.familie.log.mdc.MDCConstants
 import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
@@ -65,23 +68,51 @@ class SkatteetatenController(
 
 
         val allePersoner = personerMedUtvidet(år).brukere
-        logger.info("Hentet personer med utvidet ${allePersoner.size}")
+        logger.info("Hentet personer med utvidet ${allePersoner.size} for  $år")
 
 
         GlobalScope.launch {
-            allePersoner.chunked(10000) {
-                it.forEach {
-                    val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it.ident, år.toInt())
-                    val periode = perioder.brukere.firstOrNull()
-                    val harUsikkerDelingsprosent =
-                        periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
-                    if (harUsikkerDelingsprosent == true) {
-                        secureLogger.info("Usikker delingsprosent ${periode.ident}")
+            try {
+                MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString() + år)
+                val identerMedUsikkerDelingsprosent = mutableSetOf<String>()
+                allePersoner.chunked(10000) {
+                    logger.info("Sjekket ${it.size} nye identer etter delingsprosent usikker for  $år")
+                    it.forEach { skatteetatenPerson ->
+                        val perioder = barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(skatteetatenPerson.ident, år.toInt())
+                        val periode = perioder.brukere.firstOrNull()
+                        val harUsikkerDelingsprosent =
+                            periode?.perioder?.any { it.delingsprosent == SkatteetatenPeriode.Delingsprosent.usikker }
+                        if (harUsikkerDelingsprosent == true) {
+                            secureLogger.info("${skatteetatenPerson.ident} har usikker delingsprosent")
+                            identerMedUsikkerDelingsprosent.add(skatteetatenPerson.ident)
+                        }
                     }
                 }
-                logger.info("Sjekket ${it.size} nye identer etter delingsprosent usikker")
+
+                val identerGruppertByUndervalg = mutableMapOf<String, MutableSet<String>>()
+
+                identerMedUsikkerDelingsprosent.forEach {
+                    val alleUndervalg = barnetrygdService.listUtvidetStønadstyperForPerson(år.toInt(), fnr = it )
+
+                        alleUndervalg.forEach { undervalg ->
+                            if (identerGruppertByUndervalg.containsKey(undervalg)) {
+                                identerGruppertByUndervalg[undervalg]!!.add(it)
+                            } else {
+                                identerGruppertByUndervalg[undervalg] = mutableSetOf(it)
+                            }
+                        }
+                }
+
+                identerGruppertByUndervalg.keys.forEach { undervalg ->
+                    logger.info("Usikker delingsprosent $år: $undervalg: ${identerGruppertByUndervalg[undervalg]?.size}")
+                    identerGruppertByUndervalg[undervalg]?.chunked(1000){ chunk ->
+                        secureLogger.info("Usikker delingsprosent $år: $undervalg: ${chunk.size} $chunk")
+                    }
+                }
+                logger.info("Ferdig med å sjekke etter delingsprosent usikker for $år. Fant ${identerMedUsikkerDelingsprosent.size} totalt")
+            } finally {
+                MDC.clear()
             }
-            logger.info("Ferdig med å sjekke etter delingsprosent usikker")
         }
         return "Sjekker ${allePersoner.size} saker for usikker delingsprosent. Sjekk securelogs"
     }

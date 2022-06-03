@@ -474,7 +474,7 @@ internal class BarnetrygdServiceTest {
             TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 2),
 
         )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it, beløp = 1581.0) })
         }
 
         //Denne verifiserer at stønaden er deltbosted
@@ -488,6 +488,16 @@ internal class BarnetrygdServiceTest {
             assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
         }
     }
+
+    @Test
+    fun `gyldige beløp`() {
+        val gyldigeBeløp2Barn2022 = barnetrygdService.utledListeMedGyldigeUtbetalingsbeløp(2, 2022).toList()
+        assertThat(gyldigeBeløp2Barn2022).hasSize(3).containsExactly(1581, 1892, 2203)
+
+        val gyldigeBeløp2Barn2021 = barnetrygdService.utledListeMedGyldigeUtbetalingsbeløp(2, 2021).toList()
+        assertThat(gyldigeBeløp2Barn2021).hasSize(4).containsExactly(1581, 1731, 1881, 2181)
+    }
+
 
     @Test
     fun `Skal returnere SkatteetatenPerioderResponse med perioder usikker ved flere barn og feil beløp`() {
