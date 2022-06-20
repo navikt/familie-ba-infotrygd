@@ -18,8 +18,8 @@ interface SakRepository : JpaRepository<Sak, Long> {
                     s.region = p.region)
             WHERE p.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
-    )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS', 'I')"""
+    )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad, Institusjon
     fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
 
     @Query(
@@ -30,7 +30,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
                        sak.region = barn.region)
            WHERE barn.barnFnr IN :barnFnr
              AND sak.kapittelNr = 'BA' 
-             AND sak.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+             AND sak.type IN ('S', 'R', 'K', 'A', 'FL', 'AS', 'I')"""
     ) // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
 
