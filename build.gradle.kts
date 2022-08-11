@@ -12,7 +12,7 @@ val jacksonVersion = "2.9.9"
 val springdocVersion = "1.6.9"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20220609214258_f30c3ce"
-val fellesVersjon = "1.20220610091149_ae616c5"
+val fellesVersjon = "1.20220811104902_c1860ff"
 val kontrakterVersjon = "2.0_20220811104906_7505ebf"
 val coroutinesVersion = "1.6.4"
 
