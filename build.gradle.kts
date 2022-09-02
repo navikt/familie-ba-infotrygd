@@ -3,13 +3,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val logbackVersion = "1.2.3"
 val logstashVersion = "5.3"
 val junitJupiterVersion = "5.4.2"
-val mockkVersion = "1.12.5"
+val mockkVersion = "1.12.7"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "2.1.3"
+val tokenSupportVersion = "2.1.4"
 val jacksonVersion = "2.9.9"
-val springdocVersion = "1.6.9"
+val springdocVersion = "1.6.11"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20220609214258_f30c3ce"
 val fellesVersjon = "1.20220610091149_ae616c5"
@@ -23,7 +23,7 @@ plugins {
     val kotlinVersion = "1.6.21"
     val springBootVersion = "2.6.6"
     id("org.springframework.boot") version springBootVersion
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
+    id("io.spring.dependency-management") version "1.0.13.RELEASE"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -89,7 +89,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     runtimeOnly("org.postgresql:postgresql")
-    implementation("com.oracle.database.jdbc:ojdbc8:21.6.0.0.1")
+    implementation("com.oracle.database.jdbc:ojdbc8:21.7.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:oracle-xe:1.17.3")
