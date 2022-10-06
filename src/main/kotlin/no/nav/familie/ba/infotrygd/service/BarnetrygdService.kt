@@ -94,7 +94,7 @@ class BarnetrygdService(
             opphørtIver = stønad.opphørtIver,
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
-            barn = barnRepository.findBarnByPersonkey(stønad.personKey).filter { it.stønadstype.isNullOrBlank() }
+            barn = barnRepository.findBarnByPersonkey(stønad.personKey).filter { it.stønadstype.isNullOrBlank() || it.stønadstype !in listOf("N", "FJ", "IN") }
                 .map { it.toBarnDto() },
             delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
                 .sortedBy { it.vedtakId }
