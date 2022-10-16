@@ -62,9 +62,6 @@ spec:
         - application: familie-ba-sak
           namespace: teamfamilie
           cluster: dev-gcp
-        - application: familie-ba-mottak
-          namespace: teamfamilie
-          cluster: dev-fss
         - application: familie-baks-mottak
           namespace: teamfamilie
           cluster: dev-gcp
