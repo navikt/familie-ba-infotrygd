@@ -62,9 +62,9 @@ spec:
         - application: familie-ba-sak
           namespace: teamfamilie
           cluster: dev-gcp
-        - application: familie-ba-mottak
+        - application: familie-baks-mottak
           namespace: teamfamilie
-          cluster: dev-fss
+          cluster: dev-gcp
         - application: familie-ba-migrering
           namespace: teamfamilie
           cluster: dev-gcp
@@ -101,7 +101,7 @@ spec:
     - name: APP_AZURE_PROXY_URL
       value: https://webproxy-nais.nav.no:8088
     - name: APP_CLIENT_WHITELIST
-      value: azure/146ccc69-7cd0-4b8e-86a5-144534e53a00,azure/288f2ef5-23fa-4fc5-af6b-6001adaf9e50,azure/e50c7d59-7183-4978-8d8c-8af7f9a7e6a9,azure/1ded84b0-21b7-4042-9c84-820c939021a6,azure/dc2b8dca-9de9-42f7-9103-f52a9169428e,azure/a38ae9cf-f55a-480a-b830-cc68d53f8445
+      value: azure/146ccc69-7cd0-4b8e-86a5-144534e53a00,azure/288f2ef5-23fa-4fc5-af6b-6001adaf9e50,azure/e50c7d59-7183-4978-8d8c-8af7f9a7e6a9,azure/1ded84b0-21b7-4042-9c84-820c939021a6,azure/dc2b8dca-9de9-42f7-9103-f52a9169428e,azure/a38ae9cf-f55a-480a-b830-cc68d53f8445,azure/b5b51c6e-aa53-4ab8-ae68-f7aed5ae4b1d
     - name: APP_DATASOURCE_USERNAME_PATH
       value: /var/run/secrets/oracle/creds/username
     - name: APP_DATASOURCE_PASSWORD_PATH
