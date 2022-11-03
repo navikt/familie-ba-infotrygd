@@ -3,27 +3,27 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val logbackVersion = "1.2.3"
 val logstashVersion = "5.3"
 val junitJupiterVersion = "5.4.2"
-val mockkVersion = "1.12.7"
+val mockkVersion = "1.13.2"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "2.1.4"
+val tokenSupportVersion = "2.1.7"
 val jacksonVersion = "2.9.9"
-val springdocVersion = "1.6.11"
+val springdocVersion = "1.6.12"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20220609214258_f30c3ce"
 val fellesVersjon = "1.20220901103347_4819e55"
-val kontrakterVersjon = "2.0_20220831094750_9782fd7"
+val kontrakterVersjon = "2.0_20221012085617_ecbe2dd"
 val coroutinesVersion = "1.6.4"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.6.21"
+    val kotlinVersion = "1.7.20"
     val springBootVersion = "2.6.6"
     id("org.springframework.boot") version springBootVersion
-    id("io.spring.dependency-management") version "1.0.13.RELEASE"
+    id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -93,9 +93,9 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:oracle-xe:1.17.3")
-    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
-    testImplementation("com.opencsv:opencsv:5.6")
+    testImplementation("com.opencsv:opencsv:5.7.1")
 
 }
 
