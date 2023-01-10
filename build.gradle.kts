@@ -21,7 +21,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "1.7.20"
-    val springBootVersion = "2.6.6"
+    val springBootVersion = "3.0.1"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version kotlinVersion
