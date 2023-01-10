@@ -13,7 +13,7 @@ val springdocVersion = "1.6.12"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20220609214258_f30c3ce"
 val fellesVersjon = "1.20221202080911_bcf8f33"
-val kontrakterVersjon = "2.0_20221130105458_c1bd5bb"
+val kontrakterVersjon = "2.0_20221229093739_c660777"
 val coroutinesVersion = "1.6.4"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
