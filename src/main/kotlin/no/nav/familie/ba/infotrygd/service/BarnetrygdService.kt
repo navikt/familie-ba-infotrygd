@@ -102,9 +102,15 @@ class BarnetrygdService(
                 .sortedBy { it.vedtakId }
                 .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList(),
             antallBarn = stønad.antallBarn,
-            mottakerNummer = personRepository.findMottakerNummerByPersonkey(stønad.personKey)
+            mottakerNummer = hentMottakerNummer(stønad)
         )
     }
+
+    private fun hentMottakerNummer(stønad: Stønad): Long? {
+        val mottakerNummer = personRepository.findMottakerNummerByPersonkey(stønad.personKey)
+        return if (mottakerNummer == 0L) null else mottakerNummer
+    }
+
 
     fun konverterTilDto(sak: Sak): SakDto {
         val status = statusRepository.findStatushistorikkForSak(sak).minByOrNull { it.lopeNr }?.status ?: IKKE_BEHANDLET
