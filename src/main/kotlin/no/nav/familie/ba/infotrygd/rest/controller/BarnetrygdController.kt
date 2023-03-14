@@ -87,21 +87,6 @@ class BarnetrygdController(
                                            barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
     }
 
-    @Operation(summary = "Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
-    @PostMapping(path = ["migrering"])
-    fun migrering(@RequestBody request: MigreringRequest): ResponseEntity<Set<String>> {
-        clientValidator.authorizeClient()
-
-        return ResponseEntity.ok(
-            barnetrygdService.finnPersonerKlarForMigrering(
-                request.page,
-                request.size,
-                request.valg,
-                request.undervalg,
-            ).first
-        )
-    }
-
     @Operation(summary = "Teller antall migreringer igjen fra side i input")
     @PostMapping(path = ["migrering/antall"])
     fun tellKlarTilMigrering(@RequestBody request: MigreringRequest): ResponseEntity<Long> {
