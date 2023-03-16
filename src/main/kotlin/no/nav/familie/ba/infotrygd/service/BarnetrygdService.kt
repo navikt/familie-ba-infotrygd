@@ -10,6 +10,7 @@ import no.nav.familie.ba.infotrygd.model.dl1.*
 import no.nav.familie.ba.infotrygd.model.kodeverk.SakStatus.IKKE_BEHANDLET
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
 import no.nav.familie.ba.infotrygd.repository.HendelseRepository
+import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
@@ -49,7 +50,8 @@ class BarnetrygdService(
     private val utbetalingRepository: UtbetalingRepository,
     private val statusRepository: StatusRepository,
     private val environment: Environment,
-    private val hendelseRepository: HendelseRepository
+    private val hendelseRepository: HendelseRepository,
+    private val personRepository: PersonRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(BarnetrygdService::class.java)
@@ -99,9 +101,16 @@ class BarnetrygdService(
             delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
                 .sortedBy { it.vedtakId }
                 .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList(),
-            antallBarn = stønad.antallBarn
+            antallBarn = stønad.antallBarn,
+            mottakerNummer = hentMottakerNummer(stønad)
         )
     }
+
+    private fun hentMottakerNummer(stønad: Stønad): Long? {
+        val mottakerNummer = personRepository.findMottakerNummerByPersonkey(stønad.personKey)
+        return if (mottakerNummer == 0L) null else mottakerNummer
+    }
+
 
     fun konverterTilDto(sak: Sak): SakDto {
         val status = statusRepository.findStatushistorikkForSak(sak).minByOrNull { it.lopeNr }?.status ?: IKKE_BEHANDLET
