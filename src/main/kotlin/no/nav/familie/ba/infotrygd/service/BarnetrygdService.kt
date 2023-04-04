@@ -282,7 +282,7 @@ class BarnetrygdService(
             val virkningFom = DatoUtils.seqDatoTilYearMonth(stønad.virkningFom)
             opphørtFom == null || virkningFom!!.isBefore(opphørtFom)
         } catch (e: DateTimeParseException) {
-            logger.error("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
+            logger.warn("Kan ikke parse dato på stønad med stønadid: ${stønad.id}")
             false
         }
     }
