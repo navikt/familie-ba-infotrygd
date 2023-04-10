@@ -89,7 +89,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     runtimeOnly("org.postgresql:postgresql")
-    implementation("com.oracle.database.jdbc:ojdbc8:21.9.0.0")
+    implementation("com.oracle.database.jdbc:ojdbc8:23.2.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:oracle-xe:1.17.6")
