@@ -14,7 +14,7 @@ val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
 val fellesVersjon = "1.20230116145510_2afcc20"
 val kontrakterVersjon = "2.0_20230313140330_0086324"
-val coroutinesVersion = "1.6.4"
+val coroutinesVersion = "1.7.2"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
