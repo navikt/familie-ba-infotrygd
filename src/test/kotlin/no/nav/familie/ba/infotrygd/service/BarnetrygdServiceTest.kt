@@ -34,7 +34,6 @@ import org.springframework.core.env.Environment
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.sql.SQLException
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -92,7 +91,8 @@ internal class BarnetrygdServiceTest {
             utbetalingRepository,
             statusRepository,
             environment,
-            hendelseRepository
+            hendelseRepository,
+            personRepository,
         )
     }
 
@@ -147,7 +147,17 @@ internal class BarnetrygdServiceTest {
         val barnRepositoryMock = mockk<BarnRepository>()
         every { barnRepositoryMock.findBarnByFnrList(emptyList()) } throws
                 SQLGrammarException("ORA-00936: uttrykk mangler", SQLException())
-        val barnetrygdService = BarnetrygdService(mockk(), barnRepositoryMock, mockk(), mockk(), mockk(), mockk(), mockk(), mockk())
+        val barnetrygdService = BarnetrygdService(
+            mockk(),
+            barnRepositoryMock,
+            mockk(),
+            mockk(),
+            mockk(),
+            mockk(),
+            mockk(),
+            mockk(),
+            mockk()
+        )
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }

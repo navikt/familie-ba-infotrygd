@@ -36,7 +36,17 @@ class StønadRepositoryTest {
     @Before
     fun setUp() {
         stønadRepository.deleteAll()
-        barnetrygdService = BarnetrygdService(stønadRepository, mockk(), sakRepository, mockk(), utbetalingRepository, mockk(), mockk(), mockk())
+        barnetrygdService = BarnetrygdService(
+            stønadRepository,
+            mockk(),
+            sakRepository,
+            mockk(),
+            utbetalingRepository,
+            mockk(),
+            mockk(),
+            mockk(),
+            mockk(),
+        )
     }
 
     @Test

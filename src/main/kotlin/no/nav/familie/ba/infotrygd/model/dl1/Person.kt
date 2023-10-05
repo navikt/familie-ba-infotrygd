@@ -23,5 +23,8 @@ data class Person(
     val tkNr: String,
 
     @Column(name = "REGION", columnDefinition = "CHAR(1 CHAR)")
-    val region: String
+    val region: String,
+
+    @Column(name = "B01_MOTTAKER_NR", columnDefinition = "DECIMAL")
+    val mottakerNummer: Long,
 ): Serializable
