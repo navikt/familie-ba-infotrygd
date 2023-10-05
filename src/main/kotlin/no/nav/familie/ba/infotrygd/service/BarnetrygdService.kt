@@ -440,7 +440,6 @@ class BarnetrygdService(
                     },
                     stønadFom = utbetaling.fom()!!,
                     stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
-                    utbetaltPerMnd = utbetaling.beløp.toInt(),
                     personIdent = utbetaling.fnr.asString,
                     delingsprosentYtelse = ytelseProsent(it, undervalg, år)
                 )
@@ -448,15 +447,15 @@ class BarnetrygdService(
         }
 
         val perioder =
-            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.utbetaltPerMnd }.values
+            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.delingsprosentYtelse }.values
                 .flatMap(::slåSammenSammenhengende).toMutableList()
 
         perioder.addAll(
-            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.utbetaltPerMnd }.values
+            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.delingsprosentYtelse }.values
                 .flatMap(::slåSammenSammenhengende)
         )
         perioder.addAll(
-            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.utbetaltPerMnd }.values
+            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.delingsprosentYtelse }.values
                 .flatMap(::slåSammenSammenhengende)
         )
 
@@ -591,18 +590,19 @@ class BarnetrygdService(
             it.valg to it.undervalg
         }.filter { it.second != null }.ifEmpty {
             hentBarnetrygdValgOgUndervalgFraDb2(stønad)
-        }.distinct().singleOrNull() ?: (null to null)
+        }.distinct().singleOrNull() ?: run {
+            secureLogger.info("Manglende/tvetydig stønadsklassifisering for stønad $stønad")
+            (null to null)
+        }
 
-    private fun slåSammenSammenhengende(perioderMedLiktBeløp: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
-        require(perioderMedLiktBeløp.all { it.utbetaltPerMnd == perioderMedLiktBeløp.first().utbetaltPerMnd })
+    private fun slåSammenSammenhengende(perioderMedLikProsentandel: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
+        require(perioderMedLikProsentandel.all { it.delingsprosentYtelse == perioderMedLikProsentandel.first().delingsprosentYtelse })
 
-        return perioderMedLiktBeløp.sortedBy { it.stønadFom }
+        return perioderMedLikProsentandel.sortedBy { it.stønadFom }
             .fold(mutableListOf()) { sammenslåttePerioder, nestePeriode ->
                 val forrigePeriode = sammenslåttePerioder.lastOrNull()
 
-                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true &&
-                    forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse) {
-
+                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true) {
                     sammenslåttePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
                 } else {
                     sammenslåttePerioder.apply { add(nestePeriode) }
