@@ -3,6 +3,7 @@ package no.nav.familie.ba.infotrygd.rest.controller
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
@@ -11,11 +12,14 @@ import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
 import java.time.YearMonth
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
@@ -30,24 +34,34 @@ class PensjonController(
 
     @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 2 år tilbake i tid")
     @PostMapping(path = ["pensjon"], consumes = ["application/json"])
-    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"personIdent": "12345678910", "fraDato": "2022-05"}""")])])
+    @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
     fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
         clientValidator.authorizeClient()
 
-        if (request.fraDato.isBefore(YearMonth.now().minusYears(2))) {
+        val fraDato = YearMonth.of(request.fraDato.year, request.fraDato.month)
+
+        if (fraDato.isBefore(YearMonth.now().minusYears(2))) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 2 år tilbake i tid")
         }
 
-        val bruker = FoedselsNr(request.personIdent)
+        val bruker = FoedselsNr(request.ident)
 
         return BarnetrygdTilPensjonResponse(
-            saker = barnetrygdService.finnBarnetrygdForPensjon(bruker, request.fraDato)
+            saker = barnetrygdService.finnBarnetrygdForPensjon(bruker, fraDato)
         )
     }
 
+    @Operation(summary = "Finner alle personer med barnetrygd innenfor et bestemt år på vegne av Psys")
+    @GetMapping(path = ["pensjon"])
+    fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
+        clientValidator.authorizeClient()
+        return barnetrygdService.finnPersonerBarnetrygdPensjon(år)
+    }
+
+
     data class BarnetrygdTilPensjonRequest(
-        val personIdent: String,
-        @Schema(implementation = String::class, example = "2020-05") val fraDato: YearMonth,
+        val ident: String,
+        @Schema(implementation = String::class, example = "2020-12-01") val fraDato: LocalDate,
     )
 
     data class BarnetrygdTilPensjonResponse(

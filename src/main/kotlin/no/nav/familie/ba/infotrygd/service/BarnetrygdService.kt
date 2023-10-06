@@ -162,7 +162,7 @@ class BarnetrygdService(
     ): List<BarnetrygdTilPensjon> {
         val barnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { it.antallBarn > 0 }
             .map { it.tilTrunkertStønad() }
-            .filter { erRelevantStønad(it) }
+            .filter { erRelevantStønadForPensjon(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
 
         val perioder = konverterTilDtoForPensjon(barnetrygdStønader, fraDato.year).filter {
@@ -249,6 +249,23 @@ class BarnetrygdService(
         }
     }
 
+    @Cacheable(cacheManager = "personerCacheManager", value = ["pensjon_personer"], unless = "#result == null")
+    fun finnPersonerBarnetrygdPensjon(år: String): List<FoedselsNr> {
+        val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "01", "02")
+            .filter { erRelevantStønadForPensjon(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
+            .filter {
+                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
+                sisteMåned == null || sisteMåned.year >= år.toInt()
+            }
+            .filter {
+                utbetalingRepository.hentUtbetalingerByStønad(it).any { it.tom() == null || it.tom()!!.year >= år.toInt() }
+            }
+
+        return stønaderMedAktuelleKoder.mapNotNull {
+            it.fnr
+        }
+    }
 
     fun listUtvidetStønadstyperForPerson(år: Int, fnr:String): List<String> {
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(FoedselsNr(fnr), år, "00", "02", "03").map { it.tilTrunkertStønad() }
@@ -344,7 +361,7 @@ class BarnetrygdService(
         }
     }
 
-    private fun erRelevantStønad(
+    private fun erRelevantStønadForPensjon(
         stønad: TrunkertStønad
     ): Boolean {
         return when (stønad.status.toLong()) {
