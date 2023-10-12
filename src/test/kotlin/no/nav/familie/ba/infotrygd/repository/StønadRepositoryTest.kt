@@ -50,6 +50,26 @@ class StønadRepositoryTest {
     }
 
     @Test
+    fun `sjekk at antall personer med barnetrygd til pensjon er riktig innenfor hvert av årene 2021, 2022 og 2023`() {
+        stønadRepository.saveAll(listOf(
+            TestData.stønad(TestData.person(), opphørtFom = "122021", status = "01"), // ordinær barnetrygd opphørt 2021
+            TestData.stønad(TestData.person(), opphørtFom = "122022", status = "02"), // utvidet opphørt 2022
+            TestData.stønad(TestData.person(), status = "02") // løpende utvidet
+        )).also { stønader ->
+            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+        }
+        barnetrygdService.finnPersonerBarnetrygdPensjon("2021").also {
+            assertThat(it).hasSize(3)
+        }
+        barnetrygdService.finnPersonerBarnetrygdPensjon("2022").also {
+            assertThat(it).hasSize(2)
+        }
+        barnetrygdService.finnPersonerBarnetrygdPensjon("2023").also {
+            assertThat(it).hasSize(1)
+        }
+    }
+
+    @Test
     fun `sjekk at antall personer med utvidet barnetrygd er riktig innenfor hvert av årene 2019, 2020 og 2021`() {
         val personFraInneværendeÅr = TestData.person()
         stønadRepository.saveAll(listOf(
