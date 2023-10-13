@@ -7,7 +7,7 @@ val mockkVersion = "1.13.5"
 val wireMockVersion = "2.19.0"
 val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
-val tokenSupportVersion = "2.1.7"
+val tokenValidationVersion = "2.1.7"
 val jacksonVersion = "2.9.9"
 val springdocVersion = "1.6.15"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
@@ -15,6 +15,7 @@ val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
 val fellesVersjon = "1.20230116145510_2afcc20"
 val kontrakterVersjon = "2.0_20230313140330_0086324"
 val coroutinesVersion = "1.6.4"
+val okhttp3Version = "4.9.3"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
@@ -76,8 +77,12 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.ttddyy:datasource-proxy:1.8.1")
-    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    testImplementation("no.nav.security:token-validation-test-support:2.0.5")
+    implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
+    testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationVersion") {
+        exclude(group = "com.squareup.okhttp3", module = "mockwebserver")
+    }
+    testImplementation("com.squareup.okhttp3:mockwebserver:$okhttp3Version")
+    testImplementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
     implementation("javax.inject:javax.inject:1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
