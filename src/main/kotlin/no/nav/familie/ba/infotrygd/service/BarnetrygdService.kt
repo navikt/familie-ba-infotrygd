@@ -160,8 +160,7 @@ class BarnetrygdService(
         brukerFnr: FoedselsNr,
         fraDato: YearMonth
     ): List<BarnetrygdTilPensjon> {
-        val barnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { it.antallBarn > 0 }
-            .map { it.tilTrunkertStønad() }
+        val barnetrygdStønader = stonadRepository.findTrunkertStønadByFnr(listOf(brukerFnr))
             .filter { erRelevantStønadForPensjon(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
 
@@ -458,7 +457,14 @@ class BarnetrygdService(
                     stønadFom = utbetaling.fom()!!,
                     stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
                     personIdent = utbetaling.fnr.asString,
-                    delingsprosentYtelse = ytelseProsent(it, undervalg, år)
+                    delingsprosentYtelse = ytelseProsent(it, undervalg, år),
+                    pensjonstrygdet = when (it.pensjonstrygdet) {
+                        "J" -> true
+                        "N" -> false
+                        else -> null
+                    },
+                    utbetaltPerMnd = utbetaling.beløp.toInt()
+
                 )
             })
         }
