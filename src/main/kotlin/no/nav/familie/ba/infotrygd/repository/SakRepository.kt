@@ -47,6 +47,16 @@ interface SakRepository : JpaRepository<Sak, Long> {
     )
     fun hentUtvidetBarnetrygdsakerForStønad(stonad: TrunkertStønad): List<Sak>
 
-
-
+    @Query(
+        """
+        SELECT s FROM Sak s 
+            WHERE s.personKey = :#{#stonad.personKey}
+              AND s.kapittelNr = 'BA'
+              AND s.valg IN ('OR','UT')
+              AND s.saksblokk = :#{#stonad.saksblokk}
+              AND s.saksnummer = :#{#stonad.sakNr}
+              AND s.region = :#{#stonad.region}
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+    )
+    fun hentBarnetrygdsakerForStønad(stonad: TrunkertStønad): List<Sak>
 }

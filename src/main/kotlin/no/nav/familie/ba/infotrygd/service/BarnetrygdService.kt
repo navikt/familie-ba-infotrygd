@@ -21,6 +21,10 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.InfotrygdUtvi
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.SMÅBARNSTILLEGG
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.UTVIDET
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.BarnetrygdPeriode
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.BarnetrygdTilPensjon
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseProsent
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseTypeEkstern
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
@@ -33,6 +37,7 @@ import org.springframework.core.env.Environment
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -151,6 +156,31 @@ class BarnetrygdService(
         return personer.map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
     }
 
+    fun finnBarnetrygdForPensjon(
+        brukerFnr: FoedselsNr,
+        fraDato: YearMonth
+    ): List<BarnetrygdTilPensjon> {
+        val barnetrygdStønader = stonadRepository.findStønadByFnr(listOf(brukerFnr)).filter { it.antallBarn > 0 }
+            .map { it.tilTrunkertStønad() }
+            .filter { erRelevantStønadForPensjon(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
+
+        val perioder = konverterTilDtoForPensjon(barnetrygdStønader, fraDato.year).filter {
+            skalFiltreresPåDato(fraDato, it.stønadFom, it.stønadTom)
+        }
+
+        if (perioder.isEmpty()) {
+            return emptyList()
+        }
+
+        return listOf(
+            BarnetrygdTilPensjon(
+                fnr = brukerFnr.asString,
+                barnetrygdPerioder = perioder
+            )
+        )
+    }
+
     fun finnUtvidetBarnetrygdBisys(
         brukerFnr: FoedselsNr,
         fraDato: YearMonth
@@ -219,6 +249,23 @@ class BarnetrygdService(
         }
     }
 
+    @Cacheable(cacheManager = "personerCacheManager", value = ["pensjon_personer"], unless = "#result == null")
+    fun finnPersonerBarnetrygdPensjon(år: String): List<FoedselsNr> {
+        val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "01", "02")
+            .filter { erRelevantStønadForPensjon(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
+            .filter {
+                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
+                sisteMåned == null || sisteMåned.year >= år.toInt()
+            }
+            .filter {
+                utbetalingRepository.hentUtbetalingerByStønad(it).any { it.tom() == null || it.tom()!!.year >= år.toInt() }
+            }
+
+        return stønaderMedAktuelleKoder.mapNotNull {
+            it.fnr
+        }
+    }
 
     fun listUtvidetStønadstyperForPerson(år: Int, fnr:String): List<String> {
         val utvidetBarnetrygdStønader = stonadRepository.findStønadByÅrAndStatusKoderAndFnr(FoedselsNr(fnr), år, "00", "02", "03").map { it.tilTrunkertStønad() }
@@ -314,6 +361,27 @@ class BarnetrygdService(
         }
     }
 
+    private fun erRelevantStønadForPensjon(
+        stønad: TrunkertStønad
+    ): Boolean {
+        return when (stønad.status.toLong()) {
+            0L -> { // Manuell beregning ved Stønadsklasse BA OR/UT MB/MD/ME.
+
+                if (stønad.fnr == null) {
+                    logger.info("stønad.fnr var null for stønad med id ${stønad.id}")
+                    return false
+                }
+                val undervalg = hentValgOgUndervalg(stønad).second
+                undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
+            }
+            1L -> true  // Ordinær barnetrygd - Maskinell beregning
+            2L -> true  // Utvidet barnetrygd - Maskinell beregning.
+            3L -> false // Sykt barn (Ikke lenger i bruk, kan forekomme i gamle tilfeller),
+            4L -> false // Ordinær barnetrygd - Institusjon
+            else -> false
+        }
+    }
+
 
     private fun konverterTilDtoUtvidetBarnetrygdForSkatteetaten(
         brukerFnr: FoedselsNr, utvidetBarnetrygdStønader: List<TrunkertStønad>, år: Int
@@ -365,6 +433,52 @@ class BarnetrygdService(
         }
     }
 
+    private fun konverterTilDtoForPensjon(
+        barnetrygdStønader: List<TrunkertStønad>,
+        år: Int
+    ): List<BarnetrygdPeriode> {
+        if (barnetrygdStønader.isEmpty()) {
+            return emptyList()
+        }
+
+        val allePerioder = mutableListOf<BarnetrygdPeriode>()
+
+        barnetrygdStønader.forEach {
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
+            allePerioder.addAll(utbetalinger.map { utbetaling ->
+
+                val (valg, undervalg) = hentValgOgUndervalg(it)
+
+                BarnetrygdPeriode(
+                    ytelseTypeEkstern = when {
+                        utbetaling.erSmåbarnstillegg() -> YtelseTypeEkstern.SMÅBARNSTILLEGG
+                        valg == "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
+                        else -> YtelseTypeEkstern.ORDINÆR_BARNETRYGD
+                    },
+                    stønadFom = utbetaling.fom()!!,
+                    stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
+                    personIdent = utbetaling.fnr.asString,
+                    delingsprosentYtelse = ytelseProsent(it, undervalg, år)
+                )
+            })
+        }
+
+        val perioder =
+            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.delingsprosentYtelse }.values
+                .flatMap(::slåSammenSammenhengende).toMutableList()
+
+        perioder.addAll(
+            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.delingsprosentYtelse }.values
+                .flatMap(::slåSammenSammenhengende)
+        )
+        perioder.addAll(
+            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.delingsprosentYtelse }.values
+                .flatMap(::slåSammenSammenhengende)
+        )
+
+        return perioder
+    }
+
     private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
         val undervalg = hentUndervalg(stønad)
         var delingsprosent = SkatteetatenPeriode.Delingsprosent.usikker
@@ -386,6 +500,27 @@ class BarnetrygdService(
             }
         }
         return delingsprosent
+    }
+
+    private fun ytelseProsent(stønad: TrunkertStønad, undervalg: String?, år: Int): YtelseProsent {
+        if (stønad.status.toInt() != 0 ) {
+            return YtelseProsent.FULL
+        } else if (undervalg == MANUELL_BEREGNING_DELT_BOSTED) {
+            if (stønad.antallBarn == 1) {
+                return YtelseProsent.DELT
+            } else if (stønad.antallBarn < 7) {
+                val sumUtbetaltBeløp = utbetalingRepository.hentUtbetalingerByStønad(stønad).sumOf { it.beløp }
+                val gyldigeBeløp = utledListeMedGyldigeUtbetalingsbeløp(stønad.antallBarn, år)
+
+                if (gyldigeBeløp.contains(sumUtbetaltBeløp.roundToInt())) {
+                    return YtelseProsent.DELT
+                } else {
+                    secureLogger.info("Ytelseprosent usikker, ident ${stønad.fnr}, sumUtbetaltBeløp: $sumUtbetaltBeløp, gyldigeBeløp: $gyldigeBeløp" +
+                                              ", antallBarn: ${stønad.antallBarn}, år: $år")
+                }
+            }
+        }
+        return YtelseProsent.USIKKER
     }
 
     fun utledListeMedGyldigeUtbetalingsbeløp(antallBarn: Int, år: Int): Set<Int> {
@@ -467,6 +602,31 @@ class BarnetrygdService(
             hentUtvidetBarnetrygdUndervalgFraDb2(stønad).filterNotNull()
         }
 
+    private fun hentValgOgUndervalg(stønad: TrunkertStønad) =
+        sakRepository.hentBarnetrygdsakerForStønad(stønad).map {
+            it.valg to it.undervalg
+        }.filter { it.second != null }.ifEmpty {
+            hentBarnetrygdValgOgUndervalgFraDb2(stønad)
+        }.distinct().singleOrNull() ?: run {
+            secureLogger.info("Manglende/tvetydig stønadsklassifisering for stønad $stønad")
+            (null to null)
+        }
+
+    private fun slåSammenSammenhengende(perioderMedLikProsentandel: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
+        require(perioderMedLikProsentandel.all { it.delingsprosentYtelse == perioderMedLikProsentandel.first().delingsprosentYtelse })
+
+        return perioderMedLikProsentandel.sortedBy { it.stønadFom }
+            .fold(mutableListOf()) { sammenslåttePerioder, nestePeriode ->
+                val forrigePeriode = sammenslåttePerioder.lastOrNull()
+
+                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true) {
+                    sammenslåttePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
+                } else {
+                    sammenslåttePerioder.apply { add(nestePeriode) }
+                }
+            }
+    }
+
     private fun slåSammenSammenhengendePerioder(utbetalingerAvEtGittBeløp: List<UtvidetBarnetrygdPeriode>): List<UtvidetBarnetrygdPeriode> {
         return utbetalingerAvEtGittBeløp.sortedBy { it.fomMåned }
             .fold(mutableListOf()) { sammenslåttePerioder, nesteUtbetaling ->
@@ -507,6 +667,19 @@ class BarnetrygdService(
             .map { it.kodeNivå3 }
     } ?: emptyList()
 
+    private fun hentBarnetrygdValgOgUndervalgFraDb2(
+        stønad: TrunkertStønad
+    ) = stønad.fnr?.let {
+        vedtakRepository.hentStønadsklassifisering(
+            fnr = stønad.fnr.asString,
+            tkNr = stønad.personKey.toString().padStart(15, '0').substring(0, 4),
+            saksblokk = stønad.saksblokk,
+            saksnummer = stønad.sakNr.toLong()
+        ).groupBy { stønadsklasse -> stønadsklasse.vedtakId }.values
+            .filter { !it.kodeNivå2.isNullOrBlank() }
+            .map { it.kodeNivå2!! to it.kodeNivå3 }
+    } ?: emptyList()
+
     private val List<Stønadsklasse>.kodeNivå2: String?
         get() {
             return find { it.kodeNivaa == "02" }?.kodeKlasse  // vil f.eks være "OR" for en sak av type BA OR OS
@@ -531,3 +704,12 @@ class BarnetrygdService(
         const val PREPROD = "preprod"
     }
 }
+
+private val BarnetrygdPeriode.erOrdinærBarnetrygd: Boolean
+    get() = ytelseTypeEkstern == YtelseTypeEkstern.ORDINÆR_BARNETRYGD
+
+private val BarnetrygdPeriode.erUtvidetBarnetrygd: Boolean
+    get() = ytelseTypeEkstern == YtelseTypeEkstern.UTVIDET_BARNETRYGD
+
+private val BarnetrygdPeriode.erSmåbarnstillegg: Boolean
+    get() = ytelseTypeEkstern == YtelseTypeEkstern.SMÅBARNSTILLEGG
