@@ -20,7 +20,7 @@ class TilgangskontrollService(
         }.orElse(emptyList())
 
         if (!roles.contains(ACCESS_AS_APPLICATION_ROLE) && !groups.contains(forvalterGroupId)) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "User har ikke tilgang til å kalle tjenesten!")
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Bruker har ikke tilgang til å kalle tjenesten!")
         }
     }
 
