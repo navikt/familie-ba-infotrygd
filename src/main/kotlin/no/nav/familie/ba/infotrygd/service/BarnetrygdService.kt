@@ -23,6 +23,8 @@ import no.nav.familie.ba.infotrygd.rest.controller.BisysController.Stønadstype.
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController.UtvidetBarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.BarnetrygdPeriode
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.BarnetrygdTilPensjon
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.SakstypeEkstern.EØS
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.SakstypeEkstern.NASJONAL
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseProsent
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseTypeEkstern
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
@@ -458,6 +460,10 @@ class BarnetrygdService(
                     stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
                     personIdent = utbetaling.fnr.asString,
                     delingsprosentYtelse = ytelseProsent(it, undervalg, år),
+                    sakstypeEkstern = when (undervalg) {
+                        "EU", "ME" -> EØS
+                        else -> NASJONAL
+                    },
                     pensjonstrygdet = when (it.pensjonstrygdet) {
                         "J" -> true
                         "N" -> false
@@ -625,7 +631,10 @@ class BarnetrygdService(
             .fold(mutableListOf()) { sammenslåttePerioder, nestePeriode ->
                 val forrigePeriode = sammenslåttePerioder.lastOrNull()
 
-                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true) {
+                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true
+                    && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
+                    && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
+                    && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd) {
                     sammenslåttePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
                 } else {
                     sammenslåttePerioder.apply { add(nestePeriode) }

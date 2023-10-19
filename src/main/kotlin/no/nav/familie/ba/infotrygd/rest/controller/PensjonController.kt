@@ -80,6 +80,7 @@ class PensjonController(
         val utbetaltPerMnd: Int,
         val stønadFom: YearMonth,
         val stønadTom: YearMonth,
+        val sakstypeEkstern: SakstypeEkstern,
         val kildesystem: String = "Infotrygd",
         val pensjonstrygdet: Boolean? = null,
         val norgeErSekundærland: Boolean? = null
@@ -89,6 +90,11 @@ class PensjonController(
         ORDINÆR_BARNETRYGD,
         UTVIDET_BARNETRYGD,
         SMÅBARNSTILLEGG,
+    }
+
+    enum class SakstypeEkstern {
+        NASJONAL,
+        EØS
     }
 
     enum class YtelseProsent {

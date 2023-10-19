@@ -176,7 +176,8 @@ internal class BarnetrygdServiceTest {
                 stønadFom = YearMonth.of(2020, 5),
                 stønadTom = YearMonth.from(LocalDate.MAX),
                 kildesystem = "Infotrygd",
-                utbetaltPerMnd = 1054
+                utbetaltPerMnd = 1054,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL
             )
         )
     }
@@ -196,7 +197,8 @@ internal class BarnetrygdServiceTest {
                 stønadFom = YearMonth.of(2019, 5),
                 stønadTom = YearMonth.from(LocalDate.MAX),
                 kildesystem = "Infotrygd",
-                utbetaltPerMnd = 1054
+                utbetaltPerMnd = 1054,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL
             )
         )
         assertThat(response.barnetrygdPerioder).contains(
@@ -207,7 +209,8 @@ internal class BarnetrygdServiceTest {
                 stønadFom = YearMonth.of(2020, 5),
                 stønadTom = YearMonth.from(LocalDate.MAX),
                 kildesystem = "Infotrygd",
-                utbetaltPerMnd = 660
+                utbetaltPerMnd = 660,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL
             )
         )
     }
