@@ -86,7 +86,8 @@ object TestData {
             tkNr = tkNr,
             personKey = personKey,
             region = region,
-            mottakerNummer = 80000123123
+            mottakerNummer = 80000123123,
+            pensjonstrygdet = " "
         )
     }
 

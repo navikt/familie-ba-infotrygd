@@ -102,5 +102,7 @@ data class TrunkertStønad(
     val iverksattFom: String,
 
     val antallBarn: Int,
+
+    val pensjonstrygdet: String = "",
 )
 
