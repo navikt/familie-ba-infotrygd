@@ -103,6 +103,6 @@ data class TrunkertStønad(
 
     val antallBarn: Int,
 
-    val pensjonstrygdet: String = "",
+    val pensjonstrygdet: String? = "",
 )
 
