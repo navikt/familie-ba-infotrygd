@@ -252,13 +252,13 @@ class BarnetrygdService(
 
     @Cacheable(cacheManager = "personerCacheManager", value = ["pensjon_personer"], unless = "#result == null")
     fun finnPersonerBarnetrygdPensjon(år: String): List<FoedselsNr> {
+        logger.info("henter stønader med aktuelle statuskoder år $år")
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoderForPensjon(år.toInt(), "00", "01", "02")
-            .filter {
-                        filtrerStønaderSomErFeilregistrert(it) &&
-                        it.erGjeldendeForÅr(år)
-            }
+        logger.info("Fant ${stønaderMedAktuelleKoder.size} stønader med aktuelle statuskoder for år $år")
 
-        return stønaderMedAktuelleKoder.mapNotNull {
+        return stønaderMedAktuelleKoder.filter {
+            filtrerStønaderSomErFeilregistrert(it) && it.erGjeldendeForÅr(år)
+        }.mapNotNull {
             it.fnr
         }
     }
