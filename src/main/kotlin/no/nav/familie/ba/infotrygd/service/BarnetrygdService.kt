@@ -254,7 +254,6 @@ class BarnetrygdService(
     fun finnPersonerBarnetrygdPensjon(år: String): List<FoedselsNr> {
         val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoderForPensjon(år.toInt(), "00", "01", "02")
             .filter {
-                erRelevantStønadForPensjon(it) &&
                         filtrerStønaderSomErFeilregistrert(it) &&
                         it.erGjeldendeForÅr(år)
             }
