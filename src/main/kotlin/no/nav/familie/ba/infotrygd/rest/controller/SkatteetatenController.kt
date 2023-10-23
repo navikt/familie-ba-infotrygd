@@ -8,13 +8,13 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
+import no.nav.familie.ba.infotrygd.service.ClientValidator
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderRequest
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPersonerResponse
 import no.nav.familie.log.mdc.MDCConstants
-import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.api.Protected
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,13 +27,13 @@ import java.util.UUID
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
-@ProtectedWithClaims(issuer = "azuread")
+@Protected
 @RestController
 @Timed(value = "infotrygd_historikk_skatt_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class SkatteetatenController(
     private val barnetrygdService: BarnetrygdService,
-    private val tilgangskontrollService: TilgangskontrollService
+    private val clientValidator: ClientValidator
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -47,7 +47,7 @@ class SkatteetatenController(
         @RequestBody
         request: SkatteetatenPerioderRequest
     ): List<SkatteetatenPerioderResponse> {
-        tilgangskontrollService.sjekkTilgang()
+        clientValidator.authorizeClient()
 
         return request.identer.map {
             barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(it, request.aar.toInt())
@@ -57,14 +57,14 @@ class SkatteetatenController(
     @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
     @GetMapping(path = ["utvidet"])
     fun personerMedUtvidet(@Parameter(name = "aar") @RequestParam("aar") år: String): SkatteetatenPersonerResponse {
-        tilgangskontrollService.sjekkTilgang()
+        clientValidator.authorizeClient()
         return SkatteetatenPersonerResponse(brukere = barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt(år))
     }
 
     @Operation(summary = "Finner alle personer med utvidet barnetrygd innenfor et bestemt år")
     @GetMapping(path = ["delingsprosent"])
     fun identifiserAntallUsikkerDelingsprosent(@Parameter(name = "aar") @RequestParam("aar") år: String): String {
-        tilgangskontrollService.sjekkTilgang()
+        clientValidator.authorizeClient()
 
 
         val allePersoner = personerMedUtvidet(år).brukere

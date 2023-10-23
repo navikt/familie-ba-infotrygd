@@ -13,14 +13,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class SwaggerConfig(
-    @Value("\${AUTHORIZATION_URL}")
-    val authorizationUrl: String,
-    @Value("\${TOKEN_URL}")
-    val tokenUrl: String,
-    @Value("\${API_SCOPE}")
-    val apiScope: String
-) {
+class SwaggerConfig(@Value("\${AUTHORIZATION_URL}")
+                    val authorizationUrl: String,
+                    @Value("\${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}")
+                    val tokenUrl: String,
+                    @Value("\${API_SCOPE}")
+                    val apiScope: String) {
 
     @Bean
     fun openApi(): OpenAPI {

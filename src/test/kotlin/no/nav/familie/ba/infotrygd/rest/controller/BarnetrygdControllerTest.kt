@@ -21,26 +21,25 @@ import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkRequest
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.StønadRequest
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.testutil.TestClient
 import no.nav.familie.ba.infotrygd.testutil.TestData
+import no.nav.familie.ba.infotrygd.testutil.restClient
+import no.nav.familie.ba.infotrygd.testutil.restClientNoAuth
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.reactive.function.client.ClientResponse
+import org.springframework.web.reactive.function.client.WebClient
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
-
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,11 +48,6 @@ class BarnetrygdControllerTest {
 
     @LocalServerPort
     private var port: Int = 0
-
-    @Autowired
-    private lateinit var testClient: TestClient
-
-    private lateinit var restTemplate: RestTemplate
 
     @Autowired
     lateinit var personRepository: PersonRepository
@@ -96,11 +90,6 @@ class BarnetrygdControllerTest {
                             "lopende-barnetrygd" to "/infotrygd/barnetrygd/lopende-barnetrygd",
                             "aapen-sak" to "/infotrygd/barnetrygd/aapen-sak")
 
-    @Before
-    fun init() {
-        restTemplate = testClient.restTemplate(port)
-    }
-
     @Test
     fun `infotrygdsøk etter løpende barnetrygd`() {
         val (person, opphørPerson) = personRepository.saveAll(listOf(1,2).map { TestData.person() })
@@ -114,17 +103,17 @@ class BarnetrygdControllerTest {
         val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr), listOf(barn.barnFnr))
         val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr))
 
-        assertThat(post(requestMedPersonMedLøpendeStønad, uri["lopende-barnetrygd"], InfotrygdLøpendeBarnetrygdResponse::class.java)
+        assertThat(post(requestMedPersonMedLøpendeStønad, uri["lopende-barnetrygd"]).pakkUt(InfotrygdLøpendeBarnetrygdResponse::class.java)
             .harLøpendeBarnetrygd).isTrue
-        assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"], InfotrygdSøkResponse::class.java).bruker)
+        assertThat(post(requestMedPersonMedLøpendeStønad, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java).bruker)
             .isNotEmpty
-        assertThat(post(requestMedPersonMedOpphørtStønad, uri["stønad"], InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
+        assertThat(post(requestMedPersonMedOpphørtStønad, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
             .containsOnly(emptyList<StønadDto>())
-        assertThat(post(requestMedBarnTilknyttetLøpendeStønad, uri["stønad"], InfotrygdSøkResponse::class.java).barn)
+        assertThat(post(requestMedBarnTilknyttetLøpendeStønad, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java).barn)
             .isNotEmpty
-        assertThat(post(requestMedBarnSomIkkeFinnes, uri["stønad"], InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
+        assertThat(post(requestMedBarnSomIkkeFinnes, uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
             .containsOnly(emptyList<StønadDto>())
-        assertThat(post(uri = uri["stønad"], responseType = InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
+        assertThat(post(uri = uri["stønad"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting("bruker", "barn")
             .containsOnly(emptyList<StønadDto>())
     }
 
@@ -138,15 +127,15 @@ class BarnetrygdControllerTest {
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
         val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr))
 
-        assertThat(post(søkPåPersonMedSak, uri["sak"], InfotrygdSøkResponse::class.java)).extracting {
+        assertThat(post(søkPåPersonMedSak, uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting {
                 it -> it.bruker.map { objectMapper.convertValue(it, Sak::class.java) }
         }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
-        assertThat(post(søkPåBarnTilknyttetSak, uri["sak"], InfotrygdSøkResponse::class.java)).extracting {
+        assertThat(post(søkPåBarnTilknyttetSak, uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java)).extracting {
                 it -> it.barn.map { objectMapper.convertValue(it, Sak::class.java) }
         }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
-        assertThat(post(uri = uri["sak"], responseType = InfotrygdSøkResponse::class.java).bruker) // søk med tom request
+        assertThat(post(uri = uri["sak"]).pakkUt(InfotrygdSøkResponse::class.java).bruker) // søk med tom request
             .isEmpty()
     }
 
@@ -164,12 +153,12 @@ class BarnetrygdControllerTest {
 
         val søkRequest = InfotrygdSøkRequest(listOf(person.fnr), emptyList())
 
-        assertThat(post(søkRequest, uri["aapen-sak"], InfotrygdÅpenSakResponse::class.java).harÅpenSak)
+        assertThat(post(søkRequest, uri["aapen-sak"]).pakkUt(InfotrygdÅpenSakResponse::class.java).harÅpenSak)
             .isTrue
 
         beslutningRepository.saveAndFlush(Beslutning(1, vedtak.vedtakId, "J"))
 
-        assertThat(post(søkRequest, uri["aapen-sak"], InfotrygdÅpenSakResponse::class.java).harÅpenSak)
+        assertThat(post(søkRequest, uri["aapen-sak"]).pakkUt(InfotrygdÅpenSakResponse::class.java).harÅpenSak)
             .isFalse
     }
 
@@ -183,8 +172,8 @@ class BarnetrygdControllerTest {
             utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
         }
 
-        get("/infotrygd/barnetrygd/utvidet?aar=2020",
-            BisysController.InfotrygdUtvidetBaPersonerResponse::class.java).also {
+        get("/infotrygd/barnetrygd/utvidet?aar=2020")
+            .pakkUt(BisysController.InfotrygdUtvidetBaPersonerResponse::class.java).also {
                 assertThat(it.brukere).hasSize(2)
             }
     }
@@ -199,16 +188,15 @@ class BarnetrygdControllerTest {
         val stønad = stønadRepository.saveAndFlush(TestData.stønad(person))
 
         post(
-            uri = "/infotrygd/barnetrygd/stonad/sok",
-            request = StønadRequest(
+            "/infotrygd/barnetrygd/stonad/sok",
+            StønadRequest(
                 person.fnr.asString,
                 stønad.tkNr,
                 stønad.iverksattFom,
                 stønad.virkningFom,
                 stønad.region
-            ),
-            responseType = StønadDto::class.java
-        ).also {
+            )
+        ).pakkUt(StønadDto::class.java).also {
             assertThat(it.id).isEqualTo(stønad.id)
         }
     }
@@ -219,32 +207,62 @@ class BarnetrygdControllerTest {
             TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
         )
 
-        val response = assertThrows<ResponseStatusException> {
-            get("/infotrygd/barnetrygd/stonad/666", Any::class.java)
-        }
-        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        val response = get("/infotrygd/barnetrygd/stonad/666")
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
     @Test
     fun noAuth() {
         uri.values.forEach {
-            val restTemplate = testClient.restTemplateNoAuth(port)
-            val result = assertThrows<ResponseStatusException> {
-                post(uri = it, restTemplate = restTemplate, responseType = InfotrygdSøkResponse::class.java)
-            }
-            assertThat(result.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+            val client = restClientNoAuth(port)
+            val result = post(uri = it, client = client)
+            assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
     }
 
-    private fun <T> post(
-        request: Any = InfotrygdSøkRequest(listOf()),
-        uri: String?,
-        responseType: Class<T>,
-        restTemplate: RestTemplate = this.restTemplate,
-    ) = restTemplate.postForEntity(uri!!, request, responseType).body!!
+    @Test
+    fun clientAuth() {
+        uri.values.forEach {
+            val client = restClient(port, subject = "wrong")
+            val result = post(uri = it, client = client)
+            assertThat(result.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
+    }
 
-    private fun <T> get(
+    private fun post(
+        request: InfotrygdSøkRequest = InfotrygdSøkRequest(listOf()),
         uri: String?,
-        responseType: Class<T>
-    ) = restTemplate.getForEntity(uri!!, responseType).body!!
+        client: WebClient = restClient(port),
+    ): ClientResponse {
+        return client.post()
+            .uri(uri!!)
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(request)
+            .exchange()
+            .block()!!
+    }
+
+    private fun post(
+        uri: String?,
+        stønadRequest: StønadRequest
+    ): ClientResponse {
+        return restClient(port).post()
+            .uri(uri!!)
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(stønadRequest)
+            .exchange()
+            .block()!!
+    }
+
+    private fun get(uri: String?): ClientResponse {
+        return restClient(port)
+            .get()
+            .uri(uri!!)
+            .exchange()
+            .block() !!
+    }
+}
+
+private fun <T> ClientResponse.pakkUt(type: Class<T>): T {
+    return this.bodyToMono(type).block()!!
 }
