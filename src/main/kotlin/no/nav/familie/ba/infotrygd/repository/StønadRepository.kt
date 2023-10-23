@@ -38,6 +38,22 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
            "AND s.antallBarn > 0")
     fun findStønadByÅrAndStatusKoder(år: Int, vararg statusKoder: String): List<TrunkertStønad>
 
+    @Query(
+        """SELECT new no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region, s.virkningFom, s.opphørtFom, s.iverksattFom, s.antallBarn, '')
+        FROM Stønad s
+        WHERE (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år)
+        AND CAST(substring(s.virkningFom, 1, 4) as integer) >= (9999 - :år)
+        AND s.status in :statusKoder
+        AND s.antallBarn > 0
+        AND EXISTS (SELECT u FROM Utbetaling  u
+                    WHERE u.personKey = s.personKey   
+                    AND u.startUtbetalingMåned = s.iverksattFom
+                    AND u.virksomFom = s.virkningFom
+                    AND u.utbetalingstype = 'M'
+                    AND (u.utbetalingTom = '000000' or CAST(substring(u.utbetalingTom, 3, 4) as integer) >= :år))"""
+    )
+    fun findStønadByÅrAndStatusKoderForPensjon(år: Int, vararg statusKoder: String): List<TrunkertStønad>
+
     @Query("""SELECT s FROM Stønad s
                 INNER JOIN Person p
                 ON (s.personKey = p.personKey and

@@ -252,20 +252,21 @@ class BarnetrygdService(
 
     @Cacheable(cacheManager = "personerCacheManager", value = ["pensjon_personer"], unless = "#result == null")
     fun finnPersonerBarnetrygdPensjon(år: String): List<FoedselsNr> {
-        val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoder(år.toInt(), "00", "01", "02")
-            .filter { erRelevantStønadForPensjon(it) }
-            .filter { filtrerStønaderSomErFeilregistrert(it) }
+        val stønaderMedAktuelleKoder = stonadRepository.findStønadByÅrAndStatusKoderForPensjon(år.toInt(), "00", "01", "02")
             .filter {
-                val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(it.opphørtFom)?.minusMonths(1)
-                sisteMåned == null || sisteMåned.year >= år.toInt()
-            }
-            .filter {
-                utbetalingRepository.hentUtbetalingerByStønad(it).any { it.tom() == null || it.tom()!!.year >= år.toInt() }
+                erRelevantStønadForPensjon(it) &&
+                        filtrerStønaderSomErFeilregistrert(it) &&
+                        it.erGjeldendeForÅr(år)
             }
 
         return stønaderMedAktuelleKoder.mapNotNull {
             it.fnr
         }
+    }
+
+    private fun TrunkertStønad.erGjeldendeForÅr(år: String): Boolean {
+        val sisteMåned = DatoUtils.stringDatoMMyyyyTilYearMonth(opphørtFom)?.minusMonths(1)
+        return sisteMåned == null || sisteMåned.year >= år.toInt()
     }
 
     fun listUtvidetStønadstyperForPerson(år: Int, fnr:String): List<String> {
@@ -373,7 +374,12 @@ class BarnetrygdService(
                     return false
                 }
                 val undervalg = hentValgOgUndervalg(stønad).second
-                undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)
+                if (undervalg in arrayOf(MANUELL_BEREGNING, MANUELL_BEREGNING_DELT_BOSTED, MANUELL_BEREGNING_EØS)) {
+                    true
+                } else {
+                    logger.info("Filtrerer vekk stønad(id=${stønad.id}) med undervalg $undervalg")
+                    false
+                }
             }
             1L -> true  // Ordinær barnetrygd - Maskinell beregning
             2L -> true  // Utvidet barnetrygd - Maskinell beregning.
