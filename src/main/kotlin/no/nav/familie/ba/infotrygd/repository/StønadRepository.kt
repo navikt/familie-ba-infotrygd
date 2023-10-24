@@ -52,7 +52,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
                     AND u.utbetalingstype = 'M'
                     AND (u.utbetalingTom = '000000' or CAST(substring(u.utbetalingTom, 3, 4) as integer) >= :år))"""
     )
-    fun findStønadByÅrAndStatusKoderForPensjon(år: Int, vararg statusKoder: String): List<TrunkertStønad>
+    fun findStønadMedUtbetalingByÅrAndStatusKoder(år: Int, vararg statusKoder: String): List<TrunkertStønad>
 
     @Query("""SELECT s FROM Stønad s
                 INNER JOIN Person p
