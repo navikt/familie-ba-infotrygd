@@ -11,6 +11,7 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.ClientValidator
 import no.nav.security.token.support.core.api.Protected
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,6 +31,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 class PensjonController(
     private val barnetrygdService: BarnetrygdService,
     private val clientValidator: ClientValidator,
+    private val environment: Environment
 ) {
 
     @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 2 år tilbake i tid")
@@ -55,6 +57,9 @@ class PensjonController(
     @GetMapping(path = ["pensjon"])
     fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
         clientValidator.authorizeClient()
+        if (environment.activeProfiles.any { it == "preprod" }) {
+            return emptyList()
+        }
         return barnetrygdService.finnPersonerBarnetrygdPensjon(år)
     }
 
