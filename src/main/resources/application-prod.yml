@@ -3,3 +3,6 @@ AUTHORIZATION_URL: https://login.microsoftonline.com/navno.onmicrosoft.com/oauth
 TOKEN_URL: https://login.microsoftonline.com/navno.onmicrosoft.com/oauth2/v2.0/token
 
 TEAMFAMILIE_FORVALTNING_GROUP_ID: "3d718ae5-f25e-47a4-b4b3-084a97604c1d"
+
+TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID: "847e3d72-9dc1-41c3-80ff-f5d4acdd5d46"  # SAKSBEHANDLER_ROLLE
+TEAMFAMILIE_BESLUTTER_GROUP_ID: "7a271f87-39fb-468b-a9ee-6cf3c070f548"  # BESLUTTER_ROLLE

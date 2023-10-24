@@ -1,5 +1,6 @@
 package no.nav.familie.ba.infotrygd.service
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -8,8 +9,10 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class TilgangskontrollService(
     private val tokenValidationContextHolder: TokenValidationContextHolder,
+    @Value("\${TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID}") private val saksbehandlerGroupId: String,
     @Value("\${TEAMFAMILIE_FORVALTNING_GROUP_ID}") private val forvalterGroupId: String
 ) {
+    val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     fun sjekkTilgang() {
         val roles = tokenValidationContextHolder.tokenValidationContext.anyValidClaims.map {
@@ -19,7 +22,9 @@ class TilgangskontrollService(
             it.getAsList("groups")
         }.orElse(emptyList())
 
-        if (!roles.contains(ACCESS_AS_APPLICATION_ROLE) && !groups.contains(forvalterGroupId)) {
+        secureLogger.info("Roller: $roles")
+        secureLogger.info("Grupper: $groups")
+        if (!(roles.contains(ACCESS_AS_APPLICATION_ROLE) || roles.contains(saksbehandlerGroupId) || groups.contains(forvalterGroupId))) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Bruker har ikke tilgang til å kalle tjenesten!")
         }
     }
