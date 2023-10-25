@@ -36,18 +36,10 @@ http.proxy.parametername: notused
 no.nav.security.jwt:
   expirythreshold: 60 #threshold in minutes until token expires
   issuer:
-    azure:
+    azuread:
       discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}
       proxyurl: ${APP_AZURE_PROXY_URL}
-
-app:
-  security:
-    clientWhitelist: ${APP_CLIENT_WHITELIST}
-
-rolle:
-  teamfamilie:
-    forvalter: "928636f4-fd0d-4149-978e-a6fb68bb19de"
 
 springdoc:
   packages-to-scan: "no.nav.familie.ba.infotrygd"
@@ -59,5 +51,12 @@ springdoc:
       scope-separator: ","
     disable-swagger-default-url: true
 
-AUTHORIZATION_URL: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/authorize
+# Swagger
+AUTHORIZATION_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/authorize
+TOKEN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 API_SCOPE: api://${AZURE_APP_CLIENT_ID}/.default
+
+TEAMFAMILIE_FORVALTNING_GROUP_ID: "928636f4-fd0d-4149-978e-a6fb68bb19de"
+
+TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID: "d21e00a4-969d-4b28-8782-dc818abfae65"  # SAKSBEHANDLER_ROLLE
+TEAMFAMILIE_BESLUTTER_GROUP_ID: "9449c153-5a1e-44a7-84c6-7cc7a8867233"  # BESLUTTER_ROLLE

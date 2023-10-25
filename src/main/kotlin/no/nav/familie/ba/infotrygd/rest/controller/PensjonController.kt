@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.service.ClientValidator
-import no.nav.security.token.support.core.api.Protected
+import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
+import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -24,13 +24,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
-@Protected
+@ProtectedWithClaims(issuer = "azuread")
 @RestController
 @Timed(value = "infotrygd_historikk_pensjon_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class PensjonController(
     private val barnetrygdService: BarnetrygdService,
-    private val clientValidator: ClientValidator,
+    private val tilgangskontrollService: TilgangskontrollService,
     private val environment: Environment
 ) {
 
@@ -38,7 +38,7 @@ class PensjonController(
     @PostMapping(path = ["pensjon"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
     fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
-        clientValidator.authorizeClient()
+        tilgangskontrollService.sjekkTilgang()
 
         val fraDato = YearMonth.of(request.fraDato.year, request.fraDato.month)
 
@@ -56,7 +56,7 @@ class PensjonController(
     @Operation(summary = "Finner alle personer med barnetrygd innenfor et bestemt år på vegne av Psys")
     @GetMapping(path = ["pensjon"])
     fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
-        clientValidator.authorizeClient()
+        tilgangskontrollService.sjekkTilgang()
         if (environment.activeProfiles.any { it == "preprod" }) {
             return emptyList()
         }
