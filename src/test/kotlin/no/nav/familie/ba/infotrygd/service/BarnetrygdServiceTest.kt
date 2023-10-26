@@ -185,7 +185,7 @@ internal class BarnetrygdServiceTest {
     @Test
     fun `finn barnetrygd for pensjon - finner løpende småbarnstillegg, og løpende utvidet fra og med dato gitt av foregående periode`() {
         val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
-        leggTilUtgåttUtvidetBarnetrygdSak(person) //2019-05 - 2020-04
+        leggTilUtgåttUtvidetBarnetrygdSak(person, opphørtFom = YearMonth.now().format(DateTimeFormatter.ofPattern("MMyyyy")))
 
 
         val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.now()).single()
@@ -755,12 +755,13 @@ internal class BarnetrygdServiceTest {
                                                   beløp: Double? = null,
                                                   stønadStatus: String = "0",
                                                   iverksattFom: String = (999999 - 201905).toString(),
-                                                  virkningFom: String = iverksattFom) {
+                                                  virkningFom: String = iverksattFom,
+                                                  opphørtFom: String = "042020") {
         val opphørtStønad = stonadRepository.save(
             TestData.stønad(
                 person,
                 status = stønadStatus,
-                opphørtFom = "042020",
+                opphørtFom = opphørtFom,
                 iverksattFom = iverksattFom,
                 virkningFom = virkningFom
             )
