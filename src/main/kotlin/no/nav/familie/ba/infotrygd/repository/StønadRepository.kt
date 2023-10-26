@@ -26,10 +26,16 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
            INNER JOIN Person p
                    ON (s.personKey = p.personKey and
                        s.region = p.region)
-        WHERE p.fnr IN :fnr
+        WHERE p.fnr = :fnr
         AND s.antallBarn > 0
+        AND EXISTS (SELECT u FROM Utbetaling  u
+            WHERE u.personKey = s.personKey   
+            AND u.startUtbetalingMåned = s.iverksattFom
+            AND u.virksomFom = s.virkningFom
+            AND u.utbetalingstype = 'M'
+            AND (u.utbetalingTom = '000000' or CAST(substring(u.utbetalingTom, 3, 4) as integer) >= :år))
     """)
-    fun findTrunkertStønadByFnr(fnr: List<FoedselsNr>): List<TrunkertStønad>
+    fun findTrunkertStønadByFnr(fnr: FoedselsNr, år: Int): List<TrunkertStønad>
 
     @Query("SELECT new no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region, s.virkningFom, s.opphørtFom, s.iverksattFom, s.antallBarn, '') FROM Stønad s " +
            "WHERE (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år) " +

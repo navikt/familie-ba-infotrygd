@@ -103,8 +103,7 @@ class BarnetrygdService(
             opphørtIver = stønad.opphørtIver,
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
-            barn = barnRepository.findBarnByPersonkey(stønad.personKey).filter { it.stønadstype.isNullOrBlank() || it.stønadstype?.trim() !in listOf("N", "FJ", "IN") }
-                .map { it.toBarnDto() },
+            barn = hentBarnMedGyldigStønadstypeTilknyttetPerson(stønad.personKey).map { it.toBarnDto() },
             delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
                 .sortedBy { it.vedtakId }
                 .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList(),
@@ -112,6 +111,14 @@ class BarnetrygdService(
             mottakerNummer = hentMottakerNummer(stønad)
         )
     }
+
+    private fun hentBarnMedGyldigStønadstypeTilknyttetPerson(personKey: Long) =
+        barnRepository.findBarnByPersonkey(personKey).filter { it.harGyldigStønadstype }
+
+    private val Barn.harGyldigStønadstype
+        get() =
+            stønadstype.isNullOrBlank() || stønadstype?.trim() !in listOf("N", "FJ", "IN")
+
 
     private fun hentMottakerNummer(stønad: Stønad): Long? {
         val mottakerNummer = personRepository.findMottakerNummerByPersonkey(stønad.personKey)
@@ -162,19 +169,37 @@ class BarnetrygdService(
         brukerFnr: FoedselsNr,
         fraDato: YearMonth
     ): List<BarnetrygdTilPensjon> {
-        val barnetrygdStønader = stonadRepository.findTrunkertStønadByFnr(listOf(brukerFnr))
+        val barnetrygdStønader = stonadRepository.findTrunkertStønadByFnr(brukerFnr, fraDato.year)
             .filter { erRelevantStønadForPensjon(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
 
-        val perioder = konverterTilDtoForPensjon(barnetrygdStønader, fraDato.year).filter {
-            skalFiltreresPåDato(fraDato, it.stønadFom, it.stønadTom)
-        }
+        val perioder = konverterTilDtoForPensjon(barnetrygdStønader, fraDato)
 
         if (perioder.isEmpty()) {
             return emptyList()
         }
 
-        return listOf(
+        // Sjekk om det finnes relaterte saker, dvs om barna finnes i andre stønader
+        val barna = barnetrygdStønader.flatMap {
+            hentBarnMedGyldigStønadstypeTilknyttetPerson(it.personKey)
+        }
+
+        val barnetrygdFraRelaterteSaker = barnRepository.findBarnByFnrList(barna.map { it.barnFnr })
+            .filter { it.fnr != brukerFnr && it.harGyldigStønadstype }
+            .map { it.fnr }.distinct()
+            .mapNotNull { relatertBrukerFnr ->
+                BarnetrygdTilPensjon(
+                    fnr = relatertBrukerFnr.asString,
+                    barnetrygdPerioder = stonadRepository.findTrunkertStønadByFnr(relatertBrukerFnr, fraDato.year)
+                        .filter { erRelevantStønadForPensjon(it) }
+                        .filter { filtrerStønaderSomErFeilregistrert(it) }
+                        .let { relaterteBarnetrygdStønader ->
+                            konverterTilDtoForPensjon(relaterteBarnetrygdStønader, fraDato)
+                        }
+                ).takeIf { it.barnetrygdPerioder.isNotEmpty() }
+            }
+
+        return barnetrygdFraRelaterteSaker.plus(
             BarnetrygdTilPensjon(
                 fnr = brukerFnr.asString,
                 barnetrygdPerioder = perioder
@@ -441,7 +466,7 @@ class BarnetrygdService(
 
     private fun konverterTilDtoForPensjon(
         barnetrygdStønader: List<TrunkertStønad>,
-        år: Int
+        fraDato: YearMonth
     ): List<BarnetrygdPeriode> {
         if (barnetrygdStønader.isEmpty()) {
             return emptyList()
@@ -464,7 +489,7 @@ class BarnetrygdService(
                     stønadFom = utbetaling.fom()!!,
                     stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
                     personIdent = utbetaling.fnr.asString,
-                    delingsprosentYtelse = ytelseProsent(it, undervalg, år),
+                    delingsprosentYtelse = ytelseProsent(it, undervalg, fraDato.year),
                     sakstypeEkstern = when (undervalg) {
                         "EU", "ME" -> EØS
                         else -> NASJONAL
@@ -493,7 +518,9 @@ class BarnetrygdService(
                 .flatMap(::slåSammenSammenhengende)
         )
 
-        return perioder
+        return perioder.filter {
+            skalFiltreresPåDato(fraDato, it.stønadFom, it.stønadTom)
+        }
     }
 
     private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
