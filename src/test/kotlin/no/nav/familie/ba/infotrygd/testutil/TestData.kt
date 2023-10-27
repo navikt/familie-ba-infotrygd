@@ -165,6 +165,7 @@ object TestData {
         stønad: Stønad,
         kontonummer: String = "06010000",
         beløp: Double = 1054.00,
+        utbetalingTom: String? = null,
     ): Utbetaling {
         return Utbetaling(
             personKey = stønad.personKey,
@@ -175,7 +176,7 @@ object TestData {
             beløp = beløp,
             fnr = stønad.fnr,
             utbetalingId = nextId(),
-            utbetalingTom = stønad.opphørtFom
+            utbetalingTom = utbetalingTom ?: stønad.opphørtFom
         )
     }
 

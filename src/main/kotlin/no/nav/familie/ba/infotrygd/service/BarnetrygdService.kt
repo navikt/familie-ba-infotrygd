@@ -167,7 +167,7 @@ class BarnetrygdService(
             .filter { filtrerStønaderSomErFeilregistrert(it) }
 
         val perioder = konverterTilDtoForPensjon(barnetrygdStønader, fraDato.year).filter {
-            skalFiltreresPåDato(fraDato, it.stønadFom, it.stønadTom)
+            it.stønadTom.isSameOrAfter(fraDato)
         }
 
         if (perioder.isEmpty()) {
