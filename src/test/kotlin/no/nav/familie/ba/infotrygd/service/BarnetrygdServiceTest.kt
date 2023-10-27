@@ -216,6 +216,39 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
+    fun `finn barnetrygd for pensjon - finner perioden med stønadTom samme måned som fraDato`() {
+        val person = personRepository.save(TestData.person())
+        val fraDato = YearMonth.now()
+        val stønadTom = fraDato.format(DateTimeFormatter.ofPattern("MMyyyy"))
+
+        stonadRepository.save(
+            TestData.stønad(
+                person,
+                opphørtFom = fraDato.plusMonths(1).format(DateTimeFormatter.ofPattern("MMyyyy")),
+            )
+        ).also { stønad ->
+            sakRepository.save(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
+            sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
+            utbetalingRepository.save(TestData.utbetaling(stønad, utbetalingTom = stønadTom))
+        }
+
+        val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, fraDato).single()
+
+        assertThat(response.barnetrygdPerioder).contains(
+            PensjonController.BarnetrygdPeriode(
+                personIdent = person.fnr.asString,
+                delingsprosentYtelse = YtelseProsent.FULL,
+                ytelseTypeEkstern = YtelseTypeEkstern.ORDINÆR_BARNETRYGD,
+                stønadFom = YearMonth.of(2020, 5),
+                stønadTom = fraDato,
+                kildesystem = "Infotrygd",
+                utbetaltPerMnd = 1054,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL
+            )
+        )
+    }
+
+    @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato nå, som kun henter aktiv stønad, manuelt beregnet`() {
         val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(person) //2019-05 - 2020-04

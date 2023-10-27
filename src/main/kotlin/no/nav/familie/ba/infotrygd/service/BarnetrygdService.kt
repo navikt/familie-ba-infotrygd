@@ -518,9 +518,7 @@ class BarnetrygdService(
                 .flatMap(::slåSammenSammenhengende)
         )
 
-        return perioder.filter {
-            skalFiltreresPåDato(fraDato, it.stønadFom, it.stønadTom)
-        }
+        return perioder.filter { it.stønadTom.isSameOrAfter(fraDato) }
     }
 
     private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
