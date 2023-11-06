@@ -35,7 +35,7 @@ interface StønadRepository : JpaRepository<Stønad, Long> {
             AND u.utbetalingstype = 'M'
             AND (u.utbetalingTom = '000000' or CAST(substring(u.utbetalingTom, 3, 4) as integer) >= :år))
     """)
-    fun findTrunkertStønadByFnr(fnr: FoedselsNr, år: Int): List<TrunkertStønad>
+    fun findTrunkertStønadMedUtbetalingÅrByFnr(fnr: FoedselsNr, år: Int): List<TrunkertStønad>
 
     @Query("SELECT new no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad(s.id, s.personKey, s.fnr, s.sakNr, s.saksblokk, s.status, s.region, s.virkningFom, s.opphørtFom, s.iverksattFom, s.antallBarn, '') FROM Stønad s " +
            "WHERE (s.opphørtFom='000000' or CAST(substring(s.opphørtFom, 3, 4) as integer) >= :år) " +

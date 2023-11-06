@@ -169,7 +169,7 @@ class BarnetrygdService(
         brukerFnr: FoedselsNr,
         fraDato: YearMonth
     ): List<BarnetrygdTilPensjon> {
-        val barnetrygdStønader = stonadRepository.findTrunkertStønadByFnr(brukerFnr, fraDato.year)
+        val barnetrygdStønader = stonadRepository.findTrunkertStønadMedUtbetalingÅrByFnr(brukerFnr, fraDato.year)
             .filter { erRelevantStønadForPensjon(it) }
             .filter { filtrerStønaderSomErFeilregistrert(it) }
 
@@ -190,7 +190,7 @@ class BarnetrygdService(
             .mapNotNull { relatertBrukerFnr ->
                 BarnetrygdTilPensjon(
                     fnr = relatertBrukerFnr.asString,
-                    barnetrygdPerioder = stonadRepository.findTrunkertStønadByFnr(relatertBrukerFnr, fraDato.year)
+                    barnetrygdPerioder = stonadRepository.findTrunkertStønadMedUtbetalingÅrByFnr(relatertBrukerFnr, fraDato.year)
                         .filter { erRelevantStønadForPensjon(it) }
                         .filter { filtrerStønaderSomErFeilregistrert(it) }
                         .let { relaterteBarnetrygdStønader ->
