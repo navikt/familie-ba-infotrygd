@@ -25,6 +25,7 @@ interface PersonRepository : JpaRepository<Person, Long> {
             ELSE 'Ukjent'
         END as pensjonstrygdet
         FROM Person p
+        WHERE substring(p.fnr, 5, 1) NOT IN ('8','9')
     """
     )
     fun findAllePensjonstrygdet(): List<PensjonstrygdetResultat>
