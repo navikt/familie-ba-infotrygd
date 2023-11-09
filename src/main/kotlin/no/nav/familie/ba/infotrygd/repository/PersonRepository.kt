@@ -14,4 +14,18 @@ interface PersonRepository : JpaRepository<Person, Long> {
     """)
     fun findMottakerNummerByPersonkey(personKey: Long): Long?
 
+    @Query(
+        """
+        SELECT p.fnr as fnr,
+               p.tkNr as tknr,
+        CASE
+            WHEN p.pensjonstrygdet = 'J' THEN 'Ja'
+            WHEN p.pensjonstrygdet = 'N' THEN 'Nei'
+            ELSE 'Ukjent'
+        END as pensjonstrygdet
+        FROM Person p
+        WHERE substring(p.fnr, 5, 1) NOT IN ('8','9')
+    """
+    )
+    fun findAllePensjonstrygdet(): List<String>
 }

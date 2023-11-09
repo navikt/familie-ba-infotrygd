@@ -58,6 +58,12 @@ class PensjonController(
         return barnetrygdService.finnPersonerBarnetrygdPensjon(år)
     }
 
+    @Operation(summary = "Uttrekk fra tabellen \"BA_PERSON_01\" som henter alle pensjonstrygdet-verdier.")
+    @GetMapping(path = ["pensjonstrygdet"])
+    fun hentPensjonstrygdetVerdier(): List<String> {
+        tilgangskontrollService.sjekkTilgang()
+        return barnetrygdService.hentAllePensjonstrygdetVerdier()
+    }
 
     data class BarnetrygdTilPensjonRequest(
         val ident: String,

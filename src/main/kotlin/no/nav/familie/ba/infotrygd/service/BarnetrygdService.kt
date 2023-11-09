@@ -125,6 +125,9 @@ class BarnetrygdService(
         return if (mottakerNummer == 0L) null else mottakerNummer
     }
 
+    fun hentAllePensjonstrygdetVerdier(): List<String> {
+        return personRepository.findAllePensjonstrygdet()
+    }
 
     fun konverterTilDto(sak: Sak): SakDto {
         val status = statusRepository.findStatushistorikkForSak(sak).minByOrNull { it.lopeNr }?.status ?: IKKE_BEHANDLET
