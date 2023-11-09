@@ -125,11 +125,8 @@ class BarnetrygdService(
         return if (mottakerNummer == 0L) null else mottakerNummer
     }
 
-    fun hentAllePensjonstrygdetVerdier(): String {
-        val kolonneHeader = "fnr;tknr;pensjonstrygdet"
-        return personRepository.findAllePensjonstrygdet().fold(initial = kolonneHeader) { acc, row ->
-            acc + System.lineSeparator() + String.format("%s;%s;%s", row.fnr.asString, row.tknr, row.pensjonstrygdet)
-        }
+    fun hentAllePensjonstrygdetVerdier(): List<String> {
+        return personRepository.findAllePensjonstrygdet()
     }
 
     fun konverterTilDto(sak: Sak): SakDto {

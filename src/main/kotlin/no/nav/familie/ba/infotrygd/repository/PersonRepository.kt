@@ -1,6 +1,5 @@
 package no.nav.familie.ba.infotrygd.repository
 
-import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -28,11 +27,5 @@ interface PersonRepository : JpaRepository<Person, Long> {
         WHERE substring(p.fnr, 5, 1) NOT IN ('8','9')
     """
     )
-    fun findAllePensjonstrygdet(): List<PensjonstrygdetResultat>
-}
-
-interface PensjonstrygdetResultat {
-    val fnr: FoedselsNr
-    val pensjonstrygdet: String
-    val tknr: String
+    fun findAllePensjonstrygdet(): List<String>
 }

@@ -60,7 +60,7 @@ class PensjonController(
 
     @Operation(summary = "Uttrekk fra tabellen \"BA_PERSON_01\" som henter alle pensjonstrygdet-verdier.")
     @GetMapping(path = ["pensjonstrygdet"])
-    fun hentPensjonstrygdetVerdier(): String {
+    fun hentPensjonstrygdetVerdier(): List<String> {
         tilgangskontrollService.sjekkTilgang()
         return barnetrygdService.hentAllePensjonstrygdetVerdier()
     }
