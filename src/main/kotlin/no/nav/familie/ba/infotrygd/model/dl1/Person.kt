@@ -29,5 +29,5 @@ data class Person(
     val mottakerNummer: Long,
 
     @Column(name = "B01_PENSJONSTRYGDET", columnDefinition = "CHAR(1 CHAR)")
-    val pensjonstrygdet: String,
+    val pensjonstrygdet: String?,
 ): Serializable
