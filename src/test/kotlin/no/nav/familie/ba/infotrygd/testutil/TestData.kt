@@ -78,8 +78,7 @@ object TestData {
         fnr: FoedselsNr = foedselsNr(),
         tkNr: String = "1000",
         personKey: Long = tkNr.let { it + fnr.asString }.toLong(),
-        region: String = "X",
-        pensjonstrygdet: String = " "
+        region: String = "X"
     ): Person {
         return Person(
             id = nextId(),
@@ -88,7 +87,7 @@ object TestData {
             personKey = personKey,
             region = region,
             mottakerNummer = 80000123123,
-            pensjonstrygdet = pensjonstrygdet
+            pensjonstrygdet = " "
         )
     }
 
