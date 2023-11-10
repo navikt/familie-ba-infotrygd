@@ -73,7 +73,7 @@ class DemoData(
                                                           status = "02")
 
 
-        val person2 = TestData.person(pensjonstrygdet = "J")
+        val person2 = TestData.person()
         val stønadUtenFastsattOpphørtFom = TestData.stønad(mottaker = person2,
                                                            opphørtFom = "000000",
                                                            status = "00") // må slå opp i SAK-basen for å finne ut om vedtaket er relevant når status er 0:
