@@ -32,7 +32,7 @@ class PensjonController(
     private val tilgangskontrollService: TilgangskontrollService
 ) {
 
-    @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 2 år tilbake i tid")
+    @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 3 år tilbake i tid")
     @PostMapping(path = ["pensjon"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
     fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
@@ -40,8 +40,8 @@ class PensjonController(
 
         val fraDato = YearMonth.of(request.fraDato.year, request.fraDato.month)
 
-        if (fraDato.isBefore(YearMonth.now().minusYears(2))) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 2 år tilbake i tid")
+        if (fraDato.isBefore(YearMonth.now().minusYears(3))) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 3 år tilbake i tid")
         }
 
         val bruker = FoedselsNr(request.ident)
