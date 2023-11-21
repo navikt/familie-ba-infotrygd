@@ -61,7 +61,7 @@ object TestData {
     ): Barn {
         return Barn(
             id = nextId(),
-            fnr = stønad.fnr,
+            fnr = stønad.fnr!!,
             tkNr = stønad.tkNr,
             personKey = stønad.personKey,
             barnFnr = barnFnr,
@@ -174,7 +174,7 @@ object TestData {
             kontonummer = kontonummer,
             utbetalingstype = "M",
             beløp = beløp,
-            fnr = stønad.fnr,
+            fnr = stønad.fnr!!,
             utbetalingId = nextId(),
             utbetalingTom = utbetalingTom ?: stønad.opphørtFom
         )
@@ -198,7 +198,7 @@ object TestData {
             resultat = "I",
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
-            fnr = stønad.fnr,
+            fnr = stønad.fnr!!,
             tkNr = stønad.tkNr
         )
     }
