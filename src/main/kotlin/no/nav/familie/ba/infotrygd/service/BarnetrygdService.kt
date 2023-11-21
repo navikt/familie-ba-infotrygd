@@ -180,11 +180,7 @@ class BarnetrygdService(
         }
 
         // Sjekk om det finnes relaterte saker, dvs om barna finnes i andre stønader
-        val barna = barnetrygdStønader.flatMap {
-            hentBarnMedGyldigStønadstypeTilknyttetPerson(it.personKey)
-        }
-
-        val barnetrygdFraRelaterteSaker = barnRepository.findBarnByFnrList(barna.map { it.barnFnr })
+        val barnetrygdFraRelaterteSaker = barnRepository.findBarnByFnrList(perioder.map { FoedselsNr(it.personIdent) })
             .filter { it.fnr != brukerFnr && it.harGyldigStønadstype }
             .map { it.fnr }.distinct()
             .mapNotNull { relatertBrukerFnr ->
@@ -474,47 +470,50 @@ class BarnetrygdService(
 
         val allePerioder = mutableListOf<BarnetrygdPeriode>()
 
-        barnetrygdStønader.forEach {
-            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(it)
-            allePerioder.addAll(utbetalinger.map { utbetaling ->
+        barnetrygdStønader.forEach { stønad ->
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(stønad)
+            val barna = barnRepository.findBarnByStønad(stønad).filter { it.harGyldigStønadstype }
 
-                val (valg, undervalg) = hentValgOgUndervalg(it)
+            allePerioder.addAll(utbetalinger.flatMap { utbetaling ->
 
-                BarnetrygdPeriode(
-                    ytelseTypeEkstern = when {
-                        utbetaling.erSmåbarnstillegg() -> YtelseTypeEkstern.SMÅBARNSTILLEGG
-                        valg == "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
-                        else -> YtelseTypeEkstern.ORDINÆR_BARNETRYGD
-                    },
-                    stønadFom = utbetaling.fom()!!,
-                    stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
-                    personIdent = utbetaling.fnr.asString,
-                    delingsprosentYtelse = ytelseProsent(it, undervalg, fraDato.year),
-                    sakstypeEkstern = when (undervalg) {
-                        "EU", "ME" -> EØS
-                        else -> NASJONAL
-                    },
-                    pensjonstrygdet = when (it.pensjonstrygdet) {
-                        "J" -> true
-                        "N" -> false
-                        else -> null
-                    },
-                    utbetaltPerMnd = utbetaling.beløp.toInt()
+                val (valg, undervalg) = hentValgOgUndervalg(stønad)
 
-                )
+                barna.filter { it.barnetrygdTom()?.isSameOrAfter(utbetaling.fom()!!) ?: true }.map { barn ->
+                    BarnetrygdPeriode(
+                        ytelseTypeEkstern = when {
+                            utbetaling.erSmåbarnstillegg() -> YtelseTypeEkstern.SMÅBARNSTILLEGG
+                            valg == "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
+                            else -> YtelseTypeEkstern.ORDINÆR_BARNETRYGD
+                        },
+                        stønadFom = utbetaling.fom()!!,
+                        stønadTom = utbetaling.tom() ?: YearMonth.from(LocalDate.MAX),
+                        personIdent = barn.barnFnr.asString,
+                        delingsprosentYtelse = ytelseProsent(stønad, undervalg, fraDato.year),
+                        sakstypeEkstern = when (undervalg) {
+                            "EU", "ME" -> EØS
+                            else -> NASJONAL
+                        },
+                        pensjonstrygdet = when (stønad.pensjonstrygdet) {
+                            "J" -> true
+                            "N" -> false
+                            else -> null
+                        },
+                        utbetaltPerMnd = utbetaling.beløp.toInt()
+                    )
+                }
             })
         }
 
         val perioder =
-            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.delingsprosentYtelse }.values
+            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.personIdent }.values
                 .flatMap(::slåSammenSammenhengende).toMutableList()
 
         perioder.addAll(
-            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.delingsprosentYtelse }.values
+            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.personIdent }.values
                 .flatMap(::slåSammenSammenhengende)
         )
         perioder.addAll(
-            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.delingsprosentYtelse }.values
+            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.personIdent }.values
                 .flatMap(::slåSammenSammenhengende)
         )
 
@@ -654,17 +653,17 @@ class BarnetrygdService(
             (null to null)
         }
 
-    private fun slåSammenSammenhengende(perioderMedLikProsentandel: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
-        require(perioderMedLikProsentandel.all { it.delingsprosentYtelse == perioderMedLikProsentandel.first().delingsprosentYtelse })
-
-        return perioderMedLikProsentandel.sortedBy { it.stønadFom }
+    private fun slåSammenSammenhengende(perioder: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
+        return perioder.sortedBy { it.stønadFom }
             .fold(mutableListOf()) { sammenslåttePerioder, nestePeriode ->
                 val forrigePeriode = sammenslåttePerioder.lastOrNull()
 
                 if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true
+                    && forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
                     && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
                     && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
-                    && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd) {
+                    && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
+                ) {
                     sammenslåttePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
                 } else {
                     sammenslåttePerioder.apply { add(nestePeriode) }
