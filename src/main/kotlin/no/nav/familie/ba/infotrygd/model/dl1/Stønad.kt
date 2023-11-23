@@ -34,7 +34,7 @@ data class Stønad(
 
     @Column(name = "F_NR", columnDefinition = "VARCHAR2")
     @Convert(converter = ReversedFoedselNrConverter::class)
-    val fnr: FoedselsNr,
+    val fnr: FoedselsNr?,
 
     @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
     val tkNr: String,

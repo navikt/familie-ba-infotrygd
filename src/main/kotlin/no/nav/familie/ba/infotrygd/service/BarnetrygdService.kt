@@ -104,9 +104,11 @@ class BarnetrygdService(
             opphørtFom = stønad.opphørtFom,
             opphørsgrunn = stønad.opphørsgrunn,
             barn = hentBarnMedGyldigStønadstypeTilknyttetPerson(stønad.personKey).map { it.toBarnDto() },
-            delytelse = vedtakRepository.hentVedtak(stønad.fnr.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
-                .sortedBy { it.vedtakId }
-                .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() } ?: emptyList(),
+            delytelse = stønad.fnr?.let {
+                vedtakRepository.hentVedtak(it.asString, stønad.sakNr.trim().toLong(), stønad.saksblokk)
+                    .sortedBy { it.vedtakId }
+                    .lastOrNull()?.delytelse?.sortedBy { it.id.linjeId }?.map { it.toDelytelseDto() }
+            } ?: emptyList(),
             antallBarn = stønad.antallBarn,
             mottakerNummer = hentMottakerNummer(stønad)
         )
@@ -320,7 +322,7 @@ class BarnetrygdService(
             stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
         }
 
-        return Pair(stønader.map { it.fnr.asString }.toSet(), stønader.totalPages)
+        return Pair(stønader.mapNotNull { it.fnr?.asString }.toSet(), stønader.totalPages)
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
