@@ -47,7 +47,7 @@ data class Barn(
     val stønadstype: String?,
 ) {
     fun barnetrygdTom(): YearMonth? {
-        return DatoUtils.stringDatoMMyyyyTilYearMonth(barnetrygdTom)
+        return DatoUtils.seqDatoTilYearMonth(barnetrygdTom)
     }
 }
 
