@@ -69,7 +69,9 @@ object TestData {
             virkningFom = stønad.virkningFom,
             region = stønad.region,
             barnetrygdTom = barnetrygdTom ?: DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
-                ?.minusMonths(1)?.format(DateTimeFormatter.ofPattern("MMyyyy")) ?: "000000",
+                ?.minusMonths(1)
+                ?.format(DateTimeFormatter.ofPattern("yyyyMM"))
+                ?.let { (999999 - it.toInt()).toString() } ?: "000000",
             stønadstype = stønadstype
         )
     }
