@@ -1,7 +1,7 @@
 package no.nav.familie.ba.infotrygd.model.db2
 
 import java.io.Serializable
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "T_STONADSKLASSE")
