@@ -477,7 +477,7 @@ class BarnetrygdService(
             val barna = barnRepository.findBarnByPersonkey(stønad.personKey, true).filter {
                 it.harDatoSomSamsvarer(stønad) && it.harGyldigStønadstype
             }
-            if (stønad.antallBarn != barna.medLøpendeStønadFraDato(stønad.iverksattFom).size) {
+            if (stønad.antallBarn != barna.medLøpendeStønadFraDato(stønad.virkningFom).size) {
                 secureLogger.warn("Uoverensstemmelse mellom stønad.antallBarn og antallet barn funnet i konverterTilDtoForPensjon:\n" +
                                           "stønad: $stønad \nbarna: $barna")
             }
@@ -508,7 +508,7 @@ class BarnetrygdService(
                         },
                         utbetaltPerMnd = utbetaling.beløp.toInt()
                     )
-                }
+                }.distinct()
             })
         }
 
@@ -530,11 +530,16 @@ class BarnetrygdService(
 
     private fun Barn.harDatoSomSamsvarer(stønad: TrunkertStønad): Boolean {
         return iverksatt == stønad.iverksattFom && virkningFom == stønad.virkningFom ||
-                barnetrygdTom() == DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)?.minusMonths(1)
+                iverksatt().isBefore(stønad.iverksatt())
     }
+
+    private fun Barn.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksatt)!!
+
+    private fun TrunkertStønad.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksattFom)!!
 
     private fun List<Barn>.medLøpendeStønadFraDato(seqDato: String) =
         filterNot { it.barnetrygdTom()?.isBefore(DatoUtils.seqDatoTilYearMonth(seqDato)) == true }
+            .distinctBy { it.barnFnr }
 
     private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
         val undervalg = hentUndervalg(stønad)
