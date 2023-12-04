@@ -473,7 +473,9 @@ class BarnetrygdService(
         val allePerioder = mutableListOf<BarnetrygdPeriode>()
 
         barnetrygdStønader.forEach { stønad ->
-            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(stønad)
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(stønad).filterNot {
+                it.erSmåbarnstillegg()
+            }
             val barna = barnRepository.findBarnByPersonkey(stønad.personKey, true).filter {
                 it.harDatoSomSamsvarer(stønad) && it.harGyldigStønadstype
             }
@@ -487,10 +489,14 @@ class BarnetrygdService(
                 val (valg, undervalg) = hentValgOgUndervalg(stønad)
 
                 barna.filter { it.barnetrygdTom()?.isSameOrAfter(utbetaling.fom()!!) ?: true }.map { barn ->
+
+                    if (barn.barnetrygdTom()?.isBefore(utbetaling.tom() ?: YearMonth.from(LocalDate.MAX)) == true) {
+                        secureLogger.warn("barnetrygden for $barn opphørte før $utbetaling og stønadTom burde kanskje vært oppgitt som ${barn.barnetrygdTom()} istedenfor ${utbetaling.tom()}")
+                    }
+
                     BarnetrygdPeriode(
-                        ytelseTypeEkstern = when {
-                            utbetaling.erSmåbarnstillegg() -> YtelseTypeEkstern.SMÅBARNSTILLEGG
-                            valg == "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
+                        ytelseTypeEkstern = when (valg) {
+                            "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
                             else -> YtelseTypeEkstern.ORDINÆR_BARNETRYGD
                         },
                         stønadFom = utbetaling.fom()!!,
@@ -518,10 +524,6 @@ class BarnetrygdService(
 
         perioder.addAll(
             allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.personIdent }.values
-                .flatMap(::slåSammenSammenhengende)
-        )
-        perioder.addAll(
-            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.personIdent }.values
                 .flatMap(::slåSammenSammenhengende)
         )
 
@@ -775,6 +777,3 @@ private val BarnetrygdPeriode.erOrdinærBarnetrygd: Boolean
 
 private val BarnetrygdPeriode.erUtvidetBarnetrygd: Boolean
     get() = ytelseTypeEkstern == YtelseTypeEkstern.UTVIDET_BARNETRYGD
-
-private val BarnetrygdPeriode.erSmåbarnstillegg: Boolean
-    get() = ytelseTypeEkstern == YtelseTypeEkstern.SMÅBARNSTILLEGG
