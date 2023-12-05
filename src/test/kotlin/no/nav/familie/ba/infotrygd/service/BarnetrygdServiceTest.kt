@@ -240,7 +240,7 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
-    fun `finn barnetrygd for pensjon - finner løpende småbarnstillegg, og løpende utvidet fra og med dato gitt av foregående periode`() {
+    fun `finn barnetrygd for pensjon - ignorerer småbarnstillegg og finner løpende utvidet fra og med dato gitt av foregående periode`() {
         val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
         leggTilUtgåttUtvidetBarnetrygdSak(
             person,
@@ -250,7 +250,7 @@ internal class BarnetrygdServiceTest {
 
 
         val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.now()).single()
-        assertThat(response.barnetrygdPerioder).contains(
+        assertThat(response.barnetrygdPerioder).containsOnly(
             PensjonController.BarnetrygdPeriode(
                 personIdent = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr.asString,
                 delingsprosentYtelse = YtelseProsent.USIKKER,
@@ -259,18 +259,6 @@ internal class BarnetrygdServiceTest {
                 stønadTom = YearMonth.from(LocalDate.MAX),
                 kildesystem = "Infotrygd",
                 utbetaltPerMnd = 1054,
-                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL
-            )
-        )
-        assertThat(response.barnetrygdPerioder).contains(
-            PensjonController.BarnetrygdPeriode(
-                personIdent = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr.asString,
-                delingsprosentYtelse = YtelseProsent.USIKKER,
-                ytelseTypeEkstern = YtelseTypeEkstern.SMÅBARNSTILLEGG,
-                stønadFom = YearMonth.of(2020, 5),
-                stønadTom = YearMonth.from(LocalDate.MAX),
-                kildesystem = "Infotrygd",
-                utbetaltPerMnd = 660,
                 sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL
             )
         )
