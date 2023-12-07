@@ -27,4 +27,7 @@ data class Person(
 
     @Column(name = "B01_MOTTAKER_NR", columnDefinition = "DECIMAL")
     val mottakerNummer: Long,
+
+    @Column(name = "B01_PENSJONSTRYGDET", columnDefinition = "CHAR(1 CHAR)")
+    val pensjonstrygdet: String?,
 ): Serializable
