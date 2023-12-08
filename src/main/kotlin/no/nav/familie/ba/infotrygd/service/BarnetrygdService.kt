@@ -519,13 +519,8 @@ class BarnetrygdService(
         }
 
         val perioder =
-            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.personIdent }.values
+            allePerioder.groupBy { it.personIdent }.values
                 .flatMap(::håndterSammenhengendeOgOverlappendePerioder).toMutableList()
-
-        perioder.addAll(
-            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.personIdent }.values
-                .flatMap(::håndterSammenhengendeOgOverlappendePerioder)
-        )
 
         return perioder.filter { it.stønadTom.isSameOrAfter(fraDato) }
     }
@@ -691,6 +686,7 @@ class BarnetrygdService(
                     val kanSlåesSammen = forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
                             && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
                             && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
+                            && forrigePeriode.ytelseTypeEkstern == nestePeriode.ytelseTypeEkstern
                             && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
                     when {
                         kanSlåesSammen -> foregåendePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
