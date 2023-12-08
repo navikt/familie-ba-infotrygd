@@ -520,24 +520,29 @@ class BarnetrygdService(
 
         val perioder =
             allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.personIdent }.values
-                .flatMap(::slåSammenSammenhengende).toMutableList()
+                .flatMap(::håndterSammenhengendeOgOverlappendePerioder).toMutableList()
 
         perioder.addAll(
             allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.personIdent }.values
-                .flatMap(::slåSammenSammenhengende)
+                .flatMap(::håndterSammenhengendeOgOverlappendePerioder)
         )
 
         return perioder.filter { it.stønadTom.isSameOrAfter(fraDato) }
     }
 
     private fun Barn.harDatoSomSamsvarer(stønad: TrunkertStønad): Boolean {
+        if (barnetrygdTom()?.isBefore(virkningFom()) == true) // tilhører en feilregistrert stønad
+            return false
+
         return iverksatt == stønad.iverksattFom && virkningFom == stønad.virkningFom ||
                 iverksatt().isBefore(stønad.iverksatt())
     }
 
+    private fun TrunkertStønad.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksattFom)!!
+
     private fun Barn.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksatt)!!
 
-    private fun TrunkertStønad.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksattFom)!!
+    private fun Barn.virkningFom() = DatoUtils.seqDatoTilYearMonth(virkningFom)!!
 
     private fun List<Barn>.medLøpendeStønadFraDato(seqDato: String) =
         filterNot { it.barnetrygdTom()?.isBefore(DatoUtils.seqDatoTilYearMonth(seqDato)) == true }
@@ -676,20 +681,23 @@ class BarnetrygdService(
             (null to null)
         }
 
-    private fun slåSammenSammenhengende(perioder: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
+    private fun håndterSammenhengendeOgOverlappendePerioder(perioder: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
         return perioder.sortedBy { it.stønadFom }
-            .fold(mutableListOf()) { sammenslåttePerioder, nestePeriode ->
-                val forrigePeriode = sammenslåttePerioder.lastOrNull()
+            .fold(mutableListOf()) { foregåendePerioder, nestePeriode ->
+                val forrigePeriode = foregåendePerioder.lastOrNull()
+                val månedenFørNestePeriode = nestePeriode.stønadFom.minusMonths(1)
 
-                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true
-                    && forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
-                    && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
-                    && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
-                    && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
-                ) {
-                    sammenslåttePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
+                if (forrigePeriode?.stønadTom?.isSameOrAfter(månedenFørNestePeriode) == true) {
+                    val kanSlåesSammen = forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
+                            && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
+                            && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
+                            && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
+                    when {
+                        kanSlåesSammen -> foregåendePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
+                        else -> foregåendePerioder.apply { addAll(listOf(removeLast().copy(stønadTom = månedenFørNestePeriode), nestePeriode)) }
+                    }
                 } else {
-                    sammenslåttePerioder.apply { add(nestePeriode) }
+                    foregåendePerioder.apply { add(nestePeriode) }
                 }
             }
     }
