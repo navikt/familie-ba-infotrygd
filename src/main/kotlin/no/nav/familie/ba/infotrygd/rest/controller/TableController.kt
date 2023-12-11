@@ -4,7 +4,7 @@ import no.nav.familie.ba.infotrygd.integration.TableIntegrator
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 @RestController
 @Unprotected

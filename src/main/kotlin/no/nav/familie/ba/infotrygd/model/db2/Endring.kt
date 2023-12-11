@@ -1,6 +1,6 @@
 package no.nav.familie.ba.infotrygd.model.db2
 
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "T_ENDRING")
