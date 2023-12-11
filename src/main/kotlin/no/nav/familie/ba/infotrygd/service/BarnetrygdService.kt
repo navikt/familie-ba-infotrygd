@@ -489,9 +489,10 @@ class BarnetrygdService(
                 val (valg, undervalg) = hentValgOgUndervalg(stønad)
 
                 barna.filter { it.barnetrygdTom()?.isSameOrAfter(utbetaling.fom()!!) ?: true }.map { barn ->
-
-                    if (barn.barnetrygdTom()?.isBefore(utbetaling.tom() ?: YearMonth.from(LocalDate.MAX)) == true) {
-                        secureLogger.warn("barnetrygden for $barn opphørte før $utbetaling og stønadTom burde kanskje vært oppgitt som ${barn.barnetrygdTom()} istedenfor ${utbetaling.tom()}")
+                    val barnetsOpphørsdato =
+                        barna.filter { it.barnFnr == barn.barnFnr }.maxOf { it.barnetrygdTom() ?: YearMonth.from(LocalDate.MAX)}
+                    if (barnetsOpphørsdato.isBefore(utbetaling.tom() ?: YearMonth.from(LocalDate.MAX))) {
+                        secureLogger.warn("barnetrygden for $barn opphørte før $utbetaling og stønadTom burde kanskje vært oppgitt som $barnetsOpphørsdato istedenfor ${utbetaling.tom()}")
                     }
 
                     BarnetrygdPeriode(
@@ -512,7 +513,8 @@ class BarnetrygdService(
                             "N" -> false
                             else -> null
                         },
-                        utbetaltPerMnd = utbetaling.beløp.toInt()
+                        utbetaltPerMnd = utbetaling.beløp.toInt(),
+                        iverksatt = stønad.iverksatt()
                     )
                 }.distinct()
             })
@@ -683,12 +685,14 @@ class BarnetrygdService(
                 val månedenFørNestePeriode = nestePeriode.stønadFom.minusMonths(1)
 
                 if (forrigePeriode?.stønadTom?.isSameOrAfter(månedenFørNestePeriode) == true) {
+                    val harSammeFomDato = forrigePeriode.stønadFom == nestePeriode.stønadFom
                     val kanSlåesSammen = forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
                             && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
                             && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
                             && forrigePeriode.ytelseTypeEkstern == nestePeriode.ytelseTypeEkstern
                             && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
                     when {
+                        harSammeFomDato -> foregåendePerioder.apply { add(maxOf(removeLast(), nestePeriode, compareBy { it.iverksatt })) }
                         kanSlåesSammen -> foregåendePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
                         else -> foregåendePerioder.apply { addAll(listOf(removeLast().copy(stønadTom = månedenFørNestePeriode), nestePeriode)) }
                     }
