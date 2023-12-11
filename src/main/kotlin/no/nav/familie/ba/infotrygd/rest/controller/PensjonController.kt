@@ -1,5 +1,6 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
@@ -83,7 +84,9 @@ class PensjonController(
         val sakstypeEkstern: SakstypeEkstern,
         val kildesystem: String = "Infotrygd",
         val pensjonstrygdet: Boolean? = null,
-        val norgeErSekundærland: Boolean? = null
+        val norgeErSekundærland: Boolean? = null,
+        @JsonIgnore
+        val iverksatt: YearMonth? = null // kun til bruk som filtreringskriterie i tilfeller hvor to perioder overlapper fra dag 1
     )
 
     enum class YtelseTypeEkstern {

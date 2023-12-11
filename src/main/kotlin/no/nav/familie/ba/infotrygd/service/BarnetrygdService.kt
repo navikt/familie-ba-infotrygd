@@ -473,18 +473,31 @@ class BarnetrygdService(
         val allePerioder = mutableListOf<BarnetrygdPeriode>()
 
         barnetrygdStønader.forEach { stønad ->
-            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(stønad)
-            val barna = barnRepository.findBarnByStønad(stønad).filter { it.harGyldigStønadstype }
+            val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(stønad).filterNot {
+                it.erSmåbarnstillegg()
+            }
+            val barna = barnRepository.findBarnByPersonkey(stønad.personKey, true).filter {
+                it.harDatoSomSamsvarer(stønad) && it.harGyldigStønadstype
+            }
+            if (stønad.antallBarn != barna.medLøpendeStønadFraDato(stønad.virkningFom).size) {
+                secureLogger.warn("Uoverensstemmelse mellom stønad.antallBarn og antallet barn funnet i konverterTilDtoForPensjon:\n" +
+                                          "stønad: $stønad \nbarna: $barna")
+            }
 
             allePerioder.addAll(utbetalinger.flatMap { utbetaling ->
 
                 val (valg, undervalg) = hentValgOgUndervalg(stønad)
 
                 barna.filter { it.barnetrygdTom()?.isSameOrAfter(utbetaling.fom()!!) ?: true }.map { barn ->
+                    val barnetsOpphørsdato =
+                        barna.filter { it.barnFnr == barn.barnFnr }.maxOf { it.barnetrygdTom() ?: YearMonth.from(LocalDate.MAX)}
+                    if (barnetsOpphørsdato.isBefore(utbetaling.tom() ?: YearMonth.from(LocalDate.MAX))) {
+                        secureLogger.warn("barnetrygden for $barn opphørte før $utbetaling og stønadTom burde kanskje vært oppgitt som $barnetsOpphørsdato istedenfor ${utbetaling.tom()}")
+                    }
+
                     BarnetrygdPeriode(
-                        ytelseTypeEkstern = when {
-                            utbetaling.erSmåbarnstillegg() -> YtelseTypeEkstern.SMÅBARNSTILLEGG
-                            valg == "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
+                        ytelseTypeEkstern = when (valg) {
+                            "UT" -> YtelseTypeEkstern.UTVIDET_BARNETRYGD
                             else -> YtelseTypeEkstern.ORDINÆR_BARNETRYGD
                         },
                         stønadFom = utbetaling.fom()!!,
@@ -500,27 +513,37 @@ class BarnetrygdService(
                             "N" -> false
                             else -> null
                         },
-                        utbetaltPerMnd = utbetaling.beløp.toInt()
+                        utbetaltPerMnd = utbetaling.beløp.toInt(),
+                        iverksatt = stønad.iverksatt()
                     )
-                }
+                }.distinct()
             })
         }
 
         val perioder =
-            allePerioder.filter { it.erOrdinærBarnetrygd }.groupBy { it.personIdent }.values
-                .flatMap(::slåSammenSammenhengende).toMutableList()
-
-        perioder.addAll(
-            allePerioder.filter { it.erUtvidetBarnetrygd }.groupBy { it.personIdent }.values
-                .flatMap(::slåSammenSammenhengende)
-        )
-        perioder.addAll(
-            allePerioder.filter { it.erSmåbarnstillegg }.groupBy { it.personIdent }.values
-                .flatMap(::slåSammenSammenhengende)
-        )
+            allePerioder.groupBy { it.personIdent }.values
+                .flatMap(::håndterSammenhengendeOgOverlappendePerioder).toMutableList()
 
         return perioder.filter { it.stønadTom.isSameOrAfter(fraDato) }
     }
+
+    private fun Barn.harDatoSomSamsvarer(stønad: TrunkertStønad): Boolean {
+        if (barnetrygdTom()?.isBefore(virkningFom()) == true) // tilhører en feilregistrert stønad
+            return false
+
+        return iverksatt == stønad.iverksattFom && virkningFom == stønad.virkningFom ||
+                iverksatt().isBefore(stønad.iverksatt())
+    }
+
+    private fun TrunkertStønad.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksattFom)!!
+
+    private fun Barn.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksatt)!!
+
+    private fun Barn.virkningFom() = DatoUtils.seqDatoTilYearMonth(virkningFom)!!
+
+    private fun List<Barn>.medLøpendeStønadFraDato(seqDato: String) =
+        filterNot { it.barnetrygdTom()?.isBefore(DatoUtils.seqDatoTilYearMonth(seqDato)) == true }
+            .distinctBy { it.barnFnr }
 
     private fun delingsprosent(stønad: TrunkertStønad, år: Int): SkatteetatenPeriode.Delingsprosent {
         val undervalg = hentUndervalg(stønad)
@@ -655,20 +678,26 @@ class BarnetrygdService(
             (null to null)
         }
 
-    private fun slåSammenSammenhengende(perioder: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
+    private fun håndterSammenhengendeOgOverlappendePerioder(perioder: List<BarnetrygdPeriode>): List<BarnetrygdPeriode> {
         return perioder.sortedBy { it.stønadFom }
-            .fold(mutableListOf()) { sammenslåttePerioder, nestePeriode ->
-                val forrigePeriode = sammenslåttePerioder.lastOrNull()
+            .fold(mutableListOf()) { foregåendePerioder, nestePeriode ->
+                val forrigePeriode = foregåendePerioder.lastOrNull()
+                val månedenFørNestePeriode = nestePeriode.stønadFom.minusMonths(1)
 
-                if (forrigePeriode?.stønadTom?.isSameOrAfter(nestePeriode.stønadFom.minusMonths(1)) == true
-                    && forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
-                    && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
-                    && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
-                    && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
-                ) {
-                    sammenslåttePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
+                if (forrigePeriode?.stønadTom?.isSameOrAfter(månedenFørNestePeriode) == true) {
+                    val harSammeFomDato = forrigePeriode.stønadFom == nestePeriode.stønadFom
+                    val kanSlåesSammen = forrigePeriode.delingsprosentYtelse == nestePeriode.delingsprosentYtelse
+                            && forrigePeriode.pensjonstrygdet == nestePeriode.pensjonstrygdet
+                            && forrigePeriode.sakstypeEkstern == nestePeriode.sakstypeEkstern
+                            && forrigePeriode.ytelseTypeEkstern == nestePeriode.ytelseTypeEkstern
+                            && forrigePeriode.utbetaltPerMnd == nestePeriode.utbetaltPerMnd
+                    when {
+                        harSammeFomDato -> foregåendePerioder.apply { add(maxOf(removeLast(), nestePeriode, compareBy { it.iverksatt })) }
+                        kanSlåesSammen -> foregåendePerioder.apply { add(removeLast().copy(stønadTom = nestePeriode.stønadTom)) }
+                        else -> foregåendePerioder.apply { addAll(listOf(removeLast().copy(stønadTom = månedenFørNestePeriode), nestePeriode)) }
+                    }
                 } else {
-                    sammenslåttePerioder.apply { add(nestePeriode) }
+                    foregåendePerioder.apply { add(nestePeriode) }
                 }
             }
     }
@@ -756,6 +785,3 @@ private val BarnetrygdPeriode.erOrdinærBarnetrygd: Boolean
 
 private val BarnetrygdPeriode.erUtvidetBarnetrygd: Boolean
     get() = ytelseTypeEkstern == YtelseTypeEkstern.UTVIDET_BARNETRYGD
-
-private val BarnetrygdPeriode.erSmåbarnstillegg: Boolean
-    get() = ytelseTypeEkstern == YtelseTypeEkstern.SMÅBARNSTILLEGG

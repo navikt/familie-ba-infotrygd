@@ -29,9 +29,9 @@ interface BarnRepository : JpaRepository<Barn, Long> {
     @Query("""
         SELECT b FROM Barn b
         WHERE b.personKey = :personKey
-        AND b.barnetrygdTom = '000000'
+        AND (b.barnetrygdTom = '000000' OR :historikk = true)
     """)
-    fun findBarnByPersonkey(personKey: Long): List<Barn>
+    fun findBarnByPersonkey(personKey: Long, historikk: Boolean = false): List<Barn>
 
 
 
