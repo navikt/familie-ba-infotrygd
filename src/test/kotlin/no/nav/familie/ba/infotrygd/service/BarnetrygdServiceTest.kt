@@ -233,7 +233,7 @@ internal class BarnetrygdServiceTest {
                 delingsprosentYtelse = YtelseProsent.USIKKER,
                 ytelseTypeEkstern = YtelseTypeEkstern.UTVIDET_BARNETRYGD,
                 stønadFom = YearMonth.of(2019, 5),
-                stønadTom = relatertSakOpphørtFom,
+                stønadTom = relatertSakOpphørtFom.minusMonths(1),
                 kildesystem = "Infotrygd",
                 utbetaltPerMnd = SATS_UTVIDET.toInt(),
                 sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL,
