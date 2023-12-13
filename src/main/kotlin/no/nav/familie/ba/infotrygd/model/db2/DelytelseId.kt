@@ -9,5 +9,5 @@ data class DelytelseId(
     @Column(name = "VEDTAK_ID", columnDefinition = "DECIMAL")
     val vedtakId: Long,
     @Column(name = "LINJE_ID", columnDefinition = "DECIMAL")
-    val linjeId: Long
+    val linjeId: Long?
 ) : Serializable
