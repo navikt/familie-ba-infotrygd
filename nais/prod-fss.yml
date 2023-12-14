@@ -36,8 +36,6 @@ spec:
     enabled: true # if true the pod will be scraped for metrics by prometheus
     path: /actuator/prometheus # Path to prometheus-metrics
     # /actuator/prometheus
-  istio: # Optional.
-    enabled: false # Optional. When true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
   resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
     limits:
       memory: 4096Mi  # app will be killed if exceeding these limits
