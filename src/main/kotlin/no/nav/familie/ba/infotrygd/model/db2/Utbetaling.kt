@@ -7,7 +7,7 @@ import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.seqDatoTilYearMonth
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.stringDatoMMyyyyTilYearMonth
 import java.time.YearMonth
-import javax.persistence.*
+import jakarta.persistence.*
 
 
 @Entity

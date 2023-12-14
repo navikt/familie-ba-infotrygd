@@ -6,7 +6,7 @@ import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.familie.ba.infotrygd.model.converters.ReversedLongFoedselNrConverter
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import java.time.YearMonth
-import javax.persistence.*
+import jakarta.persistence.*
 import no.nav.familie.kontrakter.ba.infotrygd.Barn as BarnDto
 
 @Entity

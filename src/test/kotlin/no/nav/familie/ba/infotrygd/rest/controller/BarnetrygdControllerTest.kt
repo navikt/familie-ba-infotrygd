@@ -33,7 +33,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
@@ -222,7 +222,7 @@ class BarnetrygdControllerTest {
         val response = assertThrows<ResponseStatusException> {
             get("/infotrygd/barnetrygd/stonad/666", Any::class.java)
         }
-        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
     @Test
@@ -232,7 +232,7 @@ class BarnetrygdControllerTest {
             val result = assertThrows<ResponseStatusException> {
                 post(uri = it, restTemplate = restTemplate, responseType = InfotrygdSøkResponse::class.java)
             }
-            assertThat(result.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+            assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
     }
 
