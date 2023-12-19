@@ -173,27 +173,10 @@ class BarnetrygdService(
         fraDato: YearMonth
     ): List<BarnetrygdTilPensjon> {
         val barnetrygdStønader = stonadRepository.findTrunkertStønadMedUtbetalingÅrByFnr(brukerFnr, fraDato.year)
-            .filter {
-                if (erRelevantStønadForPensjon(it)) {
-                    true
-                } else {
-                    secureLogger.info("Ikke relevant stønad $it")
-                    false
-                }
-            }
-            .filter {
-                if (filtrerStønaderSomErFeilregistrert(it)) {
-                    true
-                } else {
-                    secureLogger.info("felregistrert stønad $it")
-                    false
-                }
-            }
-        secureLogger.info("stønader: $barnetrygdStønader")
+            .filter { erRelevantStønadForPensjon(it) }
+            .filter { filtrerStønaderSomErFeilregistrert(it) }
 
         val perioder = konverterTilDtoForPensjon(barnetrygdStønader, fraDato)
-
-        secureLogger.info("perioder: $perioder")
 
         if (perioder.isEmpty()) {
             return emptyList()
@@ -494,12 +477,9 @@ class BarnetrygdService(
             val utbetalinger = utbetalingRepository.hentUtbetalingerByStønad(stønad).filterNot {
                 it.erSmåbarnstillegg()
             }
-            secureLogger.info("ubetalinger for stønad ${stønad.id}: $utbetalinger")
-
             val barna = barnRepository.findBarnByPersonkey(stønad.personKey, true).filter {
                 it.harDatoSomSamsvarer(stønad) && it.harGyldigStønadstype
             }
-            secureLogger.info("barna for stønad ${stønad.id}: $barna")
 
             allePerioder.addAll(utbetalinger.flatMap { utbetaling ->
 
@@ -534,7 +514,6 @@ class BarnetrygdService(
                 }.distinct()
             })
         }
-        secureLogger.info("alle perioder: $allePerioder")
 
         val perioder =
             allePerioder.groupBy { it.personIdent }.values
