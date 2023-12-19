@@ -29,6 +29,7 @@ import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseProse
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseTypeEkstern
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
+import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrBefore
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioder
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPerioderResponse
@@ -546,11 +547,13 @@ class BarnetrygdService(
         if (barnetrygdTom()?.isBefore(virkningFom()) == true) // tilhører en feilregistrert stønad
             return false
 
-        return iverksatt == stønad.iverksattFom && virkningFom == stønad.virkningFom ||
-                iverksatt().isBefore(stønad.iverksatt())
+        return iverksatt().isSameOrBefore(stønad.iverksatt()) &&
+                virkningFom().isSameOrBefore(stønad.virkningFom())
     }
 
     private fun TrunkertStønad.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksattFom)!!
+
+    private fun TrunkertStønad.virkningFom() = DatoUtils.seqDatoTilYearMonth(virkningFom)!!
 
     private fun Barn.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksatt)!!
 
