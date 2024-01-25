@@ -162,7 +162,7 @@ class BarnetrygdService(
 
         if (!barn.isNullOrEmpty()) {
             val personerViaBarn = barnRepository.findBarnByFnrList(barn.map { FoedselsNr(it) })
-                .map { it.fnr.asString }
+                .mapNotNull { it.fnr?.asString }
             personer.addAll(personerViaBarn)
         }
         return personer.map { person -> vedtakRepository.tellAntallÅpneSakerPåPerson(person) }.sum()
@@ -185,7 +185,7 @@ class BarnetrygdService(
         // Sjekk om det finnes relaterte saker, dvs om barna finnes i andre stønader
         val barnetrygdFraRelaterteSaker = barnRepository.findBarnByFnrList(perioder.map { FoedselsNr(it.personIdent) })
             .filter { it.fnr != brukerFnr && it.harGyldigStønadstype }
-            .map { it.fnr }.distinct()
+            .mapNotNull { it.fnr }.distinct()
             .mapNotNull { relatertBrukerFnr ->
                 BarnetrygdTilPensjon(
                     fnr = relatertBrukerFnr.asString,
@@ -496,7 +496,8 @@ class BarnetrygdService(
                             else -> YtelseTypeEkstern.ORDINÆR_BARNETRYGD
                         },
                         stønadFom = utbetaling.fom()!!,
-                        stønadTom = minOf(utbetalingTom, barnetsOpphørsdato),
+                        stønadTom = minOf(utbetalingTom, barnetsOpphørsdato).takeUnless { it.isBefore(utbetaling.fom()) }
+                            ?: maxOf(utbetalingTom, barnetsOpphørsdato),
                         personIdent = barn.barnFnr.asString,
                         delingsprosentYtelse = ytelseProsent(stønad, undervalg, fraDato.year),
                         sakstypeEkstern = when (undervalg) {
@@ -523,11 +524,16 @@ class BarnetrygdService(
     }
 
     private fun Barn.harDatoSomSamsvarer(stønad: TrunkertStønad): Boolean {
-        if (barnetrygdTom()?.isBefore(virkningFom()) == true) // tilhører en feilregistrert stønad
-            return false
+        try {
+            if (barnetrygdTom()?.isBefore(virkningFom()) == true) // tilhører en feilregistrert stønad
+                return false
 
-        return iverksatt().isSameOrBefore(stønad.iverksatt()) &&
-                virkningFom().isSameOrBefore(stønad.virkningFom())
+            return iverksatt().isSameOrBefore(stønad.iverksatt()) &&
+                    virkningFom().isSameOrBefore(stønad.virkningFom())
+        } catch (e: DateTimeParseException) {
+            logger.warn("Klarte ikke parse dato på barn(id=$id), stønad(id=${stønad.id})")
+            return false
+        }
     }
 
     private fun TrunkertStønad.iverksatt() = DatoUtils.seqDatoTilYearMonth(iverksattFom)!!
