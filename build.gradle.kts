@@ -98,7 +98,7 @@ dependencies {
     implementation("com.oracle.database.jdbc:ojdbc8:21.9.0.0")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.19.1")
+    testImplementation("org.testcontainers:oracle-xe:1.19.4")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("com.opencsv:opencsv:5.7.1")
