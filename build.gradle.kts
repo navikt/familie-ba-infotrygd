@@ -15,7 +15,7 @@ val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
 val fellesVersjon = "2.20231023162434_fa320ce"
 val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
 val coroutinesVersion = "1.6.4"
-val okhttp3Version = "5.0.0-alpha.11"
+val okhttp3Version = "5.0.0-alpha.12"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
