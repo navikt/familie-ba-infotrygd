@@ -101,7 +101,7 @@ dependencies {
     testImplementation("org.testcontainers:oracle-xe:1.19.4")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
-    testImplementation("com.opencsv:opencsv:5.7.1")
+    testImplementation("com.opencsv:opencsv:5.9")
 
 }
 
