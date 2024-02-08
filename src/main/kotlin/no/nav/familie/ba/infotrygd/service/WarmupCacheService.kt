@@ -10,7 +10,7 @@ class WarmupCacheService(val barnetrygdService: BarnetrygdService) {
 
     private val logger = LoggerFactory.getLogger(WarmupCacheService::class.java)
 
-    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000, initialDelay = 3 * 60 * 1000)
+    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000, initialDelay = 10 * 60 * 1000)
     fun warmupSkatteetatenPersonerCache() {
         val inneværendeÅr = Year.now()
 

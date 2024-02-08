@@ -4,11 +4,11 @@ package no.nav.familie.ba.infotrygd.model.db2
 import no.nav.familie.ba.infotrygd.model.converters.Char2Converter
 import no.nav.familie.ba.infotrygd.model.converters.CharConverter
 import java.time.LocalDate
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.EmbeddedId
-import javax.persistence.Entity
-import javax.persistence.Table
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.EmbeddedId
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 import no.nav.familie.kontrakter.ba.infotrygd.Delytelse as DelytelseDto
 
 

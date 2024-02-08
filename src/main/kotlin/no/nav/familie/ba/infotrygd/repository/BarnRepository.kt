@@ -2,7 +2,7 @@ package no.nav.familie.ba.infotrygd.repository
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.dl1.Barn
-import no.nav.familie.ba.infotrygd.model.dl1.Stønad
+import no.nav.familie.ba.infotrygd.model.dl1.TrunkertStønad
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -23,15 +23,15 @@ interface BarnRepository : JpaRepository<Barn, Long> {
         AND b.virkningFom = :#{#stonad.virkningFom}
         AND b.region = :#{#stonad.region}
     """)
-    fun findBarnByStønad(stonad: Stønad): List<Barn>
+    fun findBarnByStønad(stonad: TrunkertStønad): List<Barn>
 
 
     @Query("""
         SELECT b FROM Barn b
         WHERE b.personKey = :personKey
-        AND b.barnetrygdTom = '000000'
+        AND (b.barnetrygdTom = '000000' OR :historikk = true)
     """)
-    fun findBarnByPersonkey(personKey: Long): List<Barn>
+    fun findBarnByPersonkey(personKey: Long, historikk: Boolean = false): List<Barn>
 
 
 

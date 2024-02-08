@@ -69,7 +69,9 @@ object TestData {
             virkningFom = stønad.virkningFom,
             region = stønad.region,
             barnetrygdTom = barnetrygdTom ?: DatoUtils.stringDatoMMyyyyTilYearMonth(stønad.opphørtFom)
-                ?.minusMonths(1)?.format(DateTimeFormatter.ofPattern("MMyyyy")) ?: "000000",
+                ?.minusMonths(1)
+                ?.format(DateTimeFormatter.ofPattern("yyyyMM"))
+                ?.let { (999999 - it.toInt()).toString() } ?: "000000",
             stønadstype = stønadstype
         )
     }
@@ -165,6 +167,7 @@ object TestData {
         stønad: Stønad,
         kontonummer: String = "06010000",
         beløp: Double = 1054.00,
+        utbetalingTom: String? = null,
     ): Utbetaling {
         return Utbetaling(
             personKey = stønad.personKey,
@@ -173,9 +176,9 @@ object TestData {
             kontonummer = kontonummer,
             utbetalingstype = "M",
             beløp = beløp,
-            fnr = stønad.fnr,
+            fnr = stønad.fnr!!,
             utbetalingId = nextId(),
-            utbetalingTom = stønad.opphørtFom
+            utbetalingTom = utbetalingTom ?: stønad.opphørtFom
         )
     }
 
@@ -197,7 +200,7 @@ object TestData {
             resultat = "I",
             vedtaksdato = LocalDate.now(),
             iverksattdato = LocalDate.now(),
-            fnr = stønad.fnr,
+            fnr = stønad.fnr!!,
             tkNr = stønad.tkNr
         )
     }

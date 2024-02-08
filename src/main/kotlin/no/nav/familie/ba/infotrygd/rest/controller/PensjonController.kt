@@ -1,5 +1,6 @@
 package no.nav.familie.ba.infotrygd.rest.controller
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
@@ -11,7 +12,6 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,11 +30,10 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 @RequestMapping("/infotrygd/barnetrygd")
 class PensjonController(
     private val barnetrygdService: BarnetrygdService,
-    private val tilgangskontrollService: TilgangskontrollService,
-    private val environment: Environment
+    private val tilgangskontrollService: TilgangskontrollService
 ) {
 
-    @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 2 år tilbake i tid")
+    @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 3 år tilbake i tid")
     @PostMapping(path = ["pensjon"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
     fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
@@ -42,8 +41,8 @@ class PensjonController(
 
         val fraDato = YearMonth.of(request.fraDato.year, request.fraDato.month)
 
-        if (fraDato.isBefore(YearMonth.now().minusYears(2))) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 2 år tilbake i tid")
+        if (fraDato.isBefore(YearMonth.now().minusYears(3))) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 3 år tilbake i tid")
         }
 
         val bruker = FoedselsNr(request.ident)
@@ -57,9 +56,6 @@ class PensjonController(
     @GetMapping(path = ["pensjon"])
     fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
         tilgangskontrollService.sjekkTilgang()
-        if (environment.activeProfiles.any { it == "preprod" }) {
-            return emptyList()
-        }
         return barnetrygdService.finnPersonerBarnetrygdPensjon(år)
     }
 
@@ -88,7 +84,9 @@ class PensjonController(
         val sakstypeEkstern: SakstypeEkstern,
         val kildesystem: String = "Infotrygd",
         val pensjonstrygdet: Boolean? = null,
-        val norgeErSekundærland: Boolean? = null
+        val norgeErSekundærland: Boolean? = null,
+        @JsonIgnore
+        val iverksatt: YearMonth? = null // kun til bruk som filtreringskriterie i tilfeller hvor to perioder overlapper fra dag 1
     )
 
     enum class YtelseTypeEkstern {

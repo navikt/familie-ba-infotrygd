@@ -2,7 +2,7 @@ package no.nav.familie.ba.infotrygd.model.dl1
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
-import javax.persistence.*
+import jakarta.persistence.*
 import java.io.Serializable
 
 @Entity
@@ -29,5 +29,5 @@ data class Person(
     val mottakerNummer: Long,
 
     @Column(name = "B01_PENSJONSTRYGDET", columnDefinition = "CHAR(1 CHAR)")
-    val pensjonstrygdet: String,
+    val pensjonstrygdet: String?,
 ): Serializable

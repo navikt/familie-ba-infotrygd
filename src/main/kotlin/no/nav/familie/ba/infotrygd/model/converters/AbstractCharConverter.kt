@@ -1,7 +1,7 @@
 package no.nav.familie.ba.infotrygd.model.converters
 
-import javax.persistence.AttributeConverter
-import javax.persistence.Converter
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 
 abstract class AbstractCharConverter(private val size: Int) : AttributeConverter<String?, String?> {
     override fun convertToDatabaseColumn(attribute: String?): String? {
