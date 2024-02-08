@@ -9,22 +9,22 @@ val filformatVersion = "1.2019.06.26-14.50-746e7610cb12"
 val micrometerRegistryVersion = "1.1.2"
 val tokenValidationVersion = "3.0.4"
 val jacksonVersion = "2.9.9"
-val springdocVersion = "2.2.0"
+val springdocVersion = "2.3.0"
 val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
 val fellesVersjon = "2.20231023162434_fa320ce"
 val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
 val coroutinesVersion = "1.6.4"
-val okhttp3Version = "5.0.0-alpha.11"
+val okhttp3Version = "5.0.0-alpha.12"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.8.21"
+    val kotlinVersion = "1.9.22"
     val springBootVersion = "3.0.5"
     id("org.springframework.boot") version springBootVersion
-    id("io.spring.dependency-management") version "1.1.0"
+    id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -77,7 +77,7 @@ dependencies {
     implementation("no.nav.familie.felles:leader:$fellesVersjon")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.8.1")
+    implementation("net.ttddyy:datasource-proxy:1.10")
     implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationVersion") {
         exclude(group = "com.squareup.okhttp3", module = "mockwebserver")
@@ -95,13 +95,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     runtimeOnly("org.postgresql:postgresql")
-    implementation("com.oracle.database.jdbc:ojdbc8:21.9.0.0")
+    implementation("com.oracle.database.jdbc:ojdbc8:23.3.0.23.09")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:oracle-xe:1.19.4")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
-    testImplementation("com.opencsv:opencsv:5.7.1")
+    testImplementation("com.opencsv:opencsv:5.9")
 
 }
 
