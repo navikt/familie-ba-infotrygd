@@ -1,4 +1,7 @@
-FROM ghcr.io/navikt/baseimages/temurin:17
+FROM ghcr.io/navikt/baseimages/temurin:17-appdynamics
+
+ENV APPD_ENABLED=true
+ENV APP_NAME=familie-ba-infotrygd
 
 COPY init.sh /init-scripts/init.sh
 

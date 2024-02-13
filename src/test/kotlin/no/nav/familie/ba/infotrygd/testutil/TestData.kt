@@ -61,7 +61,7 @@ object TestData {
     ): Barn {
         return Barn(
             id = nextId(),
-            fnr = stønad.fnr!!,
+            fnr = stønad.fnr,
             tkNr = stønad.tkNr,
             personKey = stønad.personKey,
             barnFnr = barnFnr,
