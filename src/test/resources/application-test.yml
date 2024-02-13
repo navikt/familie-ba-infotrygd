@@ -2,7 +2,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.Oracle10gDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         default_schema: INFOTRYGD_Q0
@@ -11,23 +11,26 @@ spring:
     username: sa
     password: pwd
     driver-class-name: org.h2.Driver
-    initialization-mode: always
-    platform: h2
-    continue-on-error: true
+  sql:
+    init:
+      platform: h2
+      mode: always
+      continue-on-error: true
 
 no.nav.security.jwt:
   expirythreshold: 60 #threshold in minutes until token expires
   issuer:
-    azure:
-      discoveryurl: http://metadata
-      accepted_audience: aud-localhost
+    azuread:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/default/.well-known/openid-configuration
+      accepted_audience: default
       proxyurl: ~
       cookiename: localhost-idtoken
 
-app:
-  security:
-    clientWhitelist: "azure/12345678910,sts/12345678910"
+NAIS_APP_NAME: familie-ba-infotrygd
 
-AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:1111/v2.0/token
-AUTHORIZATION_URL: http://localhost:1111/v2.0/authorize
-AZURE_APP_CLIENT_ID: ""
+AUTHORIZATION_URL: http://localhost:${mock-oauth2-server.port}/default/authorize
+TOKEN_URL: http://localhost:${mock-oauth2-server.port}/default/token
+API_SCOPE: api://${AZURE_APP_CLIENT_ID} openid /.default
+
+AZURE_APP_CLIENT_ID: testid
+AZURE_APP_CLIENT_SECRET: testsecret

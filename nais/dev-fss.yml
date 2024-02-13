@@ -25,7 +25,6 @@ spec:
   replicas: # Optional. Set min = max to disable autoscaling.
     min: 2 # minimum number of replicas.
     max: 2 # maximum number of replicas.
-    cpuThresholdPercentage: 50 # total cpu percentage threshold on deployment, at which point it will increase number of pods if current < max
   leaderElection: true
   # Compare this value with the $HOSTNAME to see if the current instance is the leader
   preStopHookPath: "" # Optional. A HTTP GET will be issued to this endpoint at least once before the pod is terminated.
@@ -34,11 +33,8 @@ spec:
     enabled: true # if true the pod will be scraped for metrics by prometheus
     path: /actuator/prometheus # Path to prometheus-metrics
     # /actuator/prometheus
-  istio: # Optional.
-    enabled: false # Optional. When true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
   resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
     limits:
-      cpu: 3000m # app will have its cpu usage throttled if exceeding this limit
       memory: 2048Mi  # app will be killed if exceeding these limits
     requests: # App is guaranteed the requested resources and  will be scheduled on nodes with at least this amount of resources available
       cpu: 500m
@@ -81,6 +77,9 @@ spec:
         groups:
           - id: c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b # teamfamilie-forvaltning
           - id: 928636f4-fd0d-4149-978e-a6fb68bb19de # 0000-GA-STDAPPS - tilgang til prosessering
+          - id: 93a26831-9866-4410-927b-74ff51a9107c # VEILEDER_ROLLE
+          - id: d21e00a4-969d-4b28-8782-dc818abfae65 # SAKSBEHANDLER_ROLLE
+          - id: 9449c153-5a1e-44a7-84c6-7cc7a8867233 # BESLUTTER_ROLLE
       tenant: trygdeetaten.no
       replyURLs:
         - "https://familie-ba-infotrygd.dev.intern.nav.no/swagger-ui/oauth2-redirect.html"
@@ -100,8 +99,6 @@ spec:
       value: none
     - name: APP_AZURE_PROXY_URL
       value: https://webproxy-nais.nav.no:8088
-    - name: APP_CLIENT_WHITELIST
-      value: azure/146ccc69-7cd0-4b8e-86a5-144534e53a00,azure/288f2ef5-23fa-4fc5-af6b-6001adaf9e50,azure/e50c7d59-7183-4978-8d8c-8af7f9a7e6a9,azure/1ded84b0-21b7-4042-9c84-820c939021a6,azure/dc2b8dca-9de9-42f7-9103-f52a9169428e,azure/a38ae9cf-f55a-480a-b830-cc68d53f8445,azure/b5b51c6e-aa53-4ab8-ae68-f7aed5ae4b1d
     - name: APP_DATASOURCE_USERNAME_PATH
       value: /var/run/secrets/oracle/creds/username
     - name: APP_DATASOURCE_PASSWORD_PATH

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 @Component
 @Profile("demoData")

@@ -4,7 +4,9 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.converters.Char2Converter
 import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import no.nav.familie.ba.infotrygd.model.converters.ReversedLongFoedselNrConverter
-import javax.persistence.*
+import no.nav.familie.ba.infotrygd.utils.DatoUtils
+import java.time.YearMonth
+import jakarta.persistence.*
 import no.nav.familie.kontrakter.ba.infotrygd.Barn as BarnDto
 
 @Entity
@@ -19,7 +21,7 @@ data class Barn(
 
     @Column(name = "F_NR", columnDefinition = "VARCHAR2")
     @Convert(converter = ReversedFoedselNrConverter::class)
-    val fnr: FoedselsNr,
+    val fnr: FoedselsNr?,
 
     @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
     val tkNr: String,
@@ -43,7 +45,11 @@ data class Barn(
     @Column(name = "B10_STONADS_TYPE", columnDefinition = "VARCHAR2")
     @Convert(converter = Char2Converter::class)
     val stønadstype: String?,
-)
+) {
+    fun barnetrygdTom(): YearMonth? {
+        return DatoUtils.seqDatoTilYearMonth(barnetrygdTom)
+    }
+}
 
 fun Barn.toBarnDto(): BarnDto {
     return BarnDto(

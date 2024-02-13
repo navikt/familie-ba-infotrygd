@@ -4,11 +4,11 @@ import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.converters.CharConverter
 import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import java.io.Serializable
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = "BA_STOENAD_20")
@@ -34,7 +34,7 @@ data class Stønad(
 
     @Column(name = "F_NR", columnDefinition = "VARCHAR2")
     @Convert(converter = ReversedFoedselNrConverter::class)
-    val fnr: FoedselsNr,
+    val fnr: FoedselsNr?,
 
     @Column(name = "TK_NR", columnDefinition = "VARCHAR2")
     val tkNr: String,
@@ -102,5 +102,7 @@ data class TrunkertStønad(
     val iverksattFom: String,
 
     val antallBarn: Int,
+
+    val pensjonstrygdet: String? = "",
 )
 

@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.service.ClientValidator
-import no.nav.security.token.support.core.api.Protected
+import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
+import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,13 +21,13 @@ import java.time.YearMonth
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
 
-@Protected
+@ProtectedWithClaims(issuer = "azuread")
 @RestController
 @Timed(value = "infotrygd_historikk_bisys_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class BisysController(
     private val barnetrygdService: BarnetrygdService,
-    private val clientValidator: ClientValidator
+    private val tilgangskontrollService: TilgangskontrollService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -35,7 +35,7 @@ class BisysController(
     @PostMapping(path = ["utvidet"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"personIdent": "12345678910", "fraDato": "2020-05"}""")])])
     fun utvidet(@RequestBody request: InfotrygdUtvidetBarnetrygdRequest): InfotrygdUtvidetBarnetrygdResponse {
-        clientValidator.authorizeClient()
+        tilgangskontrollService.sjekkTilgang()
 
         if (request.fraDato.isBefore(YearMonth.now().minusYears(5)))
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "fraDato kan ikke være lenger enn 5 år tilbake i tid")

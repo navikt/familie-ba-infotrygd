@@ -3,7 +3,7 @@ package no.nav.familie.ba.infotrygd.model.converters
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import javax.persistence.AttributeConverter
+import jakarta.persistence.AttributeConverter
 
 open class AbstractNavLocalDateConverter(datePattern: String) : AttributeConverter<LocalDate?, Int?> {
     private val logger = LoggerFactory.getLogger(javaClass)

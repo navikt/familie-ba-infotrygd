@@ -2,10 +2,12 @@ package no.nav.familie.ba.infotrygd.service
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
 import no.nav.familie.ba.infotrygd.model.db2.Stønadsklasse
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import no.nav.familie.ba.infotrygd.model.dl1.Sak
+import no.nav.familie.ba.infotrygd.model.dl1.tilTrunkertStønad
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
 import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.LøpeNrFnrRepository
@@ -18,6 +20,9 @@ import no.nav.familie.ba.infotrygd.repository.StønadsklasseRepository
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
 import no.nav.familie.ba.infotrygd.repository.VedtakRepository
 import no.nav.familie.ba.infotrygd.rest.controller.BisysController
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseProsent
+import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseTypeEkstern
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import org.assertj.core.api.Assertions.assertThat
@@ -31,6 +36,7 @@ import org.springframework.core.env.Environment
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.sql.SQLException
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -159,6 +165,178 @@ internal class BarnetrygdServiceTest {
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
     }
 
+    @Test
+    fun `finn barnetrygd for pensjon - finner full ordniær barnetrygd`() {
+        val person = settOppLøpendeOrdinærBarnetrygd(ORDINÆR_BARNETRYGD_STATUS)
+
+        val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.now()).single()
+        assertThat(response.barnetrygdPerioder).contains(
+            PensjonController.BarnetrygdPeriode(
+                personIdent = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr.asString,
+                delingsprosentYtelse = YtelseProsent.FULL,
+                ytelseTypeEkstern = YtelseTypeEkstern.ORDINÆR_BARNETRYGD,
+                stønadFom = YearMonth.of(2020, 5),
+                stønadTom = YearMonth.from(LocalDate.MAX),
+                kildesystem = "Infotrygd",
+                utbetaltPerMnd = 1054,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL,
+                iverksatt = YearMonth.of(2020, 5)
+            )
+        )
+    }
+
+    @Test
+    fun `finn barnetrygd for pensjon - finner full ordniær barnetrygd for alle barna`() {
+        val person = settOppLøpendeOrdinærBarnetrygd(ORDINÆR_BARNETRYGD_STATUS, antallBarn = 3)
+        val barna = barnRepository.findBarnByPersonkey(person.personKey)
+
+        val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.now()).single()
+
+        assertThat(barna.size).isEqualTo(3)
+        assertThat(response.barnetrygdPerioder).containsAll(
+            barna.map {
+                PensjonController.BarnetrygdPeriode(
+                    personIdent = it.barnFnr.asString,
+                    delingsprosentYtelse = YtelseProsent.FULL,
+                    ytelseTypeEkstern = YtelseTypeEkstern.ORDINÆR_BARNETRYGD,
+                    stønadFom = YearMonth.of(2020, 5),
+                    stønadTom = YearMonth.from(LocalDate.MAX),
+                    kildesystem = "Infotrygd",
+                    utbetaltPerMnd = 1054,
+                    sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL,
+                    iverksatt = YearMonth.of(2020, 5)
+                )
+            }
+        )
+    }
+
+    @Test
+    fun `finn barnetrygd for pensjon - skal finne barnetrygd fra relatert sak`() {
+        val person = settOppLøpendeOrdinærBarnetrygd(ORDINÆR_BARNETRYGD_STATUS, antallBarn = 2)
+        val barna = barnRepository.findBarnByPersonkey(person.personKey)
+        val relatertPerson = personRepository.saveAndFlush(TestData.person())
+        val relatertSakOpphørtFom = YearMonth.now()
+
+        leggTilUtgåttUtvidetBarnetrygdSak(
+            relatertPerson,
+            opphørtFom = relatertSakOpphørtFom.format(DateTimeFormatter.ofPattern("MMyyyy")),
+            barnFnr = barna.first().barnFnr
+        )
+
+        val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.now().minusMonths(1))
+        val barnetrygdFraRelatertSak = response.find { it.fnr == relatertPerson.fnr.asString }
+
+        assertThat(response.size).isEqualTo(2)
+        assertThat(barnetrygdFraRelatertSak!!.barnetrygdPerioder).containsOnly(
+            PensjonController.BarnetrygdPeriode(
+                personIdent = barna.first().barnFnr.asString,
+                delingsprosentYtelse = YtelseProsent.USIKKER,
+                ytelseTypeEkstern = YtelseTypeEkstern.UTVIDET_BARNETRYGD,
+                stønadFom = YearMonth.of(2019, 5),
+                stønadTom = relatertSakOpphørtFom.minusMonths(1),
+                kildesystem = "Infotrygd",
+                utbetaltPerMnd = SATS_UTVIDET.toInt(),
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL,
+                iverksatt = YearMonth.of(2019, 5)
+            )
+        )
+    }
+
+    @Test
+    fun `finn barnetrygd for pensjon - ignorerer småbarnstillegg og finner løpende utvidet fra og med dato gitt av foregående periode`() {
+        val person = settOppLøpendeUtvidetBarnetrygd(MANUELT_BEREGNET_STATUS)
+        leggTilUtgåttUtvidetBarnetrygdSak(
+            person,
+            opphørtFom = YearMonth.now().format(DateTimeFormatter.ofPattern("MMyyyy")),
+            barnFnr = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr
+        )
+
+
+        val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.now()).single()
+        assertThat(response.barnetrygdPerioder).containsOnly(
+            PensjonController.BarnetrygdPeriode(
+                personIdent = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr.asString,
+                delingsprosentYtelse = YtelseProsent.USIKKER,
+                ytelseTypeEkstern = YtelseTypeEkstern.UTVIDET_BARNETRYGD,
+                stønadFom = YearMonth.of(2019, 5),
+                stønadTom = YearMonth.from(LocalDate.MAX),
+                kildesystem = "Infotrygd",
+                utbetaltPerMnd = 1054,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL,
+                iverksatt = YearMonth.of(2019, 5)
+            )
+        )
+    }
+
+    @Test
+    fun `finn barnetrygd for pensjon - håndterer overlapp (kan skje ved revurdering tilbake i tid) ved å forkorte forrige tom-dato`() {
+        val person = settOppLøpendeUtvidetBarnetrygd() // default stønad fom 2020-05
+        leggTilUtgåttUtvidetBarnetrygdSak(             // default stønad fom 2019-05
+            person = person,
+            beløp = 2000.0, // setter det forskjellig fra den første stønaden for å hindre at periodene slås sammen.
+            opphørtFom = YearMonth.of(2022, 1).format(DateTimeFormatter.ofPattern("MMyyyy")),
+            barnFnr = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr
+        )
+
+        barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.of(2020, 1)).single().barnetrygdPerioder
+            .apply {
+                val periode1 = find { it.stønadFom == YearMonth.of(2019, 5) }!!
+                val periode2 = find { it.stønadFom == YearMonth.of(2020, 5) }!!
+
+                assertThat(periode1.stønadTom).isEqualTo(periode2.stønadFom.minusMonths(1))
+            }
+    }
+
+    @Test
+    fun `finn barnetrygd for pensjon - håndterer fullstendige overlapp (lik fomDato) ved å velge perioden senest iverksatt`() {
+        val person = settOppLøpendeUtvidetBarnetrygd() //  stønad fom 2020-05, iverksatt 2020-05
+        leggTilUtgåttUtvidetBarnetrygdSak(
+            virkningFom = (999999 - 202005).toString(), // stønad fom 2020-05, iverksatt 2019-05
+            person = person,
+            opphørtFom = YearMonth.of(2022, 1).format(DateTimeFormatter.ofPattern("MMyyyy")),
+            barnFnr = barnRepository.findBarnByPersonkey(person.personKey).single().barnFnr
+        )
+
+        val barnetrygdPerioder =
+            barnetrygdService.finnBarnetrygdForPensjon(person.fnr, YearMonth.of(2020, 1)).single().barnetrygdPerioder
+
+        assertThat(barnetrygdPerioder).hasSize(1)
+        assertThat(barnetrygdPerioder.single().iverksatt).isEqualTo(barnetrygdService.finnSisteVedtakPåPerson(person.personKey))
+    }
+
+    @Test
+    fun `finn barnetrygd for pensjon - finner perioden med stønadTom samme måned som fraDato`() {
+        val person = personRepository.save(TestData.person())
+        val fraDato = YearMonth.now()
+        val stønadTom = fraDato.format(DateTimeFormatter.ofPattern("MMyyyy"))
+
+        val stønad = stonadRepository.save(
+            TestData.stønad(
+                person,
+                opphørtFom = fraDato.plusMonths(1).format(DateTimeFormatter.ofPattern("MMyyyy")),
+            )
+        )
+        sakRepository.save(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
+        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
+        utbetalingRepository.save(TestData.utbetaling(stønad, utbetalingTom = stønadTom))
+        barnRepository.save(TestData.barn(stønad))
+
+        val response = barnetrygdService.finnBarnetrygdForPensjon(person.fnr, fraDato).single()
+
+        assertThat(response.barnetrygdPerioder).contains(
+            PensjonController.BarnetrygdPeriode(
+                personIdent = barnRepository.findBarnByStønad(stønad.tilTrunkertStønad()).single().barnFnr.asString,
+                delingsprosentYtelse = YtelseProsent.FULL,
+                ytelseTypeEkstern = YtelseTypeEkstern.ORDINÆR_BARNETRYGD,
+                stønadFom = YearMonth.of(2020, 5),
+                stønadTom = fraDato,
+                kildesystem = "Infotrygd",
+                utbetaltPerMnd = 1054,
+                sakstypeEkstern = PensjonController.SakstypeEkstern.NASJONAL,
+                iverksatt = YearMonth.of(2020, 5)
+            )
+        )
+    }
 
     @Test
     fun `hent utvidet barnetrygd for stønad med status 0, utvidet barnetrygdsak og inputdato med dato nå, som kun henter aktiv stønad, manuelt beregnet`() {
@@ -673,10 +851,22 @@ internal class BarnetrygdServiceTest {
         assertThat(barnetrygdService.harSendtBrevForrigeMåned(listOf(person.fnr), listOf("B001"))).hasSize(1)
     }
 
-
-    private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String): Person {
+    private fun settOppLøpendeOrdinærBarnetrygd(stønadStatus: String, antallBarn: Int = 1): Person {
         val person = personRepository.save(TestData.person())
         val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = stønadStatus, opphørtFom = "000000"))
+        (1..antallBarn).forEach{
+            barnRepository.save(TestData.barn(løpendeStønad))
+        }
+        sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "OR", undervalg = "OS"))
+        utbetalingRepository.saveAll(listOf(TestData.utbetaling(løpendeStønad)))
+        return person
+
+    }
+
+    private fun settOppLøpendeUtvidetBarnetrygd(stønadStatus: String = MANUELT_BEREGNET_STATUS): Person {
+        val person = personRepository.save(TestData.person())
+        val løpendeStønad = stonadRepository.save(TestData.stønad(person, status = stønadStatus, opphørtFom = "000000"))
+        barnRepository.save(TestData.barn(løpendeStønad))
         sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MB"))
         utbetalingRepository.saveAll(
             listOf(
@@ -692,12 +882,14 @@ internal class BarnetrygdServiceTest {
                                                   beløp: Double? = null,
                                                   stønadStatus: String = "0",
                                                   iverksattFom: String = (999999 - 201905).toString(),
-                                                  virkningFom: String = iverksattFom) {
+                                                  virkningFom: String = iverksattFom,
+                                                  opphørtFom: String = "042020",
+                                                  barnFnr: FoedselsNr = TestData.foedselsNr(LocalDate.now())) {
         val opphørtStønad = stonadRepository.save(
             TestData.stønad(
                 person,
                 status = stønadStatus,
-                opphørtFom = "042020",
+                opphørtFom = opphørtFom,
                 iverksattFom = iverksattFom,
                 virkningFom = virkningFom
             )
@@ -709,7 +901,7 @@ internal class BarnetrygdServiceTest {
         } else {
             utbetalingRepository.save(TestData.utbetaling(opphørtStønad, beløp = beløp))
         }
-
+        barnRepository.save(TestData.barn(opphørtStønad, barnFnr))
     }
 
     private fun lagraRelevantDb2Data(
@@ -725,7 +917,7 @@ internal class BarnetrygdServiceTest {
 
     companion object {
         const val MANUELT_BEREGNET_STATUS = "0"
-        const val UTVIDET_BARNETRYGD_STATUS = "2"
+        const val ORDINÆR_BARNETRYGD_STATUS = "1"
         const val SATS_BARNETRYGD_OVER_6 = 1054.0
         const val SATS_BARNETRYGD_UNDER_6_2021 = 1654.0
         const val SATS_BARNETRYGD_UNDER_6_2022 = 1676.0

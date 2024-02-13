@@ -5,7 +5,7 @@ import no.nav.familie.ba.infotrygd.model.converters.Char2Converter
 import no.nav.familie.ba.infotrygd.model.converters.CharConverter
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
-import javax.persistence.*
+import jakarta.persistence.*
 
 
 @Entity
