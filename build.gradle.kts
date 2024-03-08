@@ -14,7 +14,7 @@ val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
 val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
 val fellesVersjon = "2.20231023162434_fa320ce"
 val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
-val coroutinesVersion = "1.7.3"
+val coroutinesVersion = "1.8.0"
 val okhttp3Version = "5.0.0-alpha.12"
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
@@ -98,7 +98,7 @@ dependencies {
     implementation("com.oracle.database.jdbc:ojdbc8:23.3.0.23.09")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.19.5")
+    testImplementation("org.testcontainers:oracle-xe:1.19.6")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("com.opencsv:opencsv:5.9")
