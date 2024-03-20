@@ -89,11 +89,11 @@ spec:
     - name: APP_DATASOURCE_URL
       value: jdbc:oracle:thin:@a01dbfl037.adeo.no:1521/infotrygd_bap
     - name: APP_DATASOURCE_PLATFORM
-      value: org.hibernate.dialect.Oracle10gDialect
+      value: org.hibernate.dialect.OracleDialect
     - name: APP_DATASOURCE_DRIVER
       value: oracle.jdbc.driver.OracleDriver
     - name: APP_JPA_PLATFORM
-      value: org.hibernate.dialect.Oracle10gDialect
+      value: org.hibernate.dialect.OracleDialect
     - name: APP_DEFAULT_SCHEMA
       value: INFOTRYGD_BAP
     - name: APP_DDL_AUTO

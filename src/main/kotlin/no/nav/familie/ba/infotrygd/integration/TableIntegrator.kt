@@ -1,10 +1,10 @@
 package no.nav.familie.ba.infotrygd.integration
 
 import org.hibernate.boot.Metadata
+import org.hibernate.boot.spi.BootstrapContext
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.integrator.spi.Integrator
 import org.hibernate.jpa.boot.spi.IntegratorProvider
-import org.hibernate.mapping.Column
 import org.hibernate.service.spi.SessionFactoryServiceRegistry
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer
 import org.springframework.stereotype.Component
@@ -20,19 +20,19 @@ class TableIntegrator : Integrator {
         }
 
     override fun integrate(
-        metadata: Metadata?,
-        sessionFactory: SessionFactoryImplementor?,
-        serviceRegistry: SessionFactoryServiceRegistry?
+        metadata: Metadata,
+        bootstrapContext: BootstrapContext,
+        sessionFactory: SessionFactoryImplementor
     ) {
         val result = mutableMapOf<String, List<String>>()
 
-        for (namespace in metadata!!
-            .getDatabase()
-            .getNamespaces()) {
+        for (namespace in metadata
+            .database
+            .namespaces) {
 
-            for (table in namespace.getTables()) {
-                val cols = table.columnIterator.asSequence().toList()
-                val names = cols.map { (it as Column).canonicalName }
+            for (table in namespace.tables) {
+                val cols = table.columns.toList()
+                val names = cols.map { it.canonicalName }
                 result[table.name] = names
             }
         }
@@ -40,8 +40,8 @@ class TableIntegrator : Integrator {
     }
 
     override fun disintegrate(
-        sessionFactory: SessionFactoryImplementor?,
-        serviceRegistry: SessionFactoryServiceRegistry?
+        sessionFactory: SessionFactoryImplementor,
+        serviceRegistry: SessionFactoryServiceRegistry
     ) {
 
     }

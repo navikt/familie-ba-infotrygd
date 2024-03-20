@@ -1,6 +1,5 @@
 spring:
   jpa:
-    database-platform: org.hibernate.dialect.Oracle10gDialect
     hibernate:
       ddl-auto: none
     properties:
@@ -24,7 +23,6 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/default/.well-known/openid-configuration
       accepted_audience: default
       proxyurl: ~
-      cookiename: localhost-idtoken
 
 NAIS_APP_NAME: familie-ba-infotrygd
 

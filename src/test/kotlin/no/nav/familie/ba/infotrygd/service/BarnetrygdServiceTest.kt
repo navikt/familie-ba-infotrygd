@@ -27,21 +27,18 @@ import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import org.assertj.core.api.Assertions.assertThat
 import org.hibernate.exception.SQLGrammarException
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.core.env.Environment
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
 import java.sql.SQLException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-@RunWith(SpringRunner::class)
 @DataJpaTest
 @ActiveProfiles("test")
 internal class BarnetrygdServiceTest {
@@ -84,7 +81,7 @@ internal class BarnetrygdServiceTest {
 
     private lateinit var barnetrygdService: BarnetrygdService
 
-    @Before
+    @BeforeEach
     fun setup() {
         barnetrygdService = BarnetrygdService(
             stonadRepository,

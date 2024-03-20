@@ -27,22 +27,20 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 
-@RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class BarnetrygdControllerTest {
@@ -96,7 +94,7 @@ class BarnetrygdControllerTest {
                             "lopende-barnetrygd" to "/infotrygd/barnetrygd/lopende-barnetrygd",
                             "aapen-sak" to "/infotrygd/barnetrygd/aapen-sak")
 
-    @Before
+    @BeforeEach
     fun init() {
         restTemplate = testClient.restTemplate(port)
     }
@@ -229,10 +227,10 @@ class BarnetrygdControllerTest {
     fun noAuth() {
         uri.values.forEach {
             val restTemplate = testClient.restTemplateNoAuth(port)
-            val result = assertThrows<ResponseStatusException> {
+            val result = assertThrows<ResourceAccessException> {
                 post(uri = it, restTemplate = restTemplate, responseType = InfotrygdSøkResponse::class.java)
             }
-            assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+            assertThat(result.mostSpecificCause.message).contains("violation: Authentication")
         }
     }
 
