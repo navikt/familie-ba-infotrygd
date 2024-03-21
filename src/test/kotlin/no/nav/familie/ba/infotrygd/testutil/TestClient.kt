@@ -44,7 +44,7 @@ class TestClient(
     private inner class TestErrorHandler : ResponseErrorHandler {
 
         override fun hasError(response: ClientHttpResponse): Boolean {
-            val rawStatusCode = response.rawStatusCode
+            val rawStatusCode = response.statusCode.value()
             val series = HttpStatus.Series.resolve(rawStatusCode)
             return series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR
         }

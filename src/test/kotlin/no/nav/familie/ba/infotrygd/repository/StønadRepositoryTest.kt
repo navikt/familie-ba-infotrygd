@@ -4,18 +4,15 @@ import io.mockk.mockk
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-@RunWith(SpringRunner::class)
 @DataJpaTest
 @ActiveProfiles("test")
 class StønadRepositoryTest {
@@ -33,7 +30,7 @@ class StønadRepositoryTest {
 
     lateinit var barnetrygdService: BarnetrygdService
 
-    @Before
+    @BeforeEach
     fun setUp() {
         stønadRepository.deleteAll()
         barnetrygdService = BarnetrygdService(
