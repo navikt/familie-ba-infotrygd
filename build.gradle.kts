@@ -4,7 +4,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.9.22"
+    val kotlinVersion = "1.9.23"
     val springBootVersion = "3.2.3"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.4"
@@ -47,11 +47,11 @@ allOpen {
 dependencies {
 
     val mockkVersion = "1.13.10"
-    val tokenValidationVersion = "4.1.3"
-    val springdocVersion = "2.3.0"
+    val tokenValidationVersion = "4.1.4"
+    val springdocVersion = "2.5.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
-    val fellesVersjon = "2.20231023162434_fa320ce"
+    val fellesVersjon = "3.20240320135638_bd19d4c"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.8.0"
     val okhttp3Version = "5.0.0-alpha.12"
@@ -94,7 +94,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.10.1"))
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
