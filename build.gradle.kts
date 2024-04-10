@@ -12,6 +12,9 @@ plugins {
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
     id("com.github.ben-manes.versions") version "0.51.0"
+
+    // ------------- SLSA -------------- //
+    id("org.cyclonedx.bom") version "1.8.2"
 }
 
 configurations {

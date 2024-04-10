@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
   pull_request:
 
-env:
-  IMAGE: ghcr.io/navikt/familie-ba-infotrygd:${{ github.sha }}
+permissions:
+  packages: write
+  contents: read
+  id-token: write
+
 jobs:
   deploy-to-dev:
     name: Bygg app/image, push til github, deploy til dev-fss
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -23,19 +23,22 @@ jobs:
       - name: Test and build
         env:
           GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew test build
-      - name: Build docker image
-        run: |
-          docker build -t $IMAGE .
-      - name: Push Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login ghcr.io --username ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE}
+        run: ./gradlew test build cyclonedxBom
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        if: github.triggering_actor != 'dependabot[bot]'
+        with:
+          team: teamfamilie
+          push_image: true
+          dockerfile: Dockerfile
+          docker_context: .
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          byosbom: build/reports/bom.json
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
+        if: github.triggering_actor != 'dependabot[bot]'
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: nais/dev-fss.yml
+          VAR: image=${{ steps.docker-push.outputs.image }}
