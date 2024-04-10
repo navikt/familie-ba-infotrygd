@@ -25,33 +25,20 @@ jobs:
         env: 
           GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test build
-      - name: Build docker image
-        run: |
-          docker build -t $IMAGE -t ${IMAGE_LATEST} .
-      - name: Check API rate limit
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
+      - uses: nais/docker-build-push@v0
+        id: docker-push
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push Docker image
-        run: |
-          docker push ${IMAGE}
-          docker push ${IMAGE_LATEST}
-      - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: nais/dev-fss.yml
+          team: teamfamilie
+          push_image: true
+          tag: latest
+          dockerfile: Dockerfile
+          docker_context: .
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          byosbom: target/bom.json
       - name: Deploy to prod-fss
         uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           RESOURCE: nais/prod-fss.yml
+          VAR: image=${{ steps.docker-push.outputs.image }}
