@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+      -
+permissions:
+  contents: read
+  id-token: write
 
 env:
   IMAGE: ghcr.io/navikt/familie-ba-infotrygd:${{ github.sha }}
