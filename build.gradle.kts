@@ -4,7 +4,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 
 plugins {
-    val kotlinVersion = "1.9.23"
+    val kotlinVersion = "1.9.24"
     val springBootVersion = "3.2.3"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.4"
@@ -38,6 +38,10 @@ repositories {
             username = "x-access-token" //project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
             password = System.getenv("GPR_API_KEY") ?: project.findProperty("gpr.key") as String?
         }
+    }
+    maven {
+        name = "github-mirror"
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 }
 
