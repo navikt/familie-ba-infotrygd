@@ -43,6 +43,13 @@ repositories {
         name = "github-mirror"
         url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+        credentials {
+            username = System.getenv("GITHUB_USERNAME")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 allOpen {
