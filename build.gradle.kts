@@ -39,6 +39,10 @@ repositories {
             password = System.getenv("GPR_API_KEY") ?: project.findProperty("gpr.key") as String?
         }
     }
+    maven {
+        name = "github-mirror"
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+    }
 }
 
 allOpen {
