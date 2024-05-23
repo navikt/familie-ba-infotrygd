@@ -67,7 +67,7 @@ dependencies {
     val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
     val fellesVersjon = "3.20240515152313_9dd5659"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
-    val coroutinesVersion = "1.8.0"
+    val coroutinesVersion = "1.8.1"
     val okhttp3Version = "5.0.0-alpha.14"
 
     // ---------- Spring ---------- \\
