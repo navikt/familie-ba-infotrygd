@@ -34,7 +34,7 @@ jobs:
           docker_context: .
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          byosbom: build/reports/bom.json
+          byosbom: build/reports/application.cdx.json
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
         if: github.triggering_actor != 'dependabot[bot]'
