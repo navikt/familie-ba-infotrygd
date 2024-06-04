@@ -5,7 +5,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "2.0.0"
-    val springBootVersion = "3.2.5"
+    val springBootVersion = "3.3.0"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.5"
     kotlin("jvm") version kotlinVersion
@@ -61,7 +61,7 @@ allOpen {
 dependencies {
 
     val mockkVersion = "1.13.11"
-    val tokenValidationVersion = "4.1.7"
+    val tokenValidationVersion = "4.1.8"
     val springdocVersion = "2.5.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
@@ -83,7 +83,7 @@ dependencies {
 
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
     // ---------- NAV ---------- \\
