@@ -105,7 +105,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.ttddyy:datasource-proxy:1.10")
     implementation("javax.inject:javax.inject:1")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+    implementation("net.logstash.logback:logstash-logback-encoder:8.0")
 
     // ---- Test utils ---- \\
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
