@@ -84,6 +84,10 @@ spec:
       replyURLs:
         - "https://familie-ba-infotrygd.dev.intern.nav.no/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   env:
     - name: APP_DATASOURCE_URL
       value: jdbc:oracle:thin:@a01dbfl033.adeo.no:1521/infotrygd_baq
