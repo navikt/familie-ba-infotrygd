@@ -24,7 +24,6 @@ import no.nav.familie.ba.infotrygd.rest.controller.PensjonController
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseProsent
 import no.nav.familie.ba.infotrygd.rest.controller.PensjonController.YtelseTypeEkstern
 import no.nav.familie.ba.infotrygd.testutil.TestData
-import no.nav.familie.eksterne.kontrakter.skatteetaten.SkatteetatenPeriode
 import org.assertj.core.api.Assertions.assertThat
 import org.hibernate.exception.SQLGrammarException
 import org.junit.jupiter.api.BeforeEach
@@ -532,218 +531,12 @@ internal class BarnetrygdServiceTest {
     }
 
     @Test
-    fun `Skal returnere SkatteetatenPerioderResponse med perioder av utvidet barnetrygd stønader en person for et bestemt år`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val person2 = personRepository.saveAndFlush(TestData.person())
-        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
-        val sakIkkeDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "EF", valg = "UT",saksnummer = "02"))
-        val sakManuletBeregnet = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "ME", valg = "UT", saksnummer = "03"))
-
-        stonadRepository.saveAll(listOf(
-            // utvidet barnetrygd 2019 med delt bosted
-            TestData.stønad(person, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
-            // utvidet barnetrygd fra 2020 hvor saken er ikke delt bosted
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), status = "02", saksblokk = sakIkkeDeltBosted.saksblokk, saksnummer = sakIkkeDeltBosted.saksnummer, region = sakIkkeDeltBosted.region),
-            // utvidet barnetrygd fra 2017 hvor saken er manuelt beregnet og vi dermed ikke kan utlede delt bosted. Denne slår også sammen perioden fra stønaden 2017-2018
-            TestData.stønad(person, virkningFom = (999999-201701).toString(), opphørtFom = "062017", status = "02", saksblokk = sakManuletBeregnet.saksblokk, saksnummer = sakManuletBeregnet.saksnummer, region = sakManuletBeregnet.region),
-            TestData.stønad(person, virkningFom = (999999-201706).toString(), opphørtFom = "042018", status = "02", saksblokk = sakManuletBeregnet.saksblokk, saksnummer = sakManuletBeregnet.saksnummer, region = sakManuletBeregnet.region),
-
-            //Dette er testdata fra en annen person og skal ikke bli med i uttrekket
-            TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
-            TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
-        )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
-        }
-
-        //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2019).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2019-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2019-10")
-            assertThat(it.brukere.first().perioder.first().
-            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-
-        //Denne verifiserer at stønaden er ikke deltbosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isNull()
-            assertThat(it.brukere.first().perioder.first().delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._0)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-        //Denne verifiserer samme stønad som over, bare at stønaden er løpende og input er året etter
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2021).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isNull()
-            assertThat(it.brukere.first().perioder.first().delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._0)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-
-        //Denne verifiserer at stønaden er manuelt  beregnet og vi dermed ikke kan utlede delt bosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2017).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2017-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2018-03")
-            assertThat(it.brukere.first().perioder.first().delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent.usikker)
-        }
-    }
-
-
-    @Test
-    fun `Skal returnere SkatteetatenPerioderResponse med perioder Delingsprosent_50 ved 1 barn over 6 år, med utvidet andel og delt på 2 personer`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
-
-        stonadRepository.saveAll(listOf(
-            // utvidet barnetrygd 2020 med delt bosted
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 1),
-
-            )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(stønad = it, beløp = (SATS_BARNETRYGD_OVER_6 + SATS_UTVIDET)/2) })
-        }
-
-        //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
-            assertThat(it.brukere.first().perioder.first().
-            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-    }
-
-    @Test
-    fun `Skal returnere SkatteetatenPerioderResponse med perioder Delingsprosent_50 ved 1 barn under 6 år i 2021, med utvidet andel og delt på 2 personer`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
-
-        stonadRepository.saveAll(listOf(
-            // utvidet barnetrygd 2020 med delt bosted
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 1),
-
-            )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(stønad = it, beløp = (SATS_BARNETRYGD_UNDER_6_2021 + SATS_UTVIDET)/2) })
-        }
-
-        //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
-            assertThat(it.brukere.first().perioder.first().
-            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-    }
-
-
-
-    @Test
-    fun `Skal returnere SkatteetatenPerioderResponse med perioder Delingsprosent_50 ved flere barn og riktig beløp`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
-
-        stonadRepository.saveAll(listOf(
-            // utvidet barnetrygd 2020 med delt bosted
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 2),
-
-        )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it, beløp = 1581.0) })
-        }
-
-        //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
-            assertThat(it.brukere.first().perioder.first().
-            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent._50)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-    }
-
-    @Test
     fun `gyldige beløp`() {
         val gyldigeBeløp2Barn2022 = barnetrygdService.utledListeMedGyldigeUtbetalingsbeløp(2, 2022).toList()
         assertThat(gyldigeBeløp2Barn2022).hasSize(3).containsExactly(1581, 1892, 2203)
 
         val gyldigeBeløp2Barn2021 = barnetrygdService.utledListeMedGyldigeUtbetalingsbeløp(2, 2021).toList()
         assertThat(gyldigeBeløp2Barn2021).hasSize(4).containsExactly(1581, 1731, 1881, 2181)
-    }
-
-
-    @Test
-    fun `Skal returnere SkatteetatenPerioderResponse med perioder usikker ved flere barn og feil beløp`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
-
-        stonadRepository.saveAll(listOf(
-            // utvidet barnetrygd 2020 med delt bosted
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), opphørtFom = "112020", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region, antallBarn = 3),
-
-            )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
-        }
-
-        //Denne verifiserer at stønaden er deltbosted
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-            assertThat(it.brukere.first().perioder).hasSize(1)
-            assertThat(it.brukere.first().perioder.first().fraMaaned).isEqualTo("2020-01")
-            assertThat(it.brukere.first().perioder.first().tomMaaned).isEqualTo("2020-10")
-            assertThat(it.brukere.first().perioder.first().
-            delingsprosent).isEqualTo(SkatteetatenPeriode.Delingsprosent.usikker)
-            assertThat(it.brukere.first().sisteVedtakPaaIdent).isEqualTo(LocalDateTime.of(2020, 5, 1, 0, 0))
-        }
-
-
-    }
-
-    @Test
-    fun `Skal hente avgjørende data om utvidet barnetrygd fra db2 dersom en stønad med status 0 mangler sak i dl1`() {
-        val person = personRepository.save(TestData.person())
-        val stønadMedStatus0 = stonadRepository.save(TestData.stønad(person, status = "00"))
-        val sak = sakRepository.save(TestData.sak(stønadMedStatus0, "UT", "MD"))
-        utbetalingRepository.save(TestData.utbetaling(stønadMedStatus0))
-
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-        }
-            sakRepository.delete(sak)
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(0)
-        }
-            lagraRelevantDb2Data(sak)
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2020).also {
-            assertThat(it.brukere).hasSize(1)
-        }
-    }
-
-    @Test
-    fun `Skal returnere tom SkatteetatenPerioderResponse hvor en person ikke har noen perioder med utvidet barnetrygd stønader`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val sakDeltBosted = sakRepository.saveAndFlush(TestData.sak(person = person, undervalg = "MD", valg = "UT"))
-
-        stonadRepository.saveAll(listOf(
-            // utvidet barnetrygd stønad som er feilregistrert fordi opphørtFom == virkningFom
-            TestData.stønad(person, virkningFom = (999999-201911).toString(), opphørtFom = "112019", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
-        ))
-
-
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2019).also {
-            assertThat(it.brukere).hasSize(0)
-        }
     }
 
     @Test
@@ -758,10 +551,6 @@ internal class BarnetrygdServiceTest {
             TestData.stønad(person, virkningFom = (999999-202201).toString(), opphørtFom = "000000", status = "02", saksblokk = sakDeltBosted.saksblokk, saksnummer = sakDeltBosted.saksnummer, region = sakDeltBosted.region),
         )).also { stønader ->
             utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
-        }
-
-        barnetrygdService.finnPerioderUtvidetBarnetrygdSkatt(person.fnr.asString, 2021).also {
-            assertThat(it.brukere).hasSize(1)
         }
 
         barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2021, 1)).also {

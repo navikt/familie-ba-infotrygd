@@ -67,57 +67,12 @@ class StønadRepositoryTest {
     }
 
     @Test
-    fun `sjekk at antall personer med utvidet barnetrygd er riktig innenfor hvert av årene 2019, 2020 og 2021`() {
-        val personFraInneværendeÅr = TestData.person()
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
-            TestData.stønad(personFraInneværendeÅr, status = "02"), // utvidet barnetrygd fra 2020
-            TestData.stønad(TestData.person(), opphørtFom = "122020", status = "02") // utvidet barnetrygd kun 2020
-        )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
-        }
-        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2019").also {
-            assertThat(it).hasSize(0)
-        }
-        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2020").also {
-            assertThat(it).hasSize(2)
-        }
-        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
-            assertThat(it).hasSize(1).extracting("ident").contains(personFraInneværendeÅr.fnr.asString)
-        }
-    }
-
-
-    @Test
-    fun `sjekk at man filterer bort utvidede stønader hvor fomMåned = tomMåned, for disse er feilregistrerte stønader som ikke skal med i uttrekket`() {
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), virkningFom = (999999-202101).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
-        ))
-        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
-            assertThat(it).hasSize(0)
-        }
-    }
-
-    @Test
-    fun `sjekk at man filterer bort utvidede stønader hvor datofelt ikke kan parser, for disse er feilregistrerte stønader som ikke skal med i uttrekket`() {
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), virkningFom = (999999-202101).toString(), opphørtFom = "404021", status = "02") // utvidet barnetrygd kun 2020
-        ))
-        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
-            assertThat(it).hasSize(0)
-        }
-    }
-
-    @Test
     fun `sjekk at man filterer bort utvidede stønader hvor tomMåned er før fomMåned, for disse er feilregistrerte stønader som ikke skal med i uttrekket`() {
         val person = personRepository.saveAndFlush(TestData.person())
         stønadRepository.saveAll(listOf(
             TestData.stønad(person, virkningFom = (999999-202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
                 .also { utbetalingRepository.saveAndFlush(TestData.utbetaling(it)) }
         ))
-        barnetrygdService.finnPersonerUtvidetBarnetrygdSkatt("2021").also {
-            assertThat(it).hasSize(0)
-        }
         barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2021, 3)).also {
             assertThat(it.perioder).hasSize(0)
         }
