@@ -11,19 +11,6 @@ import org.springframework.stereotype.Repository
 interface UtbetalingRepository : JpaRepository<Utbetaling, Long> {
 
     @Query("""
-        SELECT u FROM Utbetaling u
-        WHERE u.fnr = :fnr
-    """)
-    fun hentUtbetalinger(fnr: FoedselsNr): List<Utbetaling>
-
-    @Query("""
-        SELECT u FROM Utbetaling u
-        WHERE u.fnr = :fnr
-        AND u.utbetalingstype = :type
-    """)
-    fun hentUtbetalingerByFnrType(fnr: FoedselsNr, type: String): List<Utbetaling>
-
-    @Query("""
         SELECT utbet FROM Utbetaling utbet
         WHERE utbet.personKey = :#{#stonad.personKey}   
         AND utbet.startUtbetalingMåned = :#{#stonad.iverksattFom}

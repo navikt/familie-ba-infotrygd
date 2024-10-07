@@ -66,10 +66,6 @@ class BisysController(
                                         val deltBosted: Boolean
     )
 
-    class InfotrygdUtvidetBaPersonerResponse(val brukere: List<UtvidetBarnetrygdPerson>)
-    data class UtvidetBarnetrygdPerson(val ident: String,
-                                       val sisteVedtakPaaIdent: LocalDateTime)
-
     enum class Stønadstype {
         UTVIDET,
         SMÅBARNSTILLEGG
