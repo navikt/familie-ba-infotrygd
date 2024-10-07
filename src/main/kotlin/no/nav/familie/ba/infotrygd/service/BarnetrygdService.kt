@@ -32,9 +32,6 @@ import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrAfter
 import no.nav.familie.ba.infotrygd.utils.DatoUtils.isSameOrBefore
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.core.env.Environment
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.YearMonth
@@ -52,7 +49,6 @@ class BarnetrygdService(
     private val vedtakRepository: VedtakRepository,
     private val utbetalingRepository: UtbetalingRepository,
     private val statusRepository: StatusRepository,
-    private val environment: Environment,
     private val hendelseRepository: HendelseRepository,
     private val personRepository: PersonRepository
 ) {
@@ -238,21 +234,6 @@ class BarnetrygdService(
     fun finnUtvidetBarnetrygdBeløpNårStønadIkkeHarStatus0(utbetaling: Utbetaling): Double {
         return if (utbetaling.fom()!!.isAfter(YearMonth.of(2019, 2))) UTVIDET_BARNETRYGD_NÅVÆRENDE_SATS.toDouble()
         else UTVIDET_BARNETRYGD_ELDRE_SATS.toDouble()
-    }
-
-    fun finnPersonerKlarForMigrering(
-        page: Int,
-        size: Int,
-        valg: String,
-        undervalg: String,
-    ): Pair<Set<String>, Int> {
-        val stønader: Page<Stønad> = if (environment.activeProfiles.contains(PREPROD)) {
-            stonadRepository.findKlarForMigreringIPreprod(PageRequest.of(page, size), valg, undervalg)
-        } else {
-            stonadRepository.findKlarForMigrering(PageRequest.of(page, size), valg, undervalg)
-        }
-
-        return Pair(stønader.mapNotNull { it.fnr?.asString }.toSet(), stønader.totalPages)
     }
 
     fun finnSisteVedtakPåPerson(personKey: Long): YearMonth {
@@ -617,6 +598,5 @@ class BarnetrygdService(
         const val MANUELL_BEREGNING_DELT_BOSTED = "MD"
         const val MANUELL_BEREGNING_EØS = "ME"
         const val MANUELL_BEREGNING = "MB"
-        const val PREPROD = "preprod"
     }
 }

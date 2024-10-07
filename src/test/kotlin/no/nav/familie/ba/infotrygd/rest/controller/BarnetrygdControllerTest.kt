@@ -38,7 +38,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
-import java.time.YearMonth
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 

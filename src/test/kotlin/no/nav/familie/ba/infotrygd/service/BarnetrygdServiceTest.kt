@@ -3,10 +3,7 @@ package no.nav.familie.ba.infotrygd.service
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.commons.foedselsnummer.FoedselsNr
-import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
-import no.nav.familie.ba.infotrygd.model.db2.Stønadsklasse
 import no.nav.familie.ba.infotrygd.model.dl1.Person
-import no.nav.familie.ba.infotrygd.model.dl1.Sak
 import no.nav.familie.ba.infotrygd.model.dl1.tilTrunkertStønad
 import no.nav.familie.ba.infotrygd.repository.BarnRepository
 import no.nav.familie.ba.infotrygd.repository.HendelseRepository
@@ -30,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.core.env.Environment
 import org.springframework.test.context.ActiveProfiles
 import java.sql.SQLException
 import java.time.LocalDate
@@ -75,9 +71,6 @@ internal class BarnetrygdServiceTest {
     @Autowired
     private lateinit var løpeNrFnrRepository: LøpeNrFnrRepository
 
-
-    private val environment: Environment = mockk(relaxed = true)
-
     private lateinit var barnetrygdService: BarnetrygdService
 
     @BeforeEach
@@ -89,7 +82,6 @@ internal class BarnetrygdServiceTest {
             vedtakRepository,
             utbetalingRepository,
             statusRepository,
-            environment,
             hendelseRepository,
             personRepository,
         )
@@ -155,7 +147,6 @@ internal class BarnetrygdServiceTest {
             mockk(),
             mockk(),
             mockk(),
-            mockk()
         )
 
         assertThat(barnetrygdService.tellAntallÅpneSaker(emptyList(), emptyList())).isEqualTo(0)
@@ -558,55 +549,6 @@ internal class BarnetrygdServiceTest {
         }
     }
 
-
-    @Test
-    fun `skal hente personer klar for migrering`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val personSomFiltreresVekkPgaAntallBarnIStønadStørreEnnMaksAntallBarn =
-            personRepository.saveAndFlush(TestData.person())
-        val personSomFiltreresVekkPgaBarnMedSpesiellStønadstype =
-            personRepository.saveAndFlush(TestData.person())
-        val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
-
-
-
-        stonadRepository.saveAll(listOf(stønad1)).also {
-            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
-        }
-        val barn1 = TestData.barn(stønad1)
-        barnRepository.saveAll(listOf(barn1))
-
-        barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
-            .also {
-                assertThat(it.first as Iterable<String>).hasSize(1).contains(person.fnr.asString) //Det finnes ingen saker på personene
-            }
-    }
-    @Test
-    fun `skal filtrere på tknr ved migreirng i preprod`() {
-        every { environment.activeProfiles } returns listOf("preprod").toTypedArray() andThen listOf("prod").toTypedArray()
-
-        val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
-        val personSomFiltreresVekkPgaTknrIPreprod =
-            personRepository.saveAndFlush(TestData.person())
-        val stønad1 = TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "01", antallBarn = 1)
-        val stønad3 = TestData.stønad(
-            personSomFiltreresVekkPgaTknrIPreprod, virkningFom = (999999 - 202001).toString(), status = "02", antallBarn = 1
-        )
-
-        stonadRepository.saveAll(listOf(stønad1, stønad3)).also {
-            sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") })
-        }
-
-        barnRepository.saveAll(listOf(TestData.barn(stønad1),
-                                      TestData.barn(stønad3)))
-
-        val personerKlareForMigreringIPreprod = barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
-        val personerKlareForMigreringIProd = barnetrygdService.finnPersonerKlarForMigrering(0, 10, "OR", "OS")
-
-        assertThat(personerKlareForMigreringIPreprod.first as Iterable<String>).hasSize(1).contains(person.fnr.asString)
-        assertThat(personerKlareForMigreringIProd.first).hasSize(2)
-    }
-
     @Test
     fun `harSendtBrevForrigeMåned skal returnere tom liste hvis det ikke er sendt ut noen brev med brevkode B002 siste måned`() {
         val person = personRepository.saveAndFlush(TestData.person(tkNr = "0312"))
@@ -688,17 +630,6 @@ internal class BarnetrygdServiceTest {
             utbetalingRepository.save(TestData.utbetaling(opphørtStønad, beløp = beløp))
         }
         barnRepository.save(TestData.barn(opphørtStønad, barnFnr))
-    }
-
-    private fun lagraRelevantDb2Data(
-        sak: Sak
-    ) {
-        vedtakRepository.save(TestData.vedtak(sak)).also {
-            løpeNrFnrRepository.save(LøpeNrFnr(it.løpenummer, sak.fnr.asString))
-            stønadsklasseRepository.save(Stønadsklasse(it.vedtakId, kodeNivå = "01", sak.kapittelNr))
-            stønadsklasseRepository.save(Stønadsklasse(it.vedtakId, kodeNivå = "02", sak.valg))
-            stønadsklasseRepository.save(Stønadsklasse(it.vedtakId, kodeNivå = "03", sak.undervalg!!))
-        }
     }
 
     companion object {

@@ -87,50 +87,6 @@ class BarnetrygdController(
                                            barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
     }
 
-    @Operation(summary = "Teller antall migreringer igjen fra side i input")
-    @PostMapping(path = ["migrering/antall"])
-    fun tellKlarTilMigrering(@RequestBody request: MigreringRequest): ResponseEntity<Long> {
-        tilgangskontrollService.sjekkTilgang()
-
-        val result = barnetrygdService.finnPersonerKlarForMigrering(
-            request.page,
-            request.size,
-            request.valg,
-            request.undervalg,
-        )
-
-        var antall = result.first.size
-        val antallSider = result.second
-
-        for(i in request.page + 1..antallSider) {
-            barnetrygdService.finnPersonerKlarForMigrering(
-                i,
-                request.size,
-                request.valg,
-                request.undervalg,
-            )
-            antall += result.first.size
-        }
-        logger.info("Antall migreringer igjen: $antall")
-        return ResponseEntity.ok(antall.toLong())
-    }
-
-    @Operation(summary = "Uttrekk personer med ytelse. F.eks OS OS for barnetrygd, UT EF for småbarnstillegg")
-    @PostMapping(path = ["migrering/v2"])
-    fun migreringV2(@RequestBody request: MigreringRequest): ResponseEntity<MigreringResponse> {
-        tilgangskontrollService.sjekkTilgang()
-
-        return ResponseEntity.ok(
-            barnetrygdService.finnPersonerKlarForMigrering(
-                request.page,
-                request.size,
-                request.valg,
-                request.undervalg,
-            ).let { MigreringResponse(it.first, it.second) }
-        )
-    }
-
-
     @Operation(summary = "Finn stønad med id")
     @GetMapping(path = ["stonad/{id}"])
     @Deprecated(message="Erstattes av findStønad som henter basert på B01_PERSONKEY, B20_IVERFOM_SEQ, B20_VIRKFOM_SEQ og REGION")

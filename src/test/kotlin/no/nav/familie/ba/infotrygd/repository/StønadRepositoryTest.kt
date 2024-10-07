@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -39,7 +38,6 @@ class StønadRepositoryTest {
             sakRepository,
             mockk(),
             utbetalingRepository,
-            mockk(),
             mockk(),
             mockk(),
             mockk(),
@@ -112,26 +110,6 @@ class StønadRepositoryTest {
         }
         stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr,2021, "02").also {
             assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
-        }
-    }
-
-    @Test
-    fun `skal søke opp personer som har en sakstype fra input`() {
-        val person = personRepository.saveAndFlush(TestData.person())
-        val person2 = personRepository.saveAndFlush(TestData.person())
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(person, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "01"),
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), status = "01"), // løpende barnetrygd
-            TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "01"), // utvidet barnetrygd 2019
-            TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // løpende barnetrygd
-        )).also { sakRepository.saveAll(it.map { TestData.sak(it, valg = "OR", undervalg = "OS") }) }
-
-        stønadRepository.findKlarForMigrering(Pageable.unpaged(), "OR", "OS").toSet().also {
-            assertThat(it).hasSize(2).extracting("fnr").contains(person.fnr, person2.fnr) //Det finnes ingen saker på personene
-        }
-
-        stønadRepository.findKlarForMigrering(Pageable.unpaged(), "UT", "EF").toSet().also {
-            assertThat(it).hasSize(0)
         }
     }
 
