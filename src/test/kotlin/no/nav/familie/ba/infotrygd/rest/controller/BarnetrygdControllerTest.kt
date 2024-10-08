@@ -172,23 +172,6 @@ class BarnetrygdControllerTest {
     }
 
     @Test
-    fun `skal finne riktig antall personer med utvidet barnetrygd året 2020`() {
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), virkningFom = (999999-201901).toString(), status = "01"), // ordinær barnetrygd fra 2019
-            TestData.stønad(TestData.person(), status = "02"), // utvidet barnetrygd fra 2020-05 (by default)
-            TestData.stønad(TestData.person(), opphørtFom = "122020", status = "02") // utvidet barnetrygd kun 2020
-        )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
-        }
-
-        get("/infotrygd/barnetrygd/utvidet?aar=2020",
-            BisysController.InfotrygdUtvidetBaPersonerResponse::class.java).also {
-                assertThat(it.brukere).hasSize(2)
-            }
-    }
-
-
-    @Test
     fun `skal hente stønad basert på personKey, iverksattFom, virkningFom og region`() {
         val personIdent = "12345678910"
         val personKey = "031256341278910"

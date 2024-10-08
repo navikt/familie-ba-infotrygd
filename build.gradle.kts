@@ -64,7 +64,6 @@ dependencies {
     val tokenValidationVersion = "5.0.5"
     val springdocVersion = "2.6.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val skattKontraktVersjon = "2.0_20230214104704_706e9c0"
     val fellesVersjon = "3.20240806111424_fff2930"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.8.1"
@@ -89,7 +88,6 @@ dependencies {
     // ---------- NAV ---------- \\
     implementation("no.nav.familie.kontrakter:felles:$kontrakterVersjon")
     implementation("no.nav.familie.kontrakter:barnetrygd:$kontrakterVersjon")
-    implementation("no.nav.familie.eksterne.kontrakter:skatteetaten:$skattKontraktVersjon")
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("no.nav.familie.felles:leader:$fellesVersjon")
     implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
