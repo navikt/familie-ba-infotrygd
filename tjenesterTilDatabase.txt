@@ -7,6 +7,7 @@ POST /infotrygd/barnetrygd/pensjon
     SA_SAK_10
     T_STONADSKLASSE
     T_VEDTAK
+    T_DELYTELSE
     T_LOPENR_FNR
     BA_BARN_10
 
@@ -20,6 +21,7 @@ POST /infotrygd/barnetrygd/utvidet
     SA_SAK_10
     T_STONADSKLASSE
     T_VEDTAK
+    T_DELYTELSE
     T_LOPENR_FNR
     BA_UTBETALING_30
 
@@ -28,6 +30,7 @@ POST /infotrygd/barnetrygd/lopende-barnetrygd
     BA_PERSON_01
     BA_BARN_10
     T_VEDTAK
+    T_DELYTELSE
     T_LOPENR_FNR
     BA_PERSON_01
 
@@ -35,13 +38,18 @@ POST /infotrygd/barnetrygd/aapen-sak
     BA_BARN_10
     T_STONADSKLASSE
     T_VEDTAK
+    T_DELYTELSE
     T_LOPENR_FNR
+    T_BESLUT
+    T_STONAD
+    T_ENDRING
 
 POST /infotrygd/barnetrygd/stonad
     BA_STOENAD_20
     BA_PERSON_01
     BA_BARN_10
     T_VEDTAK
+    T_DELYTELSE
     T_LOPENR_FNR
 
 POST /infotrygd/barnetrygd/saker
@@ -49,9 +57,11 @@ POST /infotrygd/barnetrygd/saker
     SA_PERSON_01
     BA_STOENAD_20
     T_VEDTAK
+    T_DELYTELSE
     T_LOPENR_FNR
     BA_BARN_10
     BA_PERSON_01
+    SA_STATUS_15
 
 POST /infotrygd/barnetrygd/brev
     SA_HENDELSE_20
