@@ -90,6 +90,7 @@ dependencies {
     implementation("no.nav.familie.kontrakter:barnetrygd:$kontrakterVersjon")
     implementation("no.nav.familie.felles:log:$fellesVersjon")
     implementation("no.nav.familie.felles:leader:$fellesVersjon")
+    implementation("no.nav.familie.felles:metrikker:$fellesVersjon")
     implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
