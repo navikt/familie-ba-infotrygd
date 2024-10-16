@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.infotrygd.KonsumeresAv
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -36,6 +37,7 @@ class PensjonController(
     @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 3 år tilbake i tid")
     @PostMapping(path = ["pensjon"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
+    @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
         tilgangskontrollService.sjekkTilgang()
 
@@ -54,6 +56,7 @@ class PensjonController(
 
     @Operation(summary = "Finner alle personer med barnetrygd innenfor et bestemt år på vegne av Psys")
     @GetMapping(path = ["pensjon"])
+    @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
         tilgangskontrollService.sjekkTilgang()
         return barnetrygdService.finnPersonerBarnetrygdPensjon(år)

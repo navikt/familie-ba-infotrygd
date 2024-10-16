@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import no.nav.commons.foedselsnummer.FoedselsNr
+import no.nav.familie.ba.infotrygd.KonsumeresAv
 import no.nav.familie.ba.infotrygd.model.dl1.Hendelse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
@@ -40,6 +41,7 @@ class BarnetrygdController(
     @Operation(summary = "Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
     @PostMapping(path = ["lopende-barnetrygd"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
+    @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun harLopendeBarnetrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
         tilgangskontrollService.sjekkTilgang()
 
@@ -52,6 +54,7 @@ class BarnetrygdController(
     @Operation(summary = "Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
     @PostMapping(path = ["aapen-sak"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
+    @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun harÅpenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
         tilgangskontrollService.sjekkTilgang()
 
@@ -63,6 +66,7 @@ class BarnetrygdController(
     @Operation(summary = "Uttrekk fra tabellen \"BA_STOENAD_20\".")
     @PostMapping(path = ["stonad"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
+    @KonsumeresAv(apper = ["familie-baks-mottak"] )
     fun stønad(
         @RequestBody request: InfotrygdSøkRequest,
         @RequestParam(required = false) historikk: Boolean?
@@ -77,6 +81,7 @@ class BarnetrygdController(
     @Operation(summary = "Uttrekk fra tabellen \"SA_SAK_10\".")
     @PostMapping(path = ["saker"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
+    @KonsumeresAv(apper = ["familie-baks-mottak", "familie-ba-sak"] )
     fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         tilgangskontrollService.sjekkTilgang()
 
@@ -127,6 +132,7 @@ class BarnetrygdController(
 
     @Operation(summary = "Finn om brev med brevkode er sendt for en person i forrige måned")
     @PostMapping(path = ["/brev"])
+    @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<SendtBrevResponse> {
         tilgangskontrollService.sjekkTilgang()
 
