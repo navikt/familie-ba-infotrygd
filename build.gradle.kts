@@ -110,7 +110,7 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.20.2")
+    testImplementation("org.testcontainers:oracle-xe:1.20.3")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("com.opencsv:opencsv:5.9")
