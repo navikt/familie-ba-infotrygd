@@ -101,7 +101,7 @@ dependencies {
     implementation("io.micrometer:micrometer-core")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.10")
+    implementation("net.ttddyy:datasource-proxy:1.10.1")
     implementation("javax.inject:javax.inject:1")
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
 
