@@ -95,7 +95,7 @@ dependencies {
 
     // ---------- DB ---------- \\
     runtimeOnly("org.postgresql:postgresql")
-    implementation("com.oracle.database.jdbc:ojdbc8:23.5.0.24.07")
+    implementation("com.oracle.database.jdbc:ojdbc8:23.6.0.24.10")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
