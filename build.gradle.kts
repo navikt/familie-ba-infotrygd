@@ -2,10 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
-
 plugins {
     val kotlinVersion = "2.0.21"
-    val springBootVersion = "3.3.5"
+    val springBootVersion = "3.4.0"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.6"
     kotlin("jvm") version kotlinVersion
@@ -35,7 +34,7 @@ repositories {
         name = "Github"
         url = uri("https://maven.pkg.github.com/navikt/nav-foedselsnummer")
         credentials {
-            username = "x-access-token" //project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
+            username = "x-access-token" // project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
             password = System.getenv("GPR_API_KEY") ?: project.findProperty("gpr.key") as String?
         }
     }
@@ -120,7 +119,6 @@ dependencies {
     }
     testImplementation("com.squareup.okhttp3:mockwebserver:$okhttp3Version")
     testImplementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
-
 }
 
 tasks.withType<KotlinCompile> {

@@ -13,8 +13,11 @@ import javax.sql.DataSource
 @Component
 @Profile(DEBUG_SQL)
 class DataSourcePostProcessor : BeanPostProcessor {
-    override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
-        if(bean is DataSource) {
+    override fun postProcessAfterInitialization(
+        bean: Any,
+        beanName: String,
+    ): Any? {
+        if (bean is DataSource) {
             return createProxy(bean)
         }
         return bean
