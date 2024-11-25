@@ -2,10 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
-
 plugins {
     val kotlinVersion = "2.0.21"
-    val springBootVersion = "3.3.5"
+    val springBootVersion = "3.4.0"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.6"
     kotlin("jvm") version kotlinVersion
@@ -35,7 +34,7 @@ repositories {
         name = "Github"
         url = uri("https://maven.pkg.github.com/navikt/nav-foedselsnummer")
         credentials {
-            username = "x-access-token" //project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
+            username = "x-access-token" // project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
             password = System.getenv("GPR_API_KEY") ?: project.findProperty("gpr.key") as String?
         }
     }
@@ -62,7 +61,7 @@ dependencies {
 
     val mockkVersion = "1.13.13"
     val tokenValidationVersion = "5.0.11"
-    val springdocVersion = "2.6.0"
+    val springdocVersion = "2.7.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "3.20241121151626_836e7ca"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
@@ -120,7 +119,6 @@ dependencies {
     }
     testImplementation("com.squareup.okhttp3:mockwebserver:$okhttp3Version")
     testImplementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
-
 }
 
 tasks.withType<KotlinCompile> {
