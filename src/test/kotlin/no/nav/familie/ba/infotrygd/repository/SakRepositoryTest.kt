@@ -10,12 +10,11 @@ import org.springframework.test.context.ActiveProfiles
 @DataJpaTest
 @ActiveProfiles("test")
 class SakRepositoryTest {
-
     @Autowired
     lateinit var sakRepository: SakRepository
 
     @Autowired
-    lateinit var sakPersonRepository: SakPersonRepository
+    lateinit var saksblokkRepository: SaksblokkRepository
 
     @Autowired
     lateinit var stønadRepository: StønadRepository
@@ -37,8 +36,10 @@ class SakRepositoryTest {
     fun findBarnetrygdsakerByFnr() {
         val person = personRepository.saveAndFlush(TestData.person())
         val stønad = stønadRepository.saveAndFlush(TestData.stønad(person))
-        val sak = sakRepository.saveAndFlush(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
-            .also { sakPersonRepository.saveAndFlush(TestData.sakPerson(person)) }
+        val sak =
+            sakRepository
+                .saveAndFlush(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
+                .also { saksblokkRepository.saveAndFlush(TestData.saksblokk(person)) }
 
         sakRepository.findBarnetrygdsakerByFnr(person.fnr).also {
             assertThat(it).extracting("personKey").first().isEqualTo(person.personKey)
@@ -65,7 +66,9 @@ class SakRepositoryTest {
         val result = sakRepository.findBarnetrygdsakerByBarnFnr(listOf(barn.barnFnr))
 
         assertThat(result).hasSize(1)
-        assertThat(result).extracting("personKey").first()
+        assertThat(result)
+            .extracting("personKey")
+            .first()
             .isEqualTo(person.personKey)
         assertThat(result)
             .usingRecursiveFieldByFieldElementComparator()

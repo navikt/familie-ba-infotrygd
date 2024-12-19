@@ -10,8 +10,8 @@ import no.nav.familie.ba.infotrygd.repository.BeslutningRepository
 import no.nav.familie.ba.infotrygd.repository.EndringRepository
 import no.nav.familie.ba.infotrygd.repository.LøpeNrFnrRepository
 import no.nav.familie.ba.infotrygd.repository.PersonRepository
-import no.nav.familie.ba.infotrygd.repository.SakPersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
+import no.nav.familie.ba.infotrygd.repository.SaksblokkRepository
 import no.nav.familie.ba.infotrygd.repository.StønadDb2Repository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
 import no.nav.familie.ba.infotrygd.repository.UtbetalingRepository
@@ -64,7 +64,7 @@ class BarnetrygdControllerTest {
     lateinit var sakRepository: SakRepository
 
     @Autowired
-    lateinit var sakPersonRepository: SakPersonRepository
+    lateinit var saksblokkRepository: SaksblokkRepository
 
     @Autowired
     lateinit var vedtakRepository: VedtakRepository
@@ -136,7 +136,7 @@ class BarnetrygdControllerTest {
     fun `infotrygdsøk etter saker by fnr`() {
         val person = personRepository.saveAndFlush(TestData.person())
         val sak = sakRepository.saveAndFlush(TestData.sak(person))
-        sakPersonRepository.saveAndFlush(TestData.sakPerson(person))
+        saksblokkRepository.saveAndFlush(TestData.saksblokk(person))
         val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
         val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
