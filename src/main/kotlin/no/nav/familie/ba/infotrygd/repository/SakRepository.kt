@@ -9,17 +9,16 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface SakRepository : JpaRepository<Sak, Long> {
-
     @Query(
         """
         SELECT s FROM Sak s
-        INNER JOIN SakPerson p
+        INNER JOIN Saksblokk p
                 ON (s.personKey = p.personKey AND
                     s.region = p.region)
             WHERE p.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
-              AND s.type IN ('S', 'R', 'FL', 'AS', 'FS')"""
-    )  // søknad, revurdering, klage, anke, flyttesak, automatisk stønad,
+              AND s.type IN ('S', 'R', 'FL', 'AS', 'FS')""",
+    ) // søknad, revurdering, klage, anke, flyttesak, automatisk stønad,
     fun findBarnetrygdsakerByFnr(fnr: FoedselsNr): List<Sak>
 
     @Query(
@@ -30,7 +29,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
                        sak.region = barn.region)
            WHERE barn.barnFnr IN :barnFnr
              AND sak.kapittelNr = 'BA' 
-             AND sak.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+             AND sak.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')""",
     ) // søknad, revurdering, klage, anke, flyttesak, automatisk stønad
     fun findBarnetrygdsakerByBarnFnr(barnFnr: List<FoedselsNr>): List<Sak>
 
@@ -43,7 +42,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.saksblokk = :#{#stonad.saksblokk}
               AND s.saksnummer = :#{#stonad.sakNr}
               AND s.region = :#{#stonad.region}
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')""",
     )
     fun hentUtvidetBarnetrygdsakerForStønad(stonad: TrunkertStønad): List<Sak>
 
@@ -56,7 +55,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
               AND s.saksblokk = :#{#stonad.saksblokk}
               AND s.saksnummer = :#{#stonad.sakNr}
               AND s.region = :#{#stonad.region}
-              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')"""
+              AND s.type IN ('S', 'R', 'K', 'A', 'FL', 'AS')""",
     )
     fun hentBarnetrygdsakerForStønad(stonad: TrunkertStønad): List<Sak>
 }
