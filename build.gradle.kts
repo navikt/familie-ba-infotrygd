@@ -65,7 +65,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "3.20250106100611_6ae49d2"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
-    val coroutinesVersion = "1.9.0"
+    val coroutinesVersion = "1.10.1"
     val okhttp3Version = "5.0.0-alpha.14"
 
     // ---------- Spring ---------- \\
