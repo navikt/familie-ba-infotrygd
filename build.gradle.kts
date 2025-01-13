@@ -112,7 +112,7 @@ dependencies {
     testImplementation("org.testcontainers:oracle-xe:1.20.4")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
-    testImplementation("com.opencsv:opencsv:5.9")
+    testImplementation("com.opencsv:opencsv:5.10")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationVersion") {
         exclude(group = "com.squareup.okhttp3", module = "mockwebserver")
