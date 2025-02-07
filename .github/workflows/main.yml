@@ -35,8 +35,6 @@ jobs:
           tag: latest
           dockerfile: Dockerfile
           docker_context: .
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           byosbom: build/reports/application.cdx.json
       - name: Deploy to prod-fss
         uses: nais/deploy/actions/deploy@v2
