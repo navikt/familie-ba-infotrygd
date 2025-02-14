@@ -11,7 +11,6 @@ import no.nav.familie.ba.infotrygd.model.dl1.Barn
 import no.nav.familie.ba.infotrygd.model.dl1.Hendelse
 import no.nav.familie.ba.infotrygd.model.dl1.Person
 import no.nav.familie.ba.infotrygd.model.dl1.Sak
-import no.nav.familie.ba.infotrygd.model.dl1.Saksblokk
 import no.nav.familie.ba.infotrygd.model.dl1.Stønad
 import no.nav.familie.ba.infotrygd.nextId
 import no.nav.familie.ba.infotrygd.utils.DatoUtils
@@ -215,8 +214,6 @@ object TestData {
             fnr = stønad.fnr!!,
             tkNr = stønad.tkNr,
         )
-
-    fun saksblokk(person: Person): Saksblokk = Saksblokk(nextId(), person.region, person.personKey, person.fnr)
 
     fun hendelse(
         person: Person,
