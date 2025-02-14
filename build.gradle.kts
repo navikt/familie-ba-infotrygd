@@ -66,7 +66,7 @@ dependencies {
     val fellesVersjon = "3.20250122103549_5bcb4dc"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.1"
-    val okhttp3Version = "5.0.0-alpha.14"
+    val okhttp3Version = "4.12.0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -100,7 +100,6 @@ dependencies {
     implementation("io.micrometer:micrometer-core")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.10.1")
     implementation("javax.inject:javax.inject:1")
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
 
@@ -112,7 +111,6 @@ dependencies {
     testImplementation("org.testcontainers:oracle-xe:1.20.4")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
-    testImplementation("com.opencsv:opencsv:5.10")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationVersion") {
         exclude(group = "com.squareup.okhttp3", module = "mockwebserver")
