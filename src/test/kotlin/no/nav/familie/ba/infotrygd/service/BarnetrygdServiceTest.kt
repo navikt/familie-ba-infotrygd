@@ -10,7 +10,6 @@ import no.nav.familie.ba.infotrygd.repository.HendelseRepository
 import no.nav.familie.ba.infotrygd.repository.LøpeNrFnrRepository
 import no.nav.familie.ba.infotrygd.repository.PersonRepository
 import no.nav.familie.ba.infotrygd.repository.SakRepository
-import no.nav.familie.ba.infotrygd.repository.SaksblokkRepository
 import no.nav.familie.ba.infotrygd.repository.StatusRepository
 import no.nav.familie.ba.infotrygd.repository.StønadRepository
 import no.nav.familie.ba.infotrygd.repository.StønadsklasseRepository
@@ -48,9 +47,6 @@ internal class BarnetrygdServiceTest {
 
     @Autowired
     private lateinit var sakRepository: SakRepository
-
-    @Autowired
-    private lateinit var saksblokkRepository: SaksblokkRepository
 
     @Autowired
     private lateinit var vedtakRepository: VedtakRepository
@@ -317,7 +313,6 @@ internal class BarnetrygdServiceTest {
                 ),
             )
         sakRepository.save(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
-        saksblokkRepository.saveAndFlush(TestData.saksblokk(person))
         utbetalingRepository.save(TestData.utbetaling(stønad, utbetalingTom = stønadTom))
         barnRepository.save(TestData.barn(stønad))
 
@@ -446,7 +441,6 @@ internal class BarnetrygdServiceTest {
                 ),
             )
         sakRepository.save(TestData.sak(person, opphørtStønad.saksblokk, opphørtStønad.sakNr, valg = "UT", undervalg = "MB"))
-        saksblokkRepository.saveAndFlush(TestData.saksblokk(person))
 
         utbetalingRepository.save(TestData.utbetaling(opphørtStønad))
 
@@ -541,7 +535,6 @@ internal class BarnetrygdServiceTest {
                 }
 
         sakRepository.save(TestData.sak(person, løpendeStønad.saksblokk, løpendeStønad.sakNr, valg = "UT", undervalg = "MD"))
-        saksblokkRepository.saveAndFlush(TestData.saksblokk(person))
         utbetalingRepository.saveAll(
             listOf(
                 TestData.utbetaling(løpendeStønad, beløp = 1581.0), // utvidet på aktiv stønad
@@ -711,7 +704,6 @@ internal class BarnetrygdServiceTest {
                 ),
             )
         sakRepository.save(TestData.sak(person, opphørtStønad.saksblokk, opphørtStønad.sakNr, valg = "UT", undervalg = "MB"))
-        saksblokkRepository.saveAndFlush(TestData.saksblokk(person))
         if (beløp == null) {
             utbetalingRepository.save(TestData.utbetaling(opphørtStønad))
         } else {

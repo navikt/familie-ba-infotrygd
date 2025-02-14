@@ -14,9 +14,6 @@ class SakRepositoryTest {
     lateinit var sakRepository: SakRepository
 
     @Autowired
-    lateinit var saksblokkRepository: SaksblokkRepository
-
-    @Autowired
     lateinit var stønadRepository: StønadRepository
 
     @Autowired
@@ -39,7 +36,6 @@ class SakRepositoryTest {
         val sak =
             sakRepository
                 .saveAndFlush(TestData.sak(person, stønad.saksblokk, stønad.sakNr))
-                .also { saksblokkRepository.saveAndFlush(TestData.saksblokk(person)) }
 
         sakRepository.findBarnetrygdsakerByFnr(person.fnr).also {
             assertThat(it).extracting("personKey").first().isEqualTo(person.personKey)

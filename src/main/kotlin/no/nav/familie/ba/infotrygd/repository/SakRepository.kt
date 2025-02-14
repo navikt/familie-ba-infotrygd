@@ -12,10 +12,7 @@ interface SakRepository : JpaRepository<Sak, Long> {
     @Query(
         """
         SELECT s FROM Sak s
-        INNER JOIN Saksblokk p
-                ON (s.personKey = p.personKey AND
-                    s.region = p.region)
-            WHERE p.fnr = :fnr 
+            WHERE s.fnr = :fnr 
               AND s.kapittelNr = 'BA' 
               AND s.type IN ('S', 'R', 'FL', 'AS', 'FS')""",
     ) // søknad, revurdering, klage, anke, flyttesak, automatisk stønad,
