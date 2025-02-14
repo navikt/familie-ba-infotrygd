@@ -11,31 +11,17 @@ import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableCaching
-class  CacheConfig {
-
-    @Bean
-    fun perioderCacheManager(): CacheManager {
-        val caffeine = Caffeine
-            .newBuilder()
-            .initialCapacity(100)
-            .maximumSize(200000)
-            .expireAfterWrite(1, TimeUnit.DAYS)
-            .recordStats()
-        val caffeineCacheManager = CaffeineCacheManager()
-        caffeineCacheManager.setCaffeine(caffeine)
-        return caffeineCacheManager
-    }
-
-
+class CacheConfig {
     @Bean
     @Primary
     fun personerCacheManager(): CacheManager {
-        val caffeine = Caffeine
-            .newBuilder()
-            .initialCapacity(100)
-            .maximumSize(1000)
-            .expireAfterWrite(1, TimeUnit.DAYS)
-            .recordStats()
+        val caffeine =
+            Caffeine
+                .newBuilder()
+                .initialCapacity(100)
+                .maximumSize(1000)
+                .expireAfterWrite(1, TimeUnit.DAYS)
+                .recordStats()
         val caffeineCacheManager = CaffeineCacheManager()
         caffeineCacheManager.setCaffeine(caffeine)
         return caffeineCacheManager
