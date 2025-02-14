@@ -191,30 +191,6 @@ object TestData {
             utbetalingTom = utbetalingTom ?: stønad.opphørtFom,
         )
 
-    fun sak(
-        stønad: Stønad,
-        valg: String = "OR",
-        undervalg: String = "OS",
-    ): Sak =
-        Sak(
-            id = nextId(),
-            personKey = stønad.personKey,
-            saksblokk = stønad.saksblokk,
-            saksnummer = stønad.sakNr,
-            mottattdato = LocalDate.now(),
-            regDato = LocalDate.now(),
-            region = stønad.region,
-            kapittelNr = "BA",
-            valg = valg,
-            undervalg = undervalg,
-            type = "S",
-            resultat = "I",
-            vedtaksdato = LocalDate.now(),
-            iverksattdato = LocalDate.now(),
-            fnr = stønad.fnr!!,
-            tkNr = stønad.tkNr,
-        )
-
     fun hendelse(
         person: Person,
         aksjondatoSeq: Long,
