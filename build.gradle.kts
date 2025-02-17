@@ -61,7 +61,7 @@ dependencies {
 
     val mockkVersion = "1.13.16"
     val tokenValidationVersion = "5.0.16"
-    val springdocVersion = "2.8.4"
+    val springdocVersion = "2.8.5"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "3.20250122103549_5bcb4dc"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
