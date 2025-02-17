@@ -1,10 +1,10 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "2.1.10"
-    val springBootVersion = "3.4.0"
+    val springBootVersion = "3.4.2"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -93,7 +93,6 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     // ---------- DB ---------- \\
-    runtimeOnly("org.postgresql:postgresql")
     implementation("com.oracle.database.jdbc:ojdbc8:23.6.0.24.10")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
@@ -119,10 +118,10 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "21"
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xjsr305=strict")
     }
 }
 
@@ -133,9 +132,4 @@ tasks.withType<Test> {
 tasks.cyclonedxBom {
     setIncludeConfigs(listOf("runtimeClasspath"))
     setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
-}
-
-extensions.findByName("buildScan")?.withGroovyBuilder {
-    setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
-    setProperty("termsOfServiceAgree", "yes")
 }
