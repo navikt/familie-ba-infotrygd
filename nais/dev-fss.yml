@@ -82,7 +82,7 @@ spec:
           - id: 9449c153-5a1e-44a7-84c6-7cc7a8867233 # BESLUTTER_ROLLE
       tenant: trygdeetaten.no
       replyURLs:
-        - "https://familie-ba-infotrygd.dev.intern.nav.no/swagger-ui/oauth2-redirect.html"
+        - "https://familie-ba-infotrygd.intern.dev.nav.no/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
   observability:
     autoInstrumentation:
