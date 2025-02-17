@@ -1,10 +1,10 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "2.1.10"
-    val springBootVersion = "3.4.0"
+    val springBootVersion = "3.4.2"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -66,7 +66,7 @@ dependencies {
     val fellesVersjon = "3.20250122103549_5bcb4dc"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.1"
-    val okhttp3Version = "5.0.0-alpha.14"
+    val okhttp3Version = "4.12.0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -93,14 +93,13 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     // ---------- DB ---------- \\
-    runtimeOnly("org.postgresql:postgresql")
+
     implementation("com.oracle.database.jdbc:ojdbc8:23.7.0.25.01")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.ttddyy:datasource-proxy:1.10.1")
     implementation("javax.inject:javax.inject:1")
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
 
@@ -112,7 +111,6 @@ dependencies {
     testImplementation("org.testcontainers:oracle-xe:1.20.4")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
-    testImplementation("com.opencsv:opencsv:5.10")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationVersion") {
         exclude(group = "com.squareup.okhttp3", module = "mockwebserver")
@@ -121,10 +119,10 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "21"
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xjsr305=strict")
     }
 }
 
@@ -135,9 +133,4 @@ tasks.withType<Test> {
 tasks.cyclonedxBom {
     setIncludeConfigs(listOf("runtimeClasspath"))
     setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
-}
-
-extensions.findByName("buildScan")?.withGroovyBuilder {
-    setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
-    setProperty("termsOfServiceAgree", "yes")
 }

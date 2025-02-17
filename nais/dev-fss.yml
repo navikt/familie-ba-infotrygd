@@ -40,7 +40,7 @@ spec:
       cpu: 250m
       memory: 1024Mi
   ingresses: # Optional. List of ingress URLs that will route HTTP traffic to the application.
-    - "https://familie-ba-infotrygd.dev.intern.nav.no/"
+    - "https://familie-ba-infotrygd.intern.dev.nav.no/"
     - "https://familie-ba-infotrygd.dev-fss-pub.nais.io"
   logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
   logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
