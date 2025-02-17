@@ -93,7 +93,8 @@ dependencies {
     implementation("nav-foedselsnummer:core:$navFoedselsnummerVersion")
 
     // ---------- DB ---------- \\
-    implementation("com.oracle.database.jdbc:ojdbc8:23.6.0.24.10")
+
+    implementation("com.oracle.database.jdbc:ojdbc8:23.7.0.25.01")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
