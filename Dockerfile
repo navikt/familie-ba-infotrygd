@@ -4,7 +4,7 @@ FROM gcr.io/distroless/java21-debian12:nonroot
 COPY --from=busybox /bin/cat /bin/cat
 COPY --from=busybox /bin/ash /bin/ash
 COPY --from=busybox /bin/printenv /bin/printenv
-COPY init.sh /init-scripts/init.sh
+#COPY init.sh /init-scripts/init.sh
 COPY --chown=nonroot:nonroot ./build/libs/familie-ba-infotrygd-0.0.1-SNAPSHOT.jar /app/app.jar
 WORKDIR /app
 
