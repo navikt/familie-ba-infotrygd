@@ -5,7 +5,7 @@ echo "- exported APP_DATASOURCE_USERNAME og APP_DATASOURCE_PASSWORD for familie-
 
 if [ -z "$APP_DATASOURCE_USERNAME" ]
 then
-  echo "username har ikke verdi"
+  echo "username har ikke verdi $APP_DATASOURCE_USERNAME"
 fi
 
 if [ -z "$APP_DATASOURCE_PASSWORD" ]
