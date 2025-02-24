@@ -38,5 +38,5 @@ jobs:
         if: github.event.pull_request.user.login != 'dependabot[bot]'
         env:
           CLUSTER: dev-fss
-          RESOURCE: nais/dev-fss.yml
+          RESOURCE: nais/dev-fss.yaml
           VAR: image=${{ steps.docker-push.outputs.image }}
