@@ -1,17 +1,14 @@
-name: Build-Deploy-Preprod
+name: Pull request
 
 on:
-  workflow_dispatch:
   pull_request:
 
 permissions:
-  packages: write
   contents: read
-  id-token: write
 
 jobs:
-  deploy-to-dev:
-    name: Bygg app/image, push til github, deploy til dev-fss
+  pull-request:
+    name: Pull request
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,19 +21,3 @@ jobs:
         env:
           GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test build cyclonedxBom
-      - uses: nais/docker-build-push@v0
-        id: docker-push
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        with:
-          team: teamfamilie
-          push_image: true
-          dockerfile: Dockerfile
-          docker_context: .
-          byosbom: build/reports/application.cdx.json
-      - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@v2
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        env:
-          CLUSTER: dev-fss
-          RESOURCE: .nais/app-dev.yaml
-          VAR: image=${{ steps.docker-push.outputs.image }}

@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      -
 permissions:
   packages: write
   contents: read
@@ -36,6 +35,12 @@ jobs:
           dockerfile: Dockerfile
           docker_context: .
           byosbom: build/reports/application.cdx.json
+      - name: Deploy to dev-fss
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-fss
+          RESOURCE: .nais/app-dev.yaml
+          VAR: image=${{ steps.docker-push.outputs.image }}
       - name: Deploy to prod-fss
         uses: nais/deploy/actions/deploy@v2
         env:
