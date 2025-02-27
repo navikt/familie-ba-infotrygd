@@ -1,8 +1,7 @@
-name: Build-Deploy-Preprod
+name: Build-Deploy-Dev
 
 on:
   workflow_dispatch:
-  pull_request:
 
 permissions:
   packages: write
@@ -26,7 +25,6 @@ jobs:
         run: ./gradlew test build cyclonedxBom
       - uses: nais/docker-build-push@v0
         id: docker-push
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
         with:
           team: teamfamilie
           push_image: true
@@ -35,8 +33,7 @@ jobs:
           byosbom: build/reports/application.cdx.json
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
         env:
           CLUSTER: dev-fss
-          RESOURCE: nais/dev-fss.yml
+          RESOURCE: .nais/app-dev.yaml
           VAR: image=${{ steps.docker-push.outputs.image }}
