@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "2.1.0"
+    id("org.cyclonedx.bom") version "2.2.0"
 }
 
 configurations {
@@ -59,7 +59,7 @@ allOpen {
 
 dependencies {
 
-    val mockkVersion = "1.13.16"
+    val mockkVersion = "1.13.17"
     val tokenValidationVersion = "5.0.16"
     val springdocVersion = "2.8.5"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
@@ -104,11 +104,11 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation(platform("org.junit:junit-bom:5.12.0"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.20.4")
+    testImplementation("org.testcontainers:oracle-xe:1.20.5")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
