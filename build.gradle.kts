@@ -63,7 +63,7 @@ dependencies {
     val tokenValidationVersion = "5.0.19"
     val springdocVersion = "2.8.5"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20250225081306_e2e2ab0"
+    val fellesVersjon = "3.20250305100957_13ab5fd"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.1"
     val okhttp3Version = "4.12.0"
