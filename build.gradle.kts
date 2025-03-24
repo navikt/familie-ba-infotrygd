@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
-    val kotlinVersion = "2.1.10"
+    val kotlinVersion = "2.1.20"
     val springBootVersion = "3.4.4"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -61,7 +61,7 @@ dependencies {
 
     val mockkVersion = "1.13.17"
     val tokenValidationVersion = "5.0.20"
-    val springdocVersion = "2.8.5"
+    val springdocVersion = "2.8.6"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "3.20250225081306_e2e2ab0"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
@@ -104,7 +104,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.12.0"))
+    testImplementation(platform("org.junit:junit-bom:5.12.1"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
