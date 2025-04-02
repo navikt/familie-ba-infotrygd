@@ -13,8 +13,8 @@ jobs:
     name: Bygg app/image, push til github, deploy til dev-fss
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # ratchet:actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -23,7 +23,7 @@ jobs:
         env:
           GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test build cyclonedxBom
-      - uses: nais/docker-build-push@v0
+      - uses: nais/docker-build-push@791ebb6f74b82849c742a9bc9c97abe44c6c111f # ratchet:nais/docker-build-push@v0
         id: docker-push
         with:
           team: teamfamilie
@@ -32,7 +32,7 @@ jobs:
           docker_context: .
           byosbom: build/reports/application.cdx.json
       - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@70ac914d5785b492f1247df72e04b8420c1a6cb7 # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-fss
           RESOURCE: .nais/app-dev.yaml
