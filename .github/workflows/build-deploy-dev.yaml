@@ -32,7 +32,7 @@ jobs:
           docker_context: .
           byosbom: build/reports/application.cdx.json
       - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@70ac914d5785b492f1247df72e04b8420c1a6cb7 # ratchet:nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@655191e618af58744d594ab4226aeac78dc739ec # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-fss
           RESOURCE: .nais/app-dev.yaml
