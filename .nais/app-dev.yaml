@@ -67,6 +67,10 @@ spec:
         - application: familie-ba-sak-lokal
           namespace: teamfamilie
           cluster: dev-fss
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
   azure:
     application:
       enabled: true
