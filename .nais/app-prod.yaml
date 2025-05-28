@@ -68,6 +68,10 @@ spec:
         - application: familie-ba-migrering
           namespace: teamfamilie
           cluster: prod-gcp
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
   azure:
     application:
       enabled: true
