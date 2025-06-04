@@ -26,6 +26,7 @@ import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.assertj.core.api.Assertions.assertThat
+import org.eclipse.jetty.client.HttpResponseException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -219,10 +220,10 @@ class BarnetrygdControllerTest {
         uri.values.forEach {
             val restTemplate = testClient.restTemplateNoAuth(port)
             val result =
-                assertThrows<ResourceAccessException> {
+                assertThrows<HttpResponseException> {
                     post(uri = it, restTemplate = restTemplate, responseType = InfotrygdSøkResponse::class.java)
                 }
-            assertThat(result.mostSpecificCause.message).contains("violation: Authentication")
+            assertThat(result.message).contains("violation: Authentication")
         }
     }
 
