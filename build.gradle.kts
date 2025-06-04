@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
-    val kotlinVersion = "2.1.20"
-    val springBootVersion = "3.4.4"
+    val kotlinVersion = "2.1.21"
+    val springBootVersion = "3.5.0"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "2.2.0"
+    id("org.cyclonedx.bom") version "2.3.1"
 }
 
 configurations {
@@ -59,11 +59,11 @@ allOpen {
 
 dependencies {
 
-    val mockkVersion = "1.14.0"
+    val mockkVersion = "1.14.2"
     val tokenValidationVersion = "5.0.24"
-    val springdocVersion = "2.8.6"
+    val springdocVersion = "2.8.8"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20250330150138_0502cea"
+    val fellesVersjon = "3.20250602160953_48db326"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
     val okhttp3Version = "4.12.0"
@@ -94,7 +94,7 @@ dependencies {
 
     // ---------- DB ---------- \\
 
-    implementation("com.oracle.database.jdbc:ojdbc8:23.7.0.25.01")
+    implementation("com.oracle.database.jdbc:ojdbc8:23.8.0.25.04")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
@@ -104,11 +104,11 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.12.2"))
+    testImplementation(platform("org.junit:junit-bom:5.13.0"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.20.6")
+    testImplementation("org.testcontainers:oracle-xe:1.21.1")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
