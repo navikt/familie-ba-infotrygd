@@ -146,6 +146,12 @@ class BarnetrygdController(
         )
     }
 
+    @GetMapping(path = ["/testlog"])
+    fun error(): ResponseEntity<String> {
+        logger.error("Error message")
+        return ResponseEntity.ok("Error message")
+    }
+
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,
                                             historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {
