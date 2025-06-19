@@ -61,9 +61,9 @@ dependencies {
 
     val mockkVersion = "1.14.2"
     val tokenValidationVersion = "5.0.29"
-    val springdocVersion = "2.8.8"
+    val springdocVersion = "2.8.9"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20250602160953_48db326"
+    val fellesVersjon = "3.20250616113100_41d23f2"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
     val okhttp3Version = "4.12.0"
@@ -104,11 +104,11 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.13.0"))
+    testImplementation(platform("org.junit:junit-bom:5.13.1"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.21.1")
+    testImplementation("org.testcontainers:oracle-xe:1.21.2")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
     testImplementation("com.h2database:h2")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
