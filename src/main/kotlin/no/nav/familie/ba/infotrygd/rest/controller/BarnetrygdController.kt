@@ -146,6 +146,12 @@ class BarnetrygdController(
         )
     }
 
+    @GetMapping(path = ["/testlog"])
+    fun error(): ResponseEntity<String> {
+        logger.error("Test av alarm")
+        return ResponseEntity.ok("Test av alarm")
+    }
+
     private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
                                             barn: List<String>?,
                                             historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {
@@ -155,18 +161,6 @@ class BarnetrygdController(
         return Pair(barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
                     barnetrygdService.findStønadByBarnFnr(barn, historikk))
     }
-
-    data class MigreringRequest(
-        val page: Int,
-        val size: Int,
-        val valg: String,
-        val undervalg: String
-    )
-
-    data class MigreringResponse(
-        val personerKlarForMigrering: Set<String>,
-        val totalPages: Int
-    )
 
     class StønadRequest(
         val personIdent: String,
