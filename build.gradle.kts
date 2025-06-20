@@ -4,7 +4,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "2.1.21"
-    val springBootVersion = "3.5.0"
+    val springBootVersion = "3.5.3"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -60,7 +60,7 @@ allOpen {
 dependencies {
 
     val mockkVersion = "1.14.2"
-    val tokenValidationVersion = "5.0.29"
+    val tokenValidationVersion = "5.0.30"
     val springdocVersion = "2.8.9"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "3.20250616113100_41d23f2"
