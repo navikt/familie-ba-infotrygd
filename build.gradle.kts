@@ -59,7 +59,7 @@ allOpen {
 
 dependencies {
 
-    val mockkVersion = "1.14.2"
+    val mockkVersion = "1.14.4"
     val tokenValidationVersion = "5.0.30"
     val springdocVersion = "2.8.9"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
