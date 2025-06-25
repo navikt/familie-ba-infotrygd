@@ -23,8 +23,8 @@ spec:
     initialDelay: 30
     timeout: 1
   replicas: # Optional. Set min = max to disable autoscaling.
-    min: 2 # minimum number of replicas.
-    max: 2 # maximum number of replicas.
+    min: 1 # minimum number of replicas.
+    max: 1 # maximum number of replicas.
   leaderElection: true
   # Compare this value with the $HOSTNAME to see if the current instance is the leader
   preStopHookPath: "" # Optional. A HTTP GET will be issued to this endpoint at least once before the pod is terminated.
@@ -35,7 +35,7 @@ spec:
     # /actuator/prometheus
   resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
     limits:
-      memory: 2048Mi  # app will be killed if exceeding these limits
+      memory: 1024Mi  # app will be killed if exceeding these limits
     requests: # App is guaranteed the requested resources and  will be scheduled on nodes with at least this amount of resources available
       cpu: 250m
       memory: 1024Mi
