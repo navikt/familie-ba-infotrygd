@@ -66,7 +66,7 @@ dependencies {
     val fellesVersjon = "3.20250616113100_41d23f2"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
-    val okhttp3Version = "4.12.0"
+    val okhttp3Version = "5.0.0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
