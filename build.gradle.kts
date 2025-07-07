@@ -104,7 +104,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.13.2"))
+    testImplementation(platform("org.junit:junit-bom:5.13.3"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
