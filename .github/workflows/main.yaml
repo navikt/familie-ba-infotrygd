@@ -16,7 +16,7 @@ jobs:
     name: Bygg app/image, push til github, deploy til prod-fss og dev-fss
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # ratchet:actions/checkout@v4
       - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # ratchet:actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -36,13 +36,13 @@ jobs:
           docker_context: .
           byosbom: build/reports/application.cdx.json
       - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@e79279e20795c1a03a92e8ae0bad4b770fd4e6d4 # ratchet:nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@961addd1e4d4211f1a7333ada5fde85f7c9aa5b7 # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-fss
           RESOURCE: .nais/app-dev.yaml
           VAR: image=${{ steps.docker-push.outputs.image }}
       - name: Deploy to prod-fss
-        uses: nais/deploy/actions/deploy@e79279e20795c1a03a92e8ae0bad4b770fd4e6d4 # ratchet:nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@961addd1e4d4211f1a7333ada5fde85f7c9aa5b7 # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-fss
           RESOURCE: .nais/app-prod.yaml
