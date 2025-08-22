@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
-    val kotlinVersion = "2.2.0"
-    val springBootVersion = "3.5.4"
+    val kotlinVersion = "2.2.10"
+    val springBootVersion = "3.5.5"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -61,7 +61,7 @@ dependencies {
 
     val mockkVersion = "1.14.5"
     val tokenValidationVersion = "5.0.30"
-    val springdocVersion = "2.8.9"
+    val springdocVersion = "2.8.10"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "3.20250616113100_41d23f2"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
