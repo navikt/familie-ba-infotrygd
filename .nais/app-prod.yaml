@@ -81,7 +81,7 @@ spec:
         extra:
           - "NAVident"
         groups:
-          - id: 3d718ae5-f25e-47a4-b4b3-084a97604c1d # teamfamilie-forvaltning
+          - id: 024bfb25-ead3-4c04-bbe1-1db3d3362188 # teamfamilie-forvaltning
           - id: 87190cf3-b278-457d-8ab7-1a5c55a9edd7 # Group_87190cf3-b278-457d-8ab7-1a5c55a9edd7 tilgang til prosessering
           - id: 199c2b39-e535-4ae8-ac59-8ccbee7991ae # veileder
           - id: 847e3d72-9dc1-41c3-80ff-f5d4acdd5d46 # saksbehandler
