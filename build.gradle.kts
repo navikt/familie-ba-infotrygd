@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "2.3.1"
+    id("org.cyclonedx.bom") version "2.4.0"
 }
 
 configurations {
