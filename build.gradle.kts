@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "2.3.1"
+    id("org.cyclonedx.bom") version "2.4.0"
 }
 
 configurations {
@@ -63,7 +63,7 @@ dependencies {
     val tokenValidationVersion = "5.0.36"
     val springdocVersion = "2.8.13"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20250909155158_81fc464"
+    val fellesVersjon = "3.20250915092837_153983f"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
     val okhttp3Version = "5.1.0"
