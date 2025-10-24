@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
-    val kotlinVersion = "2.2.20"
-    val springBootVersion = "3.5.6"
+    val kotlinVersion = "2.2.21"
+    val springBootVersion = "3.5.7"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.53.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "2.4.1"
+    id("org.cyclonedx.bom") version "3.0.1"
 }
 
 configurations {
@@ -59,14 +59,14 @@ allOpen {
 
 dependencies {
 
-    val mockkVersion = "1.14.5"
+    val mockkVersion = "1.14.6"
     val tokenValidationVersion = "5.0.37"
     val springdocVersion = "2.8.13"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20250915092837_153983f"
+    val fellesVersjon = "3.20251021101955_e5e7dd1"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
-    val okhttp3Version = "5.1.0"
+    val okhttp3Version = "5.2.1"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -104,7 +104,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
