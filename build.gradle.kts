@@ -130,7 +130,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.cyclonedxBom {
+tasks.cyclonedxDirectBom {
     includeConfigs = listOf("runtimeClasspath")
     skipConfigs = listOf("compileClasspath", "testCompileClasspath")
 }
