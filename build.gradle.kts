@@ -131,6 +131,6 @@ tasks.withType<Test> {
 }
 
 tasks.cyclonedxBom {
-    setIncludeConfigs(listOf("runtimeClasspath"))
-    setSkipConfigs(listOf("compileClasspath", "testCompileClasspath"))
+    includeConfigs = listOf("runtimeClasspath")
+    skipConfigs = listOf("compileClasspath", "testCompileClasspath")
 }
