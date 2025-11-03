@@ -63,10 +63,10 @@ dependencies {
     val tokenValidationVersion = "5.0.37"
     val springdocVersion = "2.8.13"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20251021101955_e5e7dd1"
+    val fellesVersjon = "3.20251030143732_d6733bc"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
-    val okhttp3Version = "5.2.1"
+    val okhttp3Version = "5.3.0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -104,7 +104,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
 
     // ---- Test utils ---- \\
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
