@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.53.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "3.0.1"
+    id("org.cyclonedx.bom") version "3.0.2"
 }
 
 configurations {
@@ -66,7 +66,7 @@ dependencies {
     val fellesVersjon = "3.20251030143732_d6733bc"
     val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
     val coroutinesVersion = "1.10.2"
-    val okhttp3Version = "5.3.0"
+    val okhttp3Version = "5.3.1"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
