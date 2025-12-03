@@ -79,6 +79,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-common:$springdocVersion")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
     testImplementation("org.testcontainers:testcontainers-oracle-free:2.0.2")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
 
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
