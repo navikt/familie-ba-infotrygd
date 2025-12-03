@@ -1,4 +1,3 @@
-CREATE SCHEMA IF NOT EXISTS INFOTRYGD_Q0;
 
 CREATE TABLE ALL_SEQUENCES (
     SEQUENCE_OWNER VARCHAR2(30) NOT NULL  ,
@@ -22,9 +21,9 @@ CREATE TABLE ALL_SYNONYMS (
 
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.IS_PERIODE_10
+-- Create Table IS_PERIODE_10
 --------------------------------------------------
-Create table INFOTRYGD_Q0.IS_PERIODE_10 (
+Create table IS_PERIODE_10 (
     IS01_PERSONKEY                 NUMBER(15)          DEFAULT 0  NOT NULL,
     IS10_ARBUFOER_SEQ              NUMBER(8,0)           , -- NOT NULL,
     IS10_ARBUFOER                  NUMBER(8)           , -- NOT NULL,
@@ -177,7 +176,7 @@ Create table INFOTRYGD_Q0.IS_PERIODE_10 (
     ID_PERI10                      NUMBER              DEFAULT NOT NULL); -- endret fra NUMBER
 
 
-CREATE TABLE INFOTRYGD_Q0.SA_SAKSBLOKK_05
+CREATE TABLE SA_SAKSBLOKK_05
 (
     S01_PERSONKEY NUMBER(15), -- NOT NULL,
     S05_SAKSBLOKK CHAR(1), -- NOT NULL,
@@ -196,9 +195,9 @@ CREATE TABLE INFOTRYGD_Q0.SA_SAKSBLOKK_05
 );
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.IS_UTBETALING_15
+-- Create Table IS_UTBETALING_15
 --------------------------------------------------
-Create table INFOTRYGD_Q0.IS_UTBETALING_15 (
+Create table IS_UTBETALING_15 (
     IS01_PERSONKEY                 NUMBER(15)          , -- NOT NULL,
     IS10_ARBUFOER_SEQ              NUMBER(8)           , -- NOT NULL,
     IS15_UTBETFOM_SEQ              NUMBER(8)           , -- NOT NULL,
@@ -230,9 +229,9 @@ Create table INFOTRYGD_Q0.IS_UTBETALING_15 (
     ID_UTBT                        NUMBER              DEFAULT NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.IS_INNTEKT_13
+-- Create Table IS_INNTEKT_13
 --------------------------------------------------
-Create table INFOTRYGD_Q0.IS_INNTEKT_13 (
+Create table IS_INNTEKT_13 (
     IS01_PERSONKEY                 NUMBER(15)          , -- NOT NULL,
     IS10_ARBUFOER_SEQ              NUMBER(8)           , -- NOT NULL,
     IS13_SPFOM                     NUMBER(8)           , -- NOT NULL,
@@ -256,17 +255,17 @@ Create table INFOTRYGD_Q0.IS_INNTEKT_13 (
     ID_INNT                        NUMBER              DEFAULT NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_LOPENR_FNR
+-- Create Table T_LOPENR_FNR
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_LOPENR_FNR (
+Create table T_LOPENR_FNR (
     PERSON_LOPENR                  NUMBER              NOT NULL,
     PERSONNR                       CHAR(11)            NOT NULL,
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_STONAD
+-- Create Table T_STONAD
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_STONAD (
+Create table T_STONAD (
     STONAD_ID                      NUMBER              NOT NULL,
     PERSON_LOPENR                  NUMBER              , -- NOT NULL,
     KODE_RUTINE                    CHAR(2)             , -- NOT NULL,
@@ -280,18 +279,18 @@ Create table INFOTRYGD_Q0.T_STONAD (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_STONADSKLASSE
+-- Create Table T_STONADSKLASSE
 --------------------------------------------------
-create table INFOTRYGD_Q0.T_STONADSKLASSE (
+create table T_STONADSKLASSE (
     VEDTAK_ID                      NUMBER              NOT NULL,
     KODE_NIVAA                     VARCHAR2(2)    NOT NULL,
     KODE_KLASSE                    VARCHAR2(2)    NOT NULL,
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_VEDTAK
+-- Create Table T_VEDTAK
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_VEDTAK (
+Create table T_VEDTAK (
     VEDTAK_ID                      NUMBER              NOT NULL,
     PERSON_LOPENR                  NUMBER              NOT NULL,
     KODE_RUTINE                    CHAR(2)             , -- NOT NULL,
@@ -317,9 +316,9 @@ Create table INFOTRYGD_Q0.T_VEDTAK (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_VEDTAK_SP_FA_BS
+-- Create Table T_VEDTAK_SP_FA_BS
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_VEDTAK_SP_FA_BS (
+Create table T_VEDTAK_SP_FA_BS (
     VEDTAK_ID                      NUMBER              NOT NULL,
     ARBKAT                         CHAR(2)             NOT NULL,
     KODE_FORELDREKVOTE             CHAR(1)             , -- NOT NULL,
@@ -335,9 +334,9 @@ Create table INFOTRYGD_Q0.T_VEDTAK_SP_FA_BS (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp  NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_DELYTELSE
+-- Create Table T_DELYTELSE
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_DELYTELSE (
+Create table T_DELYTELSE (
     VEDTAK_ID                      NUMBER              NOT NULL,
     TYPE_DELYTELSE                 CHAR(2)             NOT NULL,
     TIDSPUNKT_REG                  TIMESTAMP(6)        , --NOT NULL,
@@ -353,9 +352,9 @@ Create table INFOTRYGD_Q0.T_DELYTELSE (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_DELYTELSE_SP_FA_BS
+-- Create Table T_DELYTELSE_SP_FA_BS
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_DELYTELSE_SP_FA_BS (
+Create table T_DELYTELSE_SP_FA_BS (
     VEDTAK_ID                      NUMBER              NOT NULL,
     TYPE_DELYTELSE                 CHAR(2)             NOT NULL,
     TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL,
@@ -378,9 +377,9 @@ Create table INFOTRYGD_Q0.T_DELYTELSE_SP_FA_BS (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_STONAD_BS
+-- Create Table T_STONAD_BS
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_STONAD_BS (
+Create table T_STONAD_BS (
     STONAD_ID                      NUMBER              NOT NULL,
     UNNTAK                         CHAR(2)             , -- NOT NULL,
     PLEIEPENGEGRAD                 NUMBER ,
@@ -390,9 +389,9 @@ Create table INFOTRYGD_Q0.T_STONAD_BS (
     OPPRETTET                      TIMESTAMP(6)        DEFAULT current_timestamp  NOT NULL);
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.T_INNTEKT
+-- Create Table T_INNTEKT
 --------------------------------------------------
-Create table INFOTRYGD_Q0.T_INNTEKT (
+Create table T_INNTEKT (
     STONAD_ID                      NUMBER              NOT NULL,
     ORGNR                          NUMBER              NOT NULL,
     INNTEKT_FOM                    DATE                NOT NULL,
@@ -408,7 +407,7 @@ Create table INFOTRYGD_Q0.T_INNTEKT (
     TIDSPUNKT_REG                  TIMESTAMP(6)        NOT NULL);
 
 
-Create table INFOTRYGD_Q0.SA_PERSON_01 (
+Create table SA_PERSON_01 (
     S01_PERSONKEY                  NUMBER(15)          , -- NOT NULL,
     TK_NR                          CHAR(4)             , -- NOT NULL,
     F_NR                           CHAR(11)            , -- NOT NULL,
@@ -420,9 +419,9 @@ Create table INFOTRYGD_Q0.SA_PERSON_01 (
 );
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.SA_SAK_10
+-- Create Table SA_SAK_10
 --------------------------------------------------
-Create table INFOTRYGD_Q0.SA_SAK_10 (
+Create table SA_SAK_10 (
     S01_PERSONKEY                  NUMBER(15)          , -- NOT NULL,
     S05_SAKSBLOKK                  CHAR(1)             , -- NOT NULL,
     S10_SAKSNR                     CHAR(2)             , -- NOT NULL,
@@ -477,9 +476,9 @@ Create table INFOTRYGD_Q0.SA_SAK_10 (
 );
 
 --------------------------------------------------
--- Create Table INFOTRYGD_Q0.SA_STATUS_15
+-- Create Table SA_STATUS_15
 --------------------------------------------------
-Create table INFOTRYGD_Q0.SA_STATUS_15 (
+Create table SA_STATUS_15 (
     S01_PERSONKEY                  NUMBER(15)          , -- NOT NULL,
     S05_SAKSBLOKK                  CHAR(1)             , -- NOT NULL,
     S10_SAKSNR                     CHAR(2)             , -- NOT NULL,
@@ -507,7 +506,7 @@ Create table INFOTRYGD_Q0.SA_STATUS_15 (
     ID_STATUS                      NUMBER              DEFAULT NOT NULL -- endret fra NUMBER
 );
 
-CREATE TABLE INFOTRYGD_Q0.IP_PERSONKORT_90(
+CREATE TABLE IP_PERSONKORT_90(
     IP01_PERSNKEY        VARCHAR2(7)   NOT NULL,
     IP90_DATO_SEQ        NUMBER(8)          NOT NULL,
     IP90_KONTONR         NUMBER(7)          NOT NULL,
@@ -530,7 +529,7 @@ CREATE TABLE INFOTRYGD_Q0.IP_PERSONKORT_90(
     OPPDATERT            TIMESTAMP(6)
 );
 
-CREATE TABLE INFOTRYGD_Q0.IP_PERSON_01(
+CREATE TABLE IP_PERSON_01(
     IP01_PERSNKEY           VARCHAR2(7) NOT NULL,
     IP01_PERSONKEY          NUMBER(15) , -- NOT NULL,
     IP01_TKAVD              CHAR(1) , -- NOT NULL,
@@ -575,7 +574,7 @@ CREATE TABLE INFOTRYGD_Q0.IP_PERSON_01(
 
 -- Barnetrygd-tabeller
 
-CREATE TABLE INFOTRYGD_Q0.BA_PERSON_01
+CREATE TABLE BA_PERSON_01
 (
   B01_PERSONKEY NUMBER(15, 0) NOT NULL
 , B01_BT_STATUS CHAR(1) -- NOT NULL
@@ -593,7 +592,7 @@ CREATE TABLE INFOTRYGD_Q0.BA_PERSON_01
 , OPPDATERT TIMESTAMP(6) DEFAULT current_timestamp NOT NULL
 );
 
-CREATE TABLE INFOTRYGD_Q0.BA_STOENAD_20
+CREATE TABLE BA_STOENAD_20
 (
   B01_PERSONKEY NUMBER(15, 0) NOT NULL
 , B20_IVERFOM_SEQ VARCHAR2(6) /*NOT NULL*/
@@ -630,7 +629,7 @@ CREATE TABLE INFOTRYGD_Q0.BA_STOENAD_20
 , OPPDATERT TIMESTAMP(6) DEFAULT current_timestamp NOT NULL
 );
 
-CREATE TABLE INFOTRYGD_Q0.BA_BARN_10
+CREATE TABLE BA_BARN_10
 (
   B01_PERSONKEY NUMBER(15, 0) NOT NULL
 , B10_BARN_FNR NUMBER(11, 0) NOT NULL
@@ -648,7 +647,7 @@ CREATE TABLE INFOTRYGD_Q0.BA_BARN_10
 , OPPDATERT TIMESTAMP(6) DEFAULT current_timestamp NOT NULL
 );
 
-CREATE TABLE INFOTRYGD_Q0.BA_UTBETALING_30
+CREATE TABLE BA_UTBETALING_30
 (
   B01_PERSONKEY NUMBER(15, 0) NOT NULL
 , B30_START_UTBET_MND_SEQ VARCHAR2(6) NOT NULL
@@ -673,7 +672,7 @@ CREATE TABLE INFOTRYGD_Q0.BA_UTBETALING_30
 , OPPDATERT TIMESTAMP(6) DEFAULT current_timestamp -- NOT NULL
 );
 
-CREATE TABLE INFOTRYGD_Q0.BA_UTBET_HIST_40
+CREATE TABLE BA_UTBET_HIST_40
 (
   B01_PERSONKEY NUMBER(15, 0) NOT NULL
 , B40_UTBET_DATO_SEQ VARCHAR2(8) NOT NULL
@@ -694,7 +693,7 @@ CREATE TABLE INFOTRYGD_Q0.BA_UTBET_HIST_40
 , OPPDATERT TIMESTAMP(6) DEFAULT current_timestamp NOT NULL
 );
 
-CREATE TABLE INFOTRYGD_Q0.T_ENDRING
+CREATE TABLE T_ENDRING
 (
   VEDTAK_ID NUMBER NOT NULL
 , KODE VARCHAR2(2) NOT NULL
@@ -704,7 +703,7 @@ CREATE TABLE INFOTRYGD_Q0.T_ENDRING
     --CONSTRAINT PK_ENDRING PRIMARY KEY (ID_ENDR)
 );
 
-CREATE TABLE INFOTRYGD_Q0.T_ROLLE
+CREATE TABLE T_ROLLE
 (
   VEDTAK_ID NUMBER(*, 0) NOT NULL
 , TYPE VARCHAR2(2) NOT NULL
@@ -732,7 +731,7 @@ CREATE TABLE INFOTRYGD_Q0.T_ROLLE
     --CONSTRAINT PK_ROLLE PRIMARY KEY (ID_ROLLE)
 );
 
-CREATE TABLE INFOTRYGD_Q0.T_BESLUT
+CREATE TABLE T_BESLUT
 (
   BESLUTNING_ID NUMBER NOT NULL
 , VEDTAK_ID NUMBER NOT NULL
@@ -753,7 +752,7 @@ CREATE TABLE INFOTRYGD_Q0.T_BESLUT
     --CONSTRAINT PK_BESLUT PRIMARY KEY (ID_BESLUT)
 );
 
-CREATE TABLE INFOTRYGD_Q0.T_TEKSTU
+CREATE TABLE T_TEKSTU
 (
   BESLUTNING_ID NUMBER(*, 0) NOT NULL
 , TEKSTLINJE NUMBER(*, 0)
@@ -764,7 +763,7 @@ CREATE TABLE INFOTRYGD_Q0.T_TEKSTU
 	--CONSTRAINT PK_TEKSTU PRIMARY KEY (ID_TEKSTU)
 );
 
-create table INFOTRYGD_Q0.SA_HENDELSE_20
+create table SA_HENDELSE_20
 (
     ID_HEND NUMBER not null,
     S01_PERSONKEY NUMBER(15, 0) not null,

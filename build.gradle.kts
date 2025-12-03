@@ -78,6 +78,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springdoc:springdoc-openapi-starter-common:$springdocVersion")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
+    testImplementation("org.testcontainers:testcontainers-oracle-free:2.0.2")
 
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -108,9 +109,7 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:oracle-xe:1.21.3")
     testImplementation("io.mockk:mockk-jvm:$mockkVersion")
-    testImplementation("com.h2database:h2")
     testImplementation("nav-foedselsnummer:testutils:$navFoedselsnummerVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationVersion") {
         exclude(group = "com.squareup.okhttp3", module = "mockwebserver")
