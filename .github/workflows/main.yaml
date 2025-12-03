@@ -25,7 +25,7 @@ jobs:
       - name: Test and build
         env:
           GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew test build cyclonedxBom
+        run: ./gradlew test build cyclonedxDirectBom
       - uses: nais/docker-build-push@791ebb6f74b82849c742a9bc9c97abe44c6c111f # ratchet:nais/docker-build-push@v0
         id: docker-push
         with:
@@ -34,7 +34,7 @@ jobs:
           tag: latest
           dockerfile: Dockerfile
           docker_context: .
-          byosbom: build/reports/application.cdx.json
+          byosbom: build/reports/cyclonedx-direct/bom.json
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@961addd1e4d4211f1a7333ada5fde85f7c9aa5b7 # ratchet:nais/deploy/actions/deploy@v2
         env:
