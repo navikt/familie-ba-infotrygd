@@ -4,13 +4,15 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        default_schema: INFOTRYGD_Q0
+    database-platform: org.hibernate.dialect.OracleDialect
   datasource:
-    url: jdbc:h2:mem:testdb:MODE=Oracle
-    driver-class-name: org.h2.Driver
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:oracle:thin:@///test
+    username: test
+    password: test
   sql:
     init:
-      platform: h2
+      platform: oracle
       mode: always
       continue-on-error: true
 
