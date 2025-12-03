@@ -41,11 +41,11 @@ class DatasourceConfig {
         vaultDatasourceUsername: String,
         vaultDatasourcePassword: String,
     ): DataSource {
-        requireNotNull(datasourceConfiguration.url) { "spring.datasource.url is null" }
-        requireNotNull(datasourceConfiguration.driverClassName) { "spring.datasource.driverClassName is null" }
+        val url = requireNotNull(datasourceConfiguration.url) { "spring.datasource.url is null" }
+        val driverClassName = requireNotNull(datasourceConfiguration.driverClassName) { "spring.datasource.driverClassName is null" }
         val dataSourceBuilder = DataSourceBuilder.create()
-        dataSourceBuilder.driverClassName(datasourceConfiguration.driverClassName)
-        dataSourceBuilder.url(datasourceConfiguration.url)
+        dataSourceBuilder.driverClassName(driverClassName)
+        dataSourceBuilder.url(url)
         dataSourceBuilder.username(vaultDatasourceUsername)
         dataSourceBuilder.password(vaultDatasourcePassword)
         return dataSourceBuilder.build()
