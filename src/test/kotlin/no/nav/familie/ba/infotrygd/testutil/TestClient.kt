@@ -3,7 +3,7 @@ package no.nav.familie.ba.infotrygd.testutil
 import com.nimbusds.jose.JOSEObjectType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpRequest
@@ -47,10 +47,6 @@ class TestClient(
             val rawStatusCode = response.statusCode.value()
             val series = HttpStatus.Series.resolve(rawStatusCode)
             return series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR
-        }
-
-        override fun handleError(response: ClientHttpResponse) {
-            throw IllegalArgumentException("Not implemented")
         }
 
         override fun handleError(url: URI, method: HttpMethod, response: ClientHttpResponse) {
