@@ -34,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
@@ -227,15 +227,21 @@ class BarnetrygdControllerTest {
         }
     }
 
-    private fun <T> post(
+    private fun <T : Any> post(
         request: Any = InfotrygdSøkRequest(listOf()),
         uri: String?,
         responseType: Class<T>,
         restTemplate: RestTemplate = this.restTemplate,
-    ) = restTemplate.postForEntity(uri!!, request, responseType).body!!
+    ): T   {
+        val responseEntity: ResponseEntity<T> = restTemplate.postForEntity(uri!!, request, responseType)
+        return responseEntity.body!!
+    }
 
-    private fun <T> get(
-        uri: String?,
+    private fun <T: Any> get(
+        uri: String,
         responseType: Class<T>,
-    ) = restTemplate.getForEntity(uri!!, responseType).body!!
+    ):T {
+        val responseEntity: ResponseEntity<T> = restTemplate.getForEntity(uri, responseType)
+        return responseEntity.body!!
+    }
 }
