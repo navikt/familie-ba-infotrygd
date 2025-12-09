@@ -11,7 +11,6 @@ import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
-import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
@@ -79,10 +78,10 @@ class BarnetrygdController(
     }
 
     @Operation(summary = "Uttrekk fra tabellen \"SA_SAK_10\".")
-    @PostMapping(path = ["saker"], consumes = ["application/json"])
+    @PostMapping(path = ["saker"], consumes = ["application/json"], produces = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-baks-mottak", "familie-ba-sak"] )
-    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
+    fun saker(@RequestBody request: no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         tilgangskontrollService.sjekkTilgang()
 
         val brukere = request.brukere.map { FoedselsNr(it) }
