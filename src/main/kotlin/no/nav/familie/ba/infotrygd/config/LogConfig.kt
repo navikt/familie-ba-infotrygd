@@ -13,7 +13,7 @@ class LogConfig {
     @Bean
     fun logFilterFelles(): FilterRegistrationBean<LogFilter> {
         val filterRegistration: FilterRegistrationBean<LogFilter> = FilterRegistrationBean()
-        filterRegistration.filter = LogFilter(NavSystemtype.NAV_INTEGRASJON)
+        filterRegistration.setFilter(LogFilter(NavSystemtype.NAV_INTEGRASJON))
         filterRegistration.order = 1
         return filterRegistration
     }
@@ -21,7 +21,7 @@ class LogConfig {
     @Bean
     fun accessLogFilter(): FilterRegistrationBean<AccessLogFilter> {
         val filterRegistration: FilterRegistrationBean<AccessLogFilter> = FilterRegistrationBean()
-        filterRegistration.filter = AccessLogFilter("familie-ba-infotrygd")
+        filterRegistration.setFilter(AccessLogFilter("familie-ba-infotrygd"))
         filterRegistration.order = LOWEST_PRECEDENCE
         return filterRegistration
     }
