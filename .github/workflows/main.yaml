@@ -36,13 +36,13 @@ jobs:
           docker_context: .
           byosbom: build/reports/cyclonedx-direct/bom.json
       - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@33c53f5b87d0746093a7a7ab4b9fa853e0e53bdc # ratchet:nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-fss
           RESOURCE: .nais/app-dev.yaml
           VAR: image=${{ steps.docker-push.outputs.image }}
       - name: Deploy to prod-fss
-        uses: nais/deploy/actions/deploy@33c53f5b87d0746093a7a7ab4b9fa853e0e53bdc # ratchet:nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-fss
           RESOURCE: .nais/app-prod.yaml
