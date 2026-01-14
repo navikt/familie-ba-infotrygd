@@ -11,6 +11,7 @@ import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
 import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
+import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
@@ -63,7 +64,7 @@ class BarnetrygdController(
     }
 
     @Operation(summary = "Uttrekk fra tabellen \"BA_STOENAD_20\".")
-    @PostMapping(path = ["stonad"], consumes = ["application/json"])
+    @PostMapping(path = ["stonad"], consumes = ["application/json"], produces = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-baks-mottak"] )
     fun stønad(

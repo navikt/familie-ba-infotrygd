@@ -24,7 +24,7 @@ import no.nav.familie.ba.infotrygd.testutil.TestClient
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jetty.client.HttpResponseException
 import org.junit.jupiter.api.BeforeEach
@@ -141,12 +141,12 @@ class BarnetrygdControllerTest {
 
         assertThat(post(søkPåPersonMedSak, uri["sak"], InfotrygdSøkResponse::class.java))
             .extracting { it ->
-                it.bruker.map { objectMapper.convertValue(it, Sak::class.java) }
+                it.bruker.map { jsonMapper.convertValue(it, Sak::class.java) }
             }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
         assertThat(post(søkPåBarnTilknyttetSak, uri["sak"], InfotrygdSøkResponse::class.java))
             .extracting { it ->
-                it.barn.map { objectMapper.convertValue(it, Sak::class.java) }
+                it.barn.map { jsonMapper.convertValue(it, Sak::class.java) }
             }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
         assertThat(post(uri = uri["sak"], responseType = InfotrygdSøkResponse::class.java).bruker) // søk med tom request
@@ -234,7 +234,9 @@ class BarnetrygdControllerTest {
         responseType: Class<T>,
         restTemplate: RestTemplate = this.restTemplate,
     ): T   {
-        val responseEntity: ResponseEntity<T> = restTemplate.postForEntity(uri!!, objectMapper.writeValueAsString(request), responseType, HttpHeaders())
+        val headers = HttpHeaders().apply { set(HttpHeaders.CONTENT_TYPE, "application/json") }
+        val entity = org.springframework.http.HttpEntity(jsonMapper.writeValueAsString(request), headers)
+        val responseEntity: ResponseEntity<T> = restTemplate.postForEntity(uri!!, entity, responseType)
         return responseEntity.body!!
     }
 
