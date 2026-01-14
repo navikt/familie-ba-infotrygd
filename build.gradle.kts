@@ -4,7 +4,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "2.2.21"
-    val springBootVersion = "4.0.0"
+    val springBootVersion = "4.0.1"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -70,6 +70,7 @@ dependencies {
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-jackson")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-cache")
