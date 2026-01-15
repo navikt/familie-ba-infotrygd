@@ -42,11 +42,7 @@ spec:
   ingresses: # Optional. List of ingress URLs that will route HTTP traffic to the application.
     - "https://familie-ba-infotrygd.intern.dev.nav.no/"
     - "https://familie-ba-infotrygd.dev-fss-pub.nais.io"
-  logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
-  logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
-  secureLogs:
-    enabled: true
   vault:
     enabled: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
     paths:
@@ -89,6 +85,10 @@ spec:
         - "https://familie-ba-infotrygd.intern.dev.nav.no/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
   observability:
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
     autoInstrumentation:
       enabled: true
       runtime: java
