@@ -24,7 +24,7 @@ import no.nav.familie.ba.infotrygd.testutil.TestClient
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jetty.client.HttpResponseException
 import org.junit.jupiter.api.BeforeEach
@@ -33,9 +33,10 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
@@ -105,10 +106,10 @@ class BarnetrygdControllerTest {
 
         stønadRepository.saveAll(listOf(TestData.stønad(person), TestData.stønad(opphørPerson, opphørtFom = "111111")))
 
-        val requestMedPersonMedLøpendeStønad = InfotrygdSøkRequest(listOf(person.fnr))
-        val requestMedPersonMedOpphørtStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr))
-        val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr), listOf(barn.barnFnr))
-        val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr))
+        val requestMedPersonMedLøpendeStønad = InfotrygdSøkRequest(listOf(person.fnr.asString))
+        val requestMedPersonMedOpphørtStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr.asString))
+        val requestMedBarnTilknyttetLøpendeStønad = InfotrygdSøkRequest(listOf(opphørPerson.fnr.asString), listOf(barn.barnFnr.asString))
+        val requestMedBarnSomIkkeFinnes = InfotrygdSøkRequest(listOf(), listOf(person.fnr.asString))
 
         assertThat(
             post(requestMedPersonMedLøpendeStønad, uri["lopende-barnetrygd"], InfotrygdLøpendeBarnetrygdResponse::class.java)
@@ -135,17 +136,17 @@ class BarnetrygdControllerTest {
         val sak = sakRepository.saveAndFlush(TestData.sak(person))
         val barn = barnRepository.saveAndFlush(TestData.barn(person))
 
-        val søkPåPersonMedSak = InfotrygdSøkRequest(listOf(person.fnr))
-        val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr))
+        val søkPåPersonMedSak = InfotrygdSøkRequest(brukere = listOf(person.fnr.asString))
+        val søkPåBarnTilknyttetSak = InfotrygdSøkRequest(listOf(), listOf(barn.barnFnr.asString))
 
         assertThat(post(søkPåPersonMedSak, uri["sak"], InfotrygdSøkResponse::class.java))
             .extracting { it ->
-                it.bruker.map { objectMapper.convertValue(it, Sak::class.java) }
+                it.bruker.map { jsonMapper.convertValue(it, Sak::class.java) }
             }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
         assertThat(post(søkPåBarnTilknyttetSak, uri["sak"], InfotrygdSøkResponse::class.java))
             .extracting { it ->
-                it.barn.map { objectMapper.convertValue(it, Sak::class.java) }
+                it.barn.map { jsonMapper.convertValue(it, Sak::class.java) }
             }.isEqualToComparingFieldByFieldRecursively(listOf(barnetrygdService.konverterTilDto(sak)))
 
         assertThat(post(uri = uri["sak"], responseType = InfotrygdSøkResponse::class.java).bruker) // søk med tom request
@@ -166,7 +167,7 @@ class BarnetrygdControllerTest {
                 endringRepository.saveAndFlush(Endring(it.vedtakId, "  "))
             }
 
-        val søkRequest = InfotrygdSøkRequest(listOf(person.fnr), emptyList())
+        val søkRequest = InfotrygdSøkRequest(listOf(person.fnr.asString), emptyList())
 
         assertThat(post(søkRequest, uri["aapen-sak"], InfotrygdÅpenSakResponse::class.java).harÅpenSak)
             .isTrue
@@ -227,15 +228,23 @@ class BarnetrygdControllerTest {
         }
     }
 
-    private fun <T> post(
+    private fun <T : Any> post(
         request: Any = InfotrygdSøkRequest(listOf()),
         uri: String?,
         responseType: Class<T>,
         restTemplate: RestTemplate = this.restTemplate,
-    ) = restTemplate.postForEntity(uri!!, request, responseType).body!!
+    ): T   {
+        val headers = HttpHeaders().apply { set(HttpHeaders.CONTENT_TYPE, "application/json") }
+        val entity = org.springframework.http.HttpEntity(jsonMapper.writeValueAsString(request), headers)
+        val responseEntity: ResponseEntity<T> = restTemplate.postForEntity(uri!!, entity, responseType)
+        return responseEntity.body!!
+    }
 
-    private fun <T> get(
-        uri: String?,
+    private fun <T: Any> get(
+        uri: String,
         responseType: Class<T>,
-    ) = restTemplate.getForEntity(uri!!, responseType).body!!
+    ):T {
+        val responseEntity: ResponseEntity<T> = restTemplate.getForEntity(uri, responseType)
+        return responseEntity.body!!
+    }
 }
