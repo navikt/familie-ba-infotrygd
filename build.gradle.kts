@@ -4,7 +4,7 @@ val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
     val kotlinVersion = "2.3.0"
-    val springBootVersion = "3.5.8"
+    val springBootVersion = "4.0.1"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version kotlinVersion
@@ -52,24 +52,25 @@ repositories {
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
-    annotation("javax.persistence.Embeddable")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }
 
 dependencies {
 
     val mockkVersion = "1.14.6"
-    val tokenValidationVersion = "5.0.39"
-    val springdocVersion = "2.8.14"
+    val tokenValidationVersion = "6.0.0"
+    val springdocVersion = "3.0.0"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val fellesVersjon = "3.20251030143732_d6733bc"
-    val kontrakterVersjon = "3.0_20231109091547_fd2cae7"
+    val fellesVersjon = "4.20251202092438_2d27579"
+    val kontrakterVersjon = "4.0_20260114160523_30f07e4"
     val coroutinesVersion = "1.10.2"
     val okhttp3Version = "5.3.2"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-jackson")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -79,6 +80,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-common:$springdocVersion")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
     testImplementation("org.testcontainers:testcontainers-oracle-free:2.0.2")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
 
     // ---------- Kotlin ---------- \\
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -100,7 +102,6 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("javax.inject:javax.inject:1")
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
 

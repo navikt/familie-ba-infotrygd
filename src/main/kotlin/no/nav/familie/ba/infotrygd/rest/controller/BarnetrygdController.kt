@@ -64,7 +64,7 @@ class BarnetrygdController(
     }
 
     @Operation(summary = "Uttrekk fra tabellen \"BA_STOENAD_20\".")
-    @PostMapping(path = ["stonad"], consumes = ["application/json"])
+    @PostMapping(path = ["stonad"], consumes = ["application/json"], produces = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-baks-mottak"] )
     fun stønad(
@@ -79,10 +79,10 @@ class BarnetrygdController(
     }
 
     @Operation(summary = "Uttrekk fra tabellen \"SA_SAK_10\".")
-    @PostMapping(path = ["saker"], consumes = ["application/json"])
+    @PostMapping(path = ["saker"], consumes = ["application/json"], produces = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-baks-mottak", "familie-ba-sak"] )
-    fun saker(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
+    fun saker(@RequestBody request: no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         tilgangskontrollService.sjekkTilgang()
 
         val brukere = request.brukere.map { FoedselsNr(it) }
