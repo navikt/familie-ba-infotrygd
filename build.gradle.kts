@@ -64,7 +64,7 @@ dependencies {
     val springdocVersion = "3.0.1"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val fellesVersjon = "4.20251202092438_2d27579"
-    val kontrakterVersjon = "4.0_20260114160523_30f07e4"
+    val kontrakterVersjon = "4.0_20260122152553_c68cf00"
     val coroutinesVersion = "1.10.2"
     val okhttp3Version = "5.3.2"
 
