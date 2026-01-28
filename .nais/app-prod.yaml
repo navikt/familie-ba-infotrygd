@@ -46,8 +46,6 @@ spec:
     - "https://familie-ba-infotrygd.nais.adeo.no"
     - "https://familie-ba-infotrygd.intern.nav.no"
     - "https://familie-ba-infotrygd.prod-fss-pub.nais.io"
-  logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
-  logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
   webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
   vault:
     enabled: true
