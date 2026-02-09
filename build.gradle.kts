@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
-    val kotlinVersion = "2.3.0"
+    val kotlinVersion = "2.3.10"
     val springBootVersion = "4.0.2"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -59,7 +59,7 @@ allOpen {
 
 dependencies {
 
-    val mockkVersion = "1.14.7"
+    val mockkVersion = "1.14.9"
     val tokenValidationVersion = "6.0.2"
     val springdocVersion = "3.0.1"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
@@ -97,7 +97,7 @@ dependencies {
 
     // ---------- DB ---------- \\
 
-    implementation("com.oracle.database.jdbc:ojdbc8:23.26.0.0.0")
+    implementation("com.oracle.database.jdbc:ojdbc8:23.26.1.0.0")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
