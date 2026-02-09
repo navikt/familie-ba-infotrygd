@@ -97,7 +97,7 @@ dependencies {
 
     // ---------- DB ---------- \\
 
-    implementation("com.oracle.database.jdbc:ojdbc8:23.26.0.0.0")
+    implementation("com.oracle.database.jdbc:ojdbc8:23.26.1.0.0")
 
     implementation("com.github.ben-manes.caffeine:caffeine:")
     implementation("io.micrometer:micrometer-core")
