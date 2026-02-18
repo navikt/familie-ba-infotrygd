@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val mainClass = "no.nav.familie.ba.infotrygd.Main"
 
 plugins {
-    val kotlinVersion = "2.3.0"
+    val kotlinVersion = "2.3.10"
     val springBootVersion = "4.0.2"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -13,7 +13,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.53.0"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "3.1.0"
+    id("org.cyclonedx.bom") version "3.2.0"
 }
 
 configurations {
