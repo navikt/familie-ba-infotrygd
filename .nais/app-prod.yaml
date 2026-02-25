@@ -95,7 +95,7 @@ spec:
       runtime: java
   env:
     - name: APP_DATASOURCE_URL
-      value: jdbc:oracle:thin:@a01dbfl037.adeo.no:1521/infotrygd_bap
+      value: jdbc:oracle:thin:@a01dbfl060.adeo.no:1521/infotrygd_bap_ha
     - name: APP_DATASOURCE_PLATFORM
       value: org.hibernate.dialect.OracleDialect
     - name: APP_DATASOURCE_DRIVER
