@@ -1,39 +1,36 @@
-name: Build-Deploy-Dev
-
+name: Manual deploy to dev
 on:
   workflow_dispatch:
-
-permissions:
-  packages: write
-  contents: read
-  id-token: write
+    inputs:
+      skip-tests:
+        description: 'Skip tests?'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
-  deploy-to-dev:
-    name: Bygg app/image, push til github, deploy til dev-fss
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v4
-      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # ratchet:actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '25'
-          cache: 'gradle'
-      - name: Test and build
-        env:
-          GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew test build cyclonedxDirectBom
-      - uses: nais/docker-build-push@87f920b0411b987d9a1fd4113aa384e1e3b54f2c # ratchet:nais/docker-build-push@v0
-        id: docker-push
-        with:
-          team: teamfamilie
-          push_image: true
-          dockerfile: Dockerfile
-          docker_context: .
-          byosbom: build/reports/cyclonedx-direct/bom.json
-      - name: Deploy to dev-fss
-        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-fss
-          RESOURCE: .nais/app-dev.yaml
-          VAR: image=${{ steps.docker-push.outputs.image }}
+  build:
+    name: Build
+    permissions:
+      contents: read
+      id-token: write
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yaml@main # ratchet:exclude
+    with:
+      skip-tests: ${{ inputs.skip-tests }}
+      build-image: true
+      push-image: true
+      byosbom: target/classes/META-INF/sbom/application.cdx.json
+      java-version: 25
+    secrets: inherit
+  deploy-with-new-image:
+    name: Deploy with new image
+    permissions:
+      contents: read
+      id-token: write
+    needs: [build]
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main # ratchet:exclude
+    with:
+      image: ${{ needs.build.outputs.image }}
+      cluster: dev-fss
+      resource: .nais/app-dev.yaml
+    secrets: inherit
