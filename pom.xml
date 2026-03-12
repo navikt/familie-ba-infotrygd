@@ -8,7 +8,6 @@
     <groupId>no.nav</groupId>
     <artifactId>familie-ba-infotrygd</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <name>Familie BA Infotrygd</name>
     <description>REST-tjeneste som gir tilgang til historiske data fra Infotrygd via replikert database</description>
@@ -247,15 +246,11 @@
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/nav-foedselsnummer</url>
-        </repository>
-        <repository>
             <id>github-mirror</id>
             <url>https://github-package-registry-mirror.gc.nav.no/cached/maven-release</url>
         </repository>
         <repository>
-            <id>github-maven-release</id>
+            <id>github</id>
             <url>https://maven.pkg.github.com/navikt/maven-release</url>
         </repository>
     </repositories>
