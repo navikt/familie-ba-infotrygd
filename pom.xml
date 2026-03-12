@@ -242,16 +242,12 @@
 
     <repositories>
         <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-        <repository>
-            <id>github-mirror</id>
-            <url>https://github-package-registry-mirror.gc.nav.no/cached/maven-release</url>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
         </repository>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/maven-release</url>
+            <url>https://maven.pkg.github.com/navikt/familie-felles</url>
         </repository>
     </repositories>
 
