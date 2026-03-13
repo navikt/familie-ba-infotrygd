@@ -27,7 +27,7 @@
         <!-- Dependency Versions -->
         <mockk.version>1.14.9</mockk.version>
         <token-validation.version>6.0.3</token-validation.version>
-        <springdoc.version>3.0.1</springdoc.version>
+        <springdoc.version>3.0.2</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
         <felles.version>4.20251202092438_2d27579</felles.version>
         <kontrakter.version>4.0_20260204122732_558ee1d</kontrakter.version>
