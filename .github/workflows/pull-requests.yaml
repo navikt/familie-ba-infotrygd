@@ -16,8 +16,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '25'
-          cache: 'gradle'
+          cache: 'maven'
       - name: Test and build
         env:
-          GPR_API_KEY: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew test build cyclonedxBom
+          GITHUB_USERNAME: x-access-token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn clean verify
+
