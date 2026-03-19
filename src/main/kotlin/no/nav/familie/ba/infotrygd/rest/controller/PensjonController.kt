@@ -11,9 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.KonsumeresAv
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,13 +24,12 @@ import java.time.LocalDate
 import java.time.YearMonth
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
-@ProtectedWithClaims(issuer = "azuread")
+@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION')")
 @RestController
 @Timed(value = "infotrygd_historikk_pensjon_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class PensjonController(
     private val barnetrygdService: BarnetrygdService,
-    private val tilgangskontrollService: TilgangskontrollService
 ) {
 
     @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 3 år tilbake i tid")
@@ -39,8 +37,6 @@ class PensjonController(
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
     @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
-        tilgangskontrollService.sjekkTilgang()
-
         val fraDato = YearMonth.of(request.fraDato.year, request.fraDato.month)
 
         if (fraDato.isBefore(YearMonth.now().minusYears(3))) {
@@ -58,7 +54,6 @@ class PensjonController(
     @GetMapping(path = ["pensjon"])
     @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
-        tilgangskontrollService.sjekkTilgang()
         return barnetrygdService.finnPersonerBarnetrygdPensjon(år)
     }
 

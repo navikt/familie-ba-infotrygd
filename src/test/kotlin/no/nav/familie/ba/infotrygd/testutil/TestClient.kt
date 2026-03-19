@@ -1,17 +1,19 @@
 package no.nav.familie.ba.infotrygd.testutil
 
-import com.nimbusds.jose.JOSEObjectType
-import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Profile
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpRequest
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.ResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
@@ -21,14 +23,12 @@ import java.net.URI
 @Component
 class TestClient(
     private val restTemplateBuilder: RestTemplateBuilder,
-    private val server: MockOAuth2Server
+    @param:Value("\${AZURE_OPENID_CONFIG_ISSUER}") private val azureIssuer: String,
 ) {
 
     fun restTemplate(port: Int, subject: String = "12345678910"): RestTemplate {
-        val grupper = listOf("gruppe-123")
-        val roller = listOf("access_as_application")
         return restTemplateBuilder(port)
-            .additionalInterceptors(MockOAuth2ServerAccessTokenInterceptor(grupper, roller, subject))
+            .additionalInterceptors(MockOAuth2ServerAccessTokenInterceptor(subject))
             .build()
     }
 
@@ -51,8 +51,6 @@ class TestClient(
 
         override fun handleError(url: URI, method: HttpMethod, response: ClientHttpResponse) {
             val status = response.statusCode
-            val contentType = response.headers.contentType
-
             val body = response.body.bufferedReader().use { it.readText() }
 
             throw ResponseStatusException(
@@ -63,30 +61,35 @@ class TestClient(
     }
 
     private inner class MockOAuth2ServerAccessTokenInterceptor(
-        private val grupper: List<String>,
-        private val roller: List<String>,
-        val sub: String
-    ) :
-        ClientHttpRequestInterceptor {
+        private val subject: String,
+    ) : ClientHttpRequestInterceptor {
 
         override fun intercept(
             request: HttpRequest,
             body: ByteArray,
             execution: ClientHttpRequestExecution
         ): ClientHttpResponse {
-            val token = server.issueToken(
-                issuerId = "default",
-                "theclientid",
-                DefaultOAuth2TokenCallback(
-                    issuerId = "azuread",
-                    subject = sub,
-                    audience = listOf("default"),
-                    typeHeader = JOSEObjectType.JWT.type,
-                    claims = mapOf("groups" to grupper, "roles" to roller)
-                )
-            )
-            request.headers.setBearerAuth(token.serialize())
+            val token = hentToken(subject)
+            request.headers.setBearerAuth(token)
             return execution.execute(request, body)
+        }
+
+        private fun hentToken(subject: String): String {
+            val tokenEndpoint = "$azureIssuer/token"
+            val headers = HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_FORM_URLENCODED
+            }
+            val form = LinkedMultiValueMap<String, String>().apply {
+                add("grant_type", "client_credentials")
+                add("client_id", "theclientid")
+                add("client_secret", "secret")
+                add("subject", subject)
+                add("audience", "default")
+            }
+
+            val response = RestTemplate().postForObject(tokenEndpoint, HttpEntity(form, headers), Map::class.java)
+            return response?.get("access_token") as? String
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Mangler access_token fra mock-oauth2-server")
         }
     }
 }

@@ -3,6 +3,14 @@ server.port: 8080
 spring:
   application:
     name: ${NAIS_APP_NAME:familie-ba-infotrygd}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AZURE_OPENID_CONFIG_ISSUER}
+          audiences:
+            - ${AZURE_APP_CLIENT_ID}
+            - api://${AZURE_APP_CLIENT_ID}
   jackson:
     serialization:
       indent_output: true
@@ -34,14 +42,6 @@ management:
 #oidc...
 http.proxy.parametername: notused
 
-no.nav.security.jwt:
-  expirythreshold: 60 #threshold in minutes until token expires
-  issuer:
-    azuread:
-      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
-      accepted_audience: ${AZURE_APP_CLIENT_ID}
-      proxyurl: ${APP_AZURE_PROXY_URL}
-
 springdoc:
   packages-to-scan: "no.nav.familie.ba.infotrygd"
   paths-to-match: "/infotrygd/**"
@@ -61,7 +61,4 @@ AUTHORIZATION_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2
 TOKEN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
 API_SCOPE: api://${AZURE_APP_CLIENT_ID}/.default
 
-TEAMFAMILIE_FORVALTNING_GROUP_ID: "928636f4-fd0d-4149-978e-a6fb68bb19de"
-TEAMFAMILIE_VEILEDER_GROUP_ID: "93a26831-9866-4410-927b-74ff51a9107c"  # VEILEDER_ROLLE
-TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID: "d21e00a4-969d-4b28-8782-dc818abfae65"  # SAKSBEHANDLER_ROLLE
-TEAMFAMILIE_BESLUTTER_GROUP_ID: "9449c153-5a1e-44a7-84c6-7cc7a8867233"  # BESLUTTER_ROLLE
+TEAMFAMILIE_FORVALTNING_GROUP_ID: "c7e0b108-7ae6-432c-9ab4-946174c240c0"

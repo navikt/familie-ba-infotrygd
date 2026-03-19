@@ -20,13 +20,13 @@ import no.nav.familie.ba.infotrygd.rest.api.InfotrygdSøkRequest
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.rest.controller.BarnetrygdController.StønadRequest
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
+import no.nav.familie.ba.infotrygd.testutil.MockOAuth2ServerInitializer
 import no.nav.familie.ba.infotrygd.testutil.TestClient
 import no.nav.familie.ba.infotrygd.testutil.TestData
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
 import no.nav.familie.kontrakter.ba.infotrygd.Sak
 import no.nav.familie.kontrakter.felles.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.eclipse.jetty.client.HttpResponseException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -37,12 +37,14 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@ContextConfiguration(initializers = [MockOAuth2ServerInitializer::class])
 class BarnetrygdControllerTest {
     @LocalServerPort
     private var port: Int = 0
@@ -221,10 +223,10 @@ class BarnetrygdControllerTest {
         uri.values.forEach {
             val restTemplate = testClient.restTemplateNoAuth(port)
             val result =
-                assertThrows<HttpResponseException> {
+                assertThrows<ResponseStatusException> {
                     post(uri = it, restTemplate = restTemplate, responseType = InfotrygdSøkResponse::class.java)
                 }
-            assertThat(result.message).contains("violation: Authentication")
+            assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
     }
 

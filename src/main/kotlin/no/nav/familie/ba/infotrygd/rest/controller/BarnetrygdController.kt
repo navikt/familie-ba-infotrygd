@@ -10,12 +10,11 @@ import no.nav.familie.ba.infotrygd.model.dl1.Hendelse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdLøpendeBarnetrygdResponse
 import no.nav.familie.ba.infotrygd.rest.api.InfotrygdÅpenSakResponse
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest
 import no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkResponse
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,12 +28,11 @@ import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 
 @RestController
-@ProtectedWithClaims(issuer = "azuread")
+@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION')")
 @Timed(value = "infotrygd_historikk_barnetrygd_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class BarnetrygdController(
     private val barnetrygdService: BarnetrygdService,
-    private val tilgangskontrollService: TilgangskontrollService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -43,8 +41,6 @@ class BarnetrygdController(
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun harLopendeBarnetrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
-        tilgangskontrollService.sjekkTilgang()
-
         val harLøpendeBarnetrygd = hentStønaderPåBrukereOgBarn(request.brukere, request.barn, false).let {
             it.first.isNotEmpty() || it.second.isNotEmpty()
         }
@@ -56,8 +52,6 @@ class BarnetrygdController(
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun harÅpenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
-        tilgangskontrollService.sjekkTilgang()
-
         return barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
             ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
         }
@@ -71,8 +65,6 @@ class BarnetrygdController(
         @RequestBody request: InfotrygdSøkRequest,
         @RequestParam(required = false) historikk: Boolean?
     ): ResponseEntity<InfotrygdSøkResponse<StønadDto>> {
-        tilgangskontrollService.sjekkTilgang()
-
         return hentStønaderPåBrukereOgBarn(request.brukere, request.barn, historikk).let {
             ResponseEntity.ok(InfotrygdSøkResponse(bruker = it.first, barn = it.second))
         }
@@ -83,8 +75,6 @@ class BarnetrygdController(
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
     @KonsumeresAv(apper = ["familie-baks-mottak", "familie-ba-sak"] )
     fun saker(@RequestBody request: no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
-        tilgangskontrollService.sjekkTilgang()
-
         val brukere = request.brukere.map { FoedselsNr(it) }
         val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
 
@@ -96,8 +86,6 @@ class BarnetrygdController(
     @GetMapping(path = ["stonad/{id}"])
     @Deprecated(message="Erstattes av findStønad som henter basert på B01_PERSONKEY, B20_IVERFOM_SEQ, B20_VIRKFOM_SEQ og REGION")
     fun findStønadById(@PathVariable id: Long): ResponseEntity<StønadDto> {
-        tilgangskontrollService.sjekkTilgang()
-
         try {
             return ResponseEntity.ok(
                 barnetrygdService.findStønadById(id)
@@ -112,8 +100,6 @@ class BarnetrygdController(
     @Operation(summary = "Finn stønad basert på personKey, iverksattFom, virkningFom og region")
     @PostMapping(path = ["stonad/sok"])
     fun findStønad(@RequestBody stønadRequest: StønadRequest): ResponseEntity<StønadDto> {
-        tilgangskontrollService.sjekkTilgang()
-
         try {
             return ResponseEntity.ok(
                 barnetrygdService.findStønad(
@@ -134,7 +120,6 @@ class BarnetrygdController(
     @PostMapping(path = ["/brev"])
     @KonsumeresAv(apper = ["familie-ba-sak"] )
     fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<SendtBrevResponse> {
-        tilgangskontrollService.sjekkTilgang()
 
         val listeMedBrevhendelser = barnetrygdService.harSendtBrevForrigeMåned(
             sendtBrevRequest.personidenter.map { FoedselsNr(it)},
