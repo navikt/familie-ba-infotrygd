@@ -5,6 +5,7 @@ enum class Rolle {
     APPLICATION,
     SAKSBEHANDLER,
     VEILEDER,
+    BESLUTTER,
     ;
 
     fun authority(): String = "ROLE_$name"

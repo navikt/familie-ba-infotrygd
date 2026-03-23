@@ -13,6 +13,7 @@ class AzureJwtAuthenticationConverter(
     @param:Value("\${TEAMFAMILIE_FORVALTNING_GROUP_ID}") private val forvalterGroupId: String,
     @param:Value("\${TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID}") private val saksbehandlerGroupId: String,
     @param:Value("\${TEAMFAMILIE_VEILEDER_GROUP_ID}") private val veilederGroupId: String,
+    @param:Value("\${TEAMFAMILIE_BESLUTTER_GROUP_ID}") private val beslutterGroupId: String,
     @param:Value("\${TEST_APPLICATION_SUBJECT:}") private val testApplicationSubject: String,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
 
@@ -24,6 +25,7 @@ class AzureJwtAuthenticationConverter(
             if (groups.contains(forvalterGroupId)) add(Rolle.FORVALTER)
             if (groups.contains(saksbehandlerGroupId)) add(Rolle.SAKSBEHANDLER)
             if (groups.contains(veilederGroupId)) add(Rolle.VEILEDER)
+            if (groups.contains(beslutterGroupId)) add(Rolle.BESLUTTER)
             if (roles.contains(ACCESS_AS_APPLICATION_ROLE)) add(Rolle.APPLICATION)
             if (testApplicationSubject.isNotBlank() && jwt.subject == testApplicationSubject) add(Rolle.APPLICATION)
         }

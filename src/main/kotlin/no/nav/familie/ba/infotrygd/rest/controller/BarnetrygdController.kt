@@ -28,7 +28,7 @@ import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 
 @RestController
-@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER') or hasRole('VEILEDER')")
+@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER') or hasRole('VEILEDER') or hasRole('BESLUTTER')")
 @Timed(value = "infotrygd_historikk_barnetrygd_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class BarnetrygdController(
