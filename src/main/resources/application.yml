@@ -62,3 +62,4 @@ TOKEN_URL: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/to
 API_SCOPE: api://${AZURE_APP_CLIENT_ID}/.default
 
 TEAMFAMILIE_FORVALTNING_GROUP_ID: "c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b"
+TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID: "d21e00a4-969d-4b28-8782-dc818abfae65"

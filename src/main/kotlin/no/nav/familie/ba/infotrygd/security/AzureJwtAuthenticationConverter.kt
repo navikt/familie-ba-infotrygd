@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component
 @Component
 class AzureJwtAuthenticationConverter(
     @param:Value("\${TEAMFAMILIE_FORVALTNING_GROUP_ID}") private val forvalterGroupId: String,
+    @param:Value("\${TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID}") private val saksbehandlerGroupId: String,
     @param:Value("\${TEST_APPLICATION_SUBJECT:}") private val testApplicationSubject: String,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
 
@@ -20,6 +21,7 @@ class AzureJwtAuthenticationConverter(
 
         val roller = buildSet {
             if (groups.contains(forvalterGroupId)) add(Rolle.FORVALTER)
+            if (groups.contains(saksbehandlerGroupId)) add(Rolle.SAKSBEHANDLER)
             if (roles.contains(ACCESS_AS_APPLICATION_ROLE)) add(Rolle.APPLICATION)
             if (testApplicationSubject.isNotBlank() && jwt.subject == testApplicationSubject) add(Rolle.APPLICATION)
         }
