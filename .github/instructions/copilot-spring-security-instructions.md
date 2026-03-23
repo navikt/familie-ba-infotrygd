@@ -59,11 +59,11 @@ The values differ between dev (default in `application.yml`) and prod (`applicat
 
 | Env var | Dev UUID | Prod UUID |
 |---|---|---|
-| `TEAMFAMILIE_FORVALTNING_GROUP_ID` | `c7e0b108-7ae6-432c-9ab4-946174c240c0` | `024bfb25-ead3-4c04-bbe1-1db3d3362188` |
+| `TEAMFAMILIE_FORVALTNING_GROUP_ID` | `c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b` | `024bfb25-ead3-4c04-bbe1-1db3d3362188` |
 
 ```yaml
 # application.yml  (dev / default)
-TEAMFAMILIE_FORVALTNING_GROUP_ID: "c7e0b108-7ae6-432c-9ab4-946174c240c0"
+TEAMFAMILIE_FORVALTNING_GROUP_ID: "c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b"
 ```
 
 ```yaml
