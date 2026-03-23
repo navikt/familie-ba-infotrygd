@@ -28,7 +28,7 @@ import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
 
 @RestController
-@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER')")
+@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER') or hasRole('VEILEDER')")
 @Timed(value = "infotrygd_historikk_barnetrygd_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class BarnetrygdController(
@@ -169,5 +169,3 @@ class BarnetrygdController(
         const val INFOTRYGD_SØK_EKSEMPEL = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"
     }
 }
-
-

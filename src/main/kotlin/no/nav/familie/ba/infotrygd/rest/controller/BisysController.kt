@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.YearMonth
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
-@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER')")
+@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER') or hasRole('VEILEDER')")
 @RestController
 @Timed(value = "infotrygd_historikk_bisys_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")

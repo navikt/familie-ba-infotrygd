@@ -4,8 +4,8 @@ enum class Rolle {
     FORVALTER,
     APPLICATION,
     SAKSBEHANDLER,
+    VEILEDER,
     ;
 
     fun authority(): String = "ROLE_$name"
 }
-
