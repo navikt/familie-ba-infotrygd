@@ -22,6 +22,10 @@ class TilgangskontrollService(
         val groups = tokenValidationContextHolder.getTokenValidationContext().anyValidClaims?.getAsList("groups")
             ?: emptyList()
 
+
+
+        tokenValidationContextHolder
+
         secureLogger.info("Roller: $roles")
         secureLogger.info("Grupper: $groups")
         if (!(roles.contains(ACCESS_AS_APPLICATION_ROLE) ||
