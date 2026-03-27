@@ -17,12 +17,4 @@ class LogConfig {
         filterRegistration.order = 1
         return filterRegistration
     }
-
-    @Bean
-    fun accessLogFilter(): FilterRegistrationBean<AccessLogFilter> {
-        val filterRegistration: FilterRegistrationBean<AccessLogFilter> = FilterRegistrationBean()
-        filterRegistration.setFilter(AccessLogFilter("familie-ba-infotrygd"))
-        filterRegistration.order = LOWEST_PRECEDENCE
-        return filterRegistration
-    }
 }
