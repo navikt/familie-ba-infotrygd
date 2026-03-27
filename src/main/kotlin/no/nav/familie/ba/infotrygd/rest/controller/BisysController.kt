@@ -8,9 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.KonsumeresAv
 import no.nav.familie.ba.infotrygd.service.BarnetrygdService
-import no.nav.familie.ba.infotrygd.service.TilgangskontrollService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,13 +17,12 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.YearMonth
 import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 
-@ProtectedWithClaims(issuer = "azuread")
+@PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION')")
 @RestController
 @Timed(value = "infotrygd_historikk_bisys_controller", percentiles = [0.5, 0.95])
 @RequestMapping("/infotrygd/barnetrygd")
 class BisysController(
     private val barnetrygdService: BarnetrygdService,
-    private val tilgangskontrollService: TilgangskontrollService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -37,7 +35,6 @@ class BisysController(
     fun utvidet(
         @RequestBody request: InfotrygdUtvidetBarnetrygdRequest,
     ): InfotrygdUtvidetBarnetrygdResponse {
-        tilgangskontrollService.sjekkTilgang()
 
         val bruker = FoedselsNr(request.personIdent)
 
