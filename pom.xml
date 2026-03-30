@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
+        <version>4.0.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -26,14 +26,14 @@
 
         <!-- Dependency Versions -->
         <mockk.version>1.14.9</mockk.version>
-        <token-validation.version>6.0.3</token-validation.version>
+        <token-validation.version>6.0.4</token-validation.version>
         <springdoc.version>3.0.1</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
-        <felles.version>4.20251202092438_2d27579</felles.version>
-        <kontrakter.version>4.0_20260204122732_558ee1d</kontrakter.version>
+        <felles.version>4.20260315040340_f2acdc7</felles.version>
+        <kontrakter.version>4.0_20260326091316_bc0649b</kontrakter.version>
         <coroutines.version>1.10.2</coroutines.version>
         <okhttp3.version>5.3.2</okhttp3.version>
-        <testcontainers-oracle.version>2.0.3</testcontainers-oracle.version>
+        <testcontainers-oracle.version>2.0.4</testcontainers-oracle.version>
         <ojdbc.version>23.26.1.0.0</ojdbc.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <micrometer.version>1.14.2</micrometer.version>
