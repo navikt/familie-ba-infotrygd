@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 
@@ -35,13 +36,19 @@ class VedtakRepositoryTest {
     @Autowired
     lateinit var vedtakRepository: VedtakRepository
 
+
+    @Autowired
+    lateinit var jdbcTemplate: JdbcTemplate
+
     @BeforeEach
     fun setUp() {
-        personRepository.deleteAll()
-        sakRepository.deleteAll()
-        stønadDb2Repository.deleteAll()
-        endringRepository.deleteAll()
-        vedtakRepository.deleteAll()
+        jdbcTemplate.execute("DELETE FROM T_ENDRING")
+        jdbcTemplate.execute("DELETE FROM T_STONAD")
+        jdbcTemplate.execute("DELETE FROM T_DELYTELSE")
+        jdbcTemplate.execute("DELETE FROM T_VEDTAK")
+        jdbcTemplate.execute("DELETE FROM T_LOPENR_FNR")
+        jdbcTemplate.execute("DELETE FROM SA_SAK_10")
+        jdbcTemplate.execute("DELETE FROM BA_PERSON_01")
     }
 
     @Test
