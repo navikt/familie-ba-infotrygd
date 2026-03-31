@@ -67,4 +67,7 @@ Brukte tabeller per tjeneste/endepunkt er dokumentert i endepunkt /tables
 
 - Confluence: <https://confluence.adeo.no/display/MODNAV/Databaser>
 
+## Kode generert av GitHub Copilot
+Dette repoet bruker GitHub Copilot til å generere kode.
+
 

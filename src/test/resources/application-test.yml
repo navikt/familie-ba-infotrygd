@@ -1,4 +1,12 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AZURE_OPENID_CONFIG_ISSUER}
+          audiences:
+            - ${AZURE_APP_CLIENT_ID}
+            - api://${AZURE_APP_CLIENT_ID}
   jpa:
     hibernate:
       ddl-auto: none
@@ -16,22 +24,20 @@ spring:
       mode: always
       continue-on-error: true
 
-no.nav.security.jwt:
-  expirythreshold: 60 #threshold in minutes until token expires
-  issuer:
-    azuread:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/default/.well-known/openid-configuration
-      accepted_audience: default
-      proxyurl: ~
-
 NAIS_APP_NAME: familie-ba-infotrygd
 
-AUTHORIZATION_URL: http://localhost:${mock-oauth2-server.port}/default/authorize
-TOKEN_URL: http://localhost:${mock-oauth2-server.port}/default/token
+AUTHORIZATION_URL: ${AZURE_OPENID_CONFIG_ISSUER}/authorize
+TOKEN_URL: ${AZURE_OPENID_CONFIG_ISSUER}/token
 API_SCOPE: api://${AZURE_APP_CLIENT_ID} openid /.default
 
-AZURE_APP_CLIENT_ID: testid
+AZURE_APP_CLIENT_ID: default
 AZURE_APP_CLIENT_SECRET: testsecret
+AZURE_OPENID_CONFIG_ISSUER: http://localhost:6969/default
+TEAMFAMILIE_FORVALTNING_GROUP_ID: c62e908a-cf20-4ad0-b7b3-3ff6ca4bf38b
+TEAMFAMILIE_SAKSBEHANDLER_GROUP_ID: d21e00a4-969d-4b28-8782-dc818abfae65
+TEAMFAMILIE_VEILEDER_GROUP_ID: 93a26831-9866-4410-927b-74ff51a9107c
+TEAMFAMILIE_BESLUTTER_GROUP_ID: 9449c153-5a1e-44a7-84c6-7cc7a8867233
+TEST_APPLICATION_SUBJECT: theclientid
 
 vault:
   password: "src/test/resources/vault/password"
