@@ -92,10 +92,10 @@ class DemoData(
                 opphørtFom = "000000",
                 status = "00",
             ) // må slå opp i SAK-basen for å finne ut om vedtaket er relevant når status er 0:
-/*
-        << Hvis S10-KAPITTELNR, S10-VALG og S10-UNDERVALG i S10-segmentet = henholdsvis BA, UT og MB/MD/ME, er dette et relevant vedtak.
-           Dersom det nå ikke er funnet noe relevant vedtak (B20-segment), returneres svar "Data ikke funnet" >>
-*/
+
+        // Hvis S10-KAPITTELNR, S10-VALG og S10-UNDERVALG i S10-segmentet = henholdsvis BA, UT og MB/MD/ME, er dette et relevant vedtak.
+        // Dersom det nå ikke er funnet noe relevant vedtak (B20-segment), returneres svar "Data ikke funnet" >>
+
         val relevantSak =
             TestData
                 .sak(person2, stønadUtenFastsattOpphørtFom.saksblokk, stønadUtenFastsattOpphørtFom.sakNr)
