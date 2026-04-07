@@ -32,5 +32,4 @@ data class Delytelse(
     val typeUtbetaling: String,
 )
 
-fun Delytelse.toDelytelseDto(): DelytelseDto =
-    DelytelseDto(this.fom, this.tom, this.beløp, this.typeDelytelse, this.oppgjørsordning, this.typeUtbetaling)
+fun Delytelse.toDelytelseDto(): DelytelseDto = DelytelseDto(this.fom, this.tom, this.beløp, this.typeDelytelse, this.oppgjørsordning, this.typeUtbetaling)

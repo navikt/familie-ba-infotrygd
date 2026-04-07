@@ -8,6 +8,5 @@ class ReversedLongFoedselNrConverter : AttributeConverter<FoedselsNr?, Long?> {
 
     override fun convertToDatabaseColumn(attribute: FoedselsNr?): Long? = converter.convertToDatabaseColumn(attribute)?.toLong() ?: 0
 
-    override fun convertToEntityAttribute(dbData: Long?): FoedselsNr? =
-        converter.convertToEntityAttribute(dbData?.toString()?.padStart(11, '0'))
+    override fun convertToEntityAttribute(dbData: Long?): FoedselsNr? = converter.convertToEntityAttribute(dbData?.toString()?.padStart(11, '0'))
 }

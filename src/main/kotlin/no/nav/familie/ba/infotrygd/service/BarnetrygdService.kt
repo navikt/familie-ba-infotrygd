@@ -131,8 +131,7 @@ class BarnetrygdService(
             mottakerNummer = hentMottakerNummer(stønad),
         )
 
-    private fun hentBarnMedGyldigStønadstypeTilknyttetPerson(personKey: Long) =
-        barnRepository.findBarnByPersonkey(personKey).filter { it.harGyldigStønadstype }
+    private fun hentBarnMedGyldigStønadstypeTilknyttetPerson(personKey: Long) = barnRepository.findBarnByPersonkey(personKey).filter { it.harGyldigStønadstype }
 
     private val Barn.harGyldigStønadstype
         get() =
