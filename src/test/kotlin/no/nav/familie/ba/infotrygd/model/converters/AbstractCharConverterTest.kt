@@ -4,18 +4,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class AbstractCharConverterTest {
-    private object converter : AbstractCharConverter(5)
+    private object Converter : AbstractCharConverter(5)
 
     @Test
     fun convertToDatabaseColumn() {
-        assertThat(converter.convertToDatabaseColumn("x")).isEqualTo("x    ")
-        assertThat(converter.convertToDatabaseColumn(null)).isEqualTo("     ")
+        assertThat(Converter.convertToDatabaseColumn("x")).isEqualTo("x    ")
+        assertThat(Converter.convertToDatabaseColumn(null)).isEqualTo("     ")
     }
 
     @Test
     fun convertToEntityAttribute() {
-        assertThat(converter.convertToEntityAttribute("     ")).isNull()
-        assertThat(converter.convertToEntityAttribute(null)).isNull()
-        assertThat(converter.convertToEntityAttribute("x    ")).isEqualTo("x")
+        assertThat(Converter.convertToEntityAttribute("     ")).isNull()
+        assertThat(Converter.convertToEntityAttribute(null)).isNull()
+        assertThat(Converter.convertToEntityAttribute("x    ")).isEqualTo("x")
     }
 }
