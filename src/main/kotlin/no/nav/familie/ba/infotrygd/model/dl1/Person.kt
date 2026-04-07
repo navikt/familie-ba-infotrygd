@@ -1,6 +1,10 @@
 package no.nav.familie.ba.infotrygd.model.dl1
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import no.nav.commons.foedselsnummer.FoedselsNr
 import no.nav.familie.ba.infotrygd.model.converters.ReversedFoedselNrConverter
 import java.io.Serializable
