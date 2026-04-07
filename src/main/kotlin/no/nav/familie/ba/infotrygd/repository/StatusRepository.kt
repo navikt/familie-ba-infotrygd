@@ -8,13 +8,14 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface StatusRepository : JpaRepository<Status, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT s From Status s
         WHERE s.personKey = :#{#sak.personKey}
         AND s.saksblokk = :#{#sak.saksblokk}
         AND s.saksnummer = :#{#sak.saksnummer}
         AND s.region = :#{#sak.region}
-    """)
+    """,
+    )
     fun findStatushistorikkForSak(sak: Sak): List<Status>
 }

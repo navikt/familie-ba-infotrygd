@@ -16,7 +16,6 @@ import org.springframework.test.context.ContextConfiguration
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = [MockOAuth2ServerInitializer::class])
 class MainTest {
-
     @LocalServerPort
     var port: Int = 0
 
@@ -29,8 +28,10 @@ class MainTest {
 
     @Test
     fun health() {
-        val response = testClient.restTemplateNoAuth(port)
-            .getForEntity("/actuator/health", Any::class.java) as ResponseEntity<*>
+        val response =
+            testClient
+                .restTemplateNoAuth(port)
+                .getForEntity("/actuator/health", Any::class.java) as ResponseEntity<*>
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     }

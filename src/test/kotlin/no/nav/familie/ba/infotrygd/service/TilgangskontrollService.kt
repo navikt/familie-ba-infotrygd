@@ -7,6 +7,5 @@ import org.springframework.stereotype.Service
 @Profile(NOAUTH)
 class TilgangskontrollService {
     fun sjekkTilgang() {
-
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.familie.ba.infotrygd.testutil
 
+import jakarta.annotation.PostConstruct
 import no.nav.familie.ba.infotrygd.model.db2.Beslutning
 import no.nav.familie.ba.infotrygd.model.db2.LøpeNrFnr
 import no.nav.familie.ba.infotrygd.model.db2.StønadDb2
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import jakarta.annotation.PostConstruct
 
 @Component
 @Profile("demoData")
@@ -57,8 +57,15 @@ class DemoData(
             stønadsklasseRepository.saveAndFlush(Stønadsklasse(it.vedtakId, "02", sak.valg))
             stønadsklasseRepository.saveAndFlush(Stønadsklasse(it.vedtakId, "03", sak.undervalg!!))
         }
-        stønadRepository.saveAndFlush(TestData.stønad(mottaker = person, opphørtFom = LocalDate.now()
-            .format(DateTimeFormatter.ofPattern("ddMMyy"))))
+        stønadRepository.saveAndFlush(
+            TestData.stønad(
+                mottaker = person,
+                opphørtFom =
+                    LocalDate
+                        .now()
+                        .format(DateTimeFormatter.ofPattern("ddMMyy")),
+            ),
+        )
 
         logger.info("Demo fnr.: ${person.fnr.asString}\nDemo barnFnr.: ${barn.barnFnr.asString}")
 
@@ -67,31 +74,46 @@ class DemoData(
 
     fun lagTestdataForUtvidetBa() {
         val person = TestData.person()
-        val stønadMedFastsattOpphørtFom = TestData.stønad(mottaker = person,
-                                                          opphørtFom = YearMonth.now().plusMonths(6)
-                                                              .format(DateTimeFormatter.ofPattern("MMyyyy")),
-                                                          status = "02")
-
+        val stønadMedFastsattOpphørtFom =
+            TestData.stønad(
+                mottaker = person,
+                opphørtFom =
+                    YearMonth
+                        .now()
+                        .plusMonths(6)
+                        .format(DateTimeFormatter.ofPattern("MMyyyy")),
+                status = "02",
+            )
 
         val person2 = TestData.person()
-        val stønadUtenFastsattOpphørtFom = TestData.stønad(mottaker = person2,
-                                                           opphørtFom = "000000",
-                                                           status = "00") // må slå opp i SAK-basen for å finne ut om vedtaket er relevant når status er 0:
+        val stønadUtenFastsattOpphørtFom =
+            TestData.stønad(
+                mottaker = person2,
+                opphørtFom = "000000",
+                status = "00",
+            ) // må slå opp i SAK-basen for å finne ut om vedtaket er relevant når status er 0:
 /*
         << Hvis S10-KAPITTELNR, S10-VALG og S10-UNDERVALG i S10-segmentet = henholdsvis BA, UT og MB/MD/ME, er dette et relevant vedtak.
            Dersom det nå ikke er funnet noe relevant vedtak (B20-segment), returneres svar "Data ikke funnet" >>
 */
-        val relevantSak = TestData.sak(person2, stønadUtenFastsattOpphørtFom.saksblokk, stønadUtenFastsattOpphørtFom.sakNr)
-                                  .copy(kapittelNr = "BA", valg = "UT", undervalg = "MB")
+        val relevantSak =
+            TestData
+                .sak(person2, stønadUtenFastsattOpphørtFom.saksblokk, stønadUtenFastsattOpphørtFom.sakNr)
+                .copy(kapittelNr = "BA", valg = "UT", undervalg = "MB")
 
         personRepository.saveAll(listOf(person, person2))
         sakRepository.saveAndFlush(relevantSak)
         stønadRepository.saveAll(listOf(stønadMedFastsattOpphørtFom, stønadUtenFastsattOpphørtFom))
-        utbetalingRepository.saveAll(listOf(TestData.utbetaling(stønadMedFastsattOpphørtFom),
-                                            TestData.utbetaling(stønadUtenFastsattOpphørtFom)))
+        utbetalingRepository.saveAll(
+            listOf(
+                TestData.utbetaling(stønadMedFastsattOpphørtFom),
+                TestData.utbetaling(stønadUtenFastsattOpphørtFom),
+            ),
+        )
 
-
-        logger.info("Utvidet barnetrygd demo 1 fnr: ${person.fnr.asString}\n" +
-                    "Utvidet barnetrygd demo 2 fnr: ${person2.fnr.asString}")
+        logger.info(
+            "Utvidet barnetrygd demo 1 fnr: ${person.fnr.asString}\n" +
+                "Utvidet barnetrygd demo 2 fnr: ${person2.fnr.asString}",
+        )
     }
 }

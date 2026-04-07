@@ -6,11 +6,11 @@ import ch.qos.logback.core.spi.FilterReply
 class LogFilter : Filter<ILoggingEvent>() {
     // Denne er her for å fikse problem med testcontainers<->IntelliJ
     override fun decide(event: ILoggingEvent?): FilterReply {
-        if(event == null) {
+        if (event == null) {
             return FilterReply.NEUTRAL
         }
 
-        if(event.loggerName.contains('[')) {
+        if (event.loggerName.contains('[')) {
             return FilterReply.DENY
         }
         return FilterReply.NEUTRAL

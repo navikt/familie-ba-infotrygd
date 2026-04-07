@@ -8,7 +8,6 @@ data class Endring(
     @Id
     @Column(name = "VEDTAK_ID", columnDefinition = "DECIMAL")
     val vedtakId: Long,
-
     @Column(name = "KODE", columnDefinition = "VARCHAR2")
     val kode: String,
 )
