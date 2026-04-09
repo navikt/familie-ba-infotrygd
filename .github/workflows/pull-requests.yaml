@@ -7,6 +7,14 @@ permissions:
   contents: read
 
 jobs:
+  ktlint:
+    name: Ktlint
+    permissions:
+      contents: read
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/ktlint.yaml@main # ratchet:exclude
+    secrets: inherit
+
+
   pull-request:
     name: Pull request
     runs-on: ubuntu-latest

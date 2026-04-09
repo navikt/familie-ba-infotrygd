@@ -19,39 +19,40 @@ class SwaggerConfig(
     @Value("\${TOKEN_URL}")
     val tokenUrl: String,
     @Value("\${API_SCOPE}")
-    val apiScope: String
+    val apiScope: String,
 ) {
-
     @Bean
-    fun openApi(): OpenAPI {
-        return OpenAPI().info(Info().title("BA Infotrygd API"))
-            .components(Components()
-                            .addSecuritySchemes("oauth2", oauth2SecurityScheme())
-                            .addSecuritySchemes("bearer", bearerTokenSecurityScheme()))
-            .addSecurityItem(SecurityRequirement().addList("oauth2", listOf("read", "write")))
+    fun openApi(): OpenAPI =
+        OpenAPI()
+            .info(Info().title("BA Infotrygd API"))
+            .components(
+                Components()
+                    .addSecuritySchemes("oauth2", oauth2SecurityScheme())
+                    .addSecuritySchemes("bearer", bearerTokenSecurityScheme()),
+            ).addSecurityItem(SecurityRequirement().addList("oauth2", listOf("read", "write")))
             .addSecurityItem(SecurityRequirement().addList("bearer", listOf("read", "write")))
-    }
 
-    private fun oauth2SecurityScheme(): SecurityScheme {
-        return SecurityScheme()
+    private fun oauth2SecurityScheme(): SecurityScheme =
+        SecurityScheme()
             .name("oauth2")
             .type(SecurityScheme.Type.OAUTH2)
             .scheme("oauth2")
             .`in`(SecurityScheme.In.HEADER)
-            .flows(OAuthFlows()
-                       .authorizationCode(OAuthFlow().authorizationUrl(authorizationUrl)
-                                              .tokenUrl(tokenUrl)
-                                              .scopes(Scopes().addString(apiScope, "read,write"))))
+            .flows(
+                OAuthFlows()
+                    .authorizationCode(
+                        OAuthFlow()
+                            .authorizationUrl(authorizationUrl)
+                            .tokenUrl(tokenUrl)
+                            .scopes(Scopes().addString(apiScope, "read,write")),
+                    ),
+            )
 
-    }
-
-    private fun bearerTokenSecurityScheme(): SecurityScheme {
-        return SecurityScheme()
+    private fun bearerTokenSecurityScheme(): SecurityScheme =
+        SecurityScheme()
             .type(SecurityScheme.Type.APIKEY)
             .scheme("bearer")
             .bearerFormat("JWT")
             .`in`(SecurityScheme.In.HEADER)
             .name("Authorization")
-    }
-
 }

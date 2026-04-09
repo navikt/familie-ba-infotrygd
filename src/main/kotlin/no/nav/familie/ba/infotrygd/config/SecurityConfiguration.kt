@@ -10,34 +10,30 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.web.SecurityFilterChain
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfiguration(
-	private val azureJwtAuthenticationConverter: Converter<Jwt, AbstractAuthenticationToken>
+    private val azureJwtAuthenticationConverter: Converter<Jwt, AbstractAuthenticationToken>,
 ) {
-
-	@Bean
-	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-		return http
-			.csrf { it.disable() }
-			.authorizeHttpRequests {
-				it.requestMatchers(
-					"/internal/**",
-					"/actuator/**",
-					"/swagger-ui/**",
-					"/swagger-ui.html",
-					"/v3/api-docs/**",
-				).permitAll()
-				it.anyRequest().authenticated()
-			}
-			.oauth2ResourceServer {
-				it.jwt { jwt ->
-					jwt.jwtAuthenticationConverter(azureJwtAuthenticationConverter)
-				}
-			}
-			.httpBasic { it.disable() }
-			.build()
-	}
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
+        http
+            .csrf { it.disable() }
+            .authorizeHttpRequests {
+                it
+                    .requestMatchers(
+                        "/internal/**",
+                        "/actuator/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                    ).permitAll()
+                it.anyRequest().authenticated()
+            }.oauth2ResourceServer {
+                it.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(azureJwtAuthenticationConverter)
+                }
+            }.httpBasic { it.disable() }
+            .build()
 }

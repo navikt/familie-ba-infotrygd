@@ -9,30 +9,34 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface BarnRepository : JpaRepository<Barn, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT b FROM Barn b
         WHERE b.barnFnr IN :barnFnrList
-    """)
+    """,
+    )
     fun findBarnByFnrList(barnFnrList: List<FoedselsNr>): List<Barn>
 
-    @Query("""
+    @Query(
+        """
         SELECT b FROM Barn b
         WHERE b.personKey = :#{#stonad.personKey}
         AND b.iverksatt = :#{#stonad.iverksattFom}
         AND b.virkningFom = :#{#stonad.virkningFom}
         AND b.region = :#{#stonad.region}
-    """)
+    """,
+    )
     fun findBarnByStønad(stonad: TrunkertStønad): List<Barn>
 
-
-    @Query("""
+    @Query(
+        """
         SELECT b FROM Barn b
         WHERE b.personKey = :personKey
         AND (b.barnetrygdTom = '000000' OR :historikk = true)
-    """)
-    fun findBarnByPersonkey(personKey: Long, historikk: Boolean = false): List<Barn>
-
-
-
+    """,
+    )
+    fun findBarnByPersonkey(
+        personKey: Long,
+        historikk: Boolean = false,
+    ): List<Barn>
 }

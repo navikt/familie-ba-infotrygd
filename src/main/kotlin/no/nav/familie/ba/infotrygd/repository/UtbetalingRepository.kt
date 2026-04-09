@@ -9,13 +9,14 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UtbetalingRepository : JpaRepository<Utbetaling, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT utbet FROM Utbetaling utbet
         WHERE utbet.personKey = :#{#stonad.personKey}   
         AND utbet.startUtbetalingMåned = :#{#stonad.iverksattFom}
         AND utbet.virksomFom = :#{#stonad.virkningFom}
         AND utbet.utbetalingstype = 'M'
-    """)
+    """,
+    )
     fun hentUtbetalingerByStønad(stonad: TrunkertStønad): List<Utbetaling>
 }

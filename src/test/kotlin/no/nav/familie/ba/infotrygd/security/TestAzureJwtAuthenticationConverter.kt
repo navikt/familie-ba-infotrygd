@@ -19,12 +19,12 @@ class TestAzureJwtAuthenticationConverter(
     @param:Value("\${TEAMFAMILIE_VEILEDER_GROUP_ID}") veilederGroupId: String,
     @param:Value("\${TEAMFAMILIE_BESLUTTER_GROUP_ID}") beslutterGroupId: String,
     @param:Value("\${TEST_APPLICATION_SUBJECT:}") private val testApplicationSubject: String,
-) : Converter<Jwt, AbstractAuthenticationToken>  {
-
+) : Converter<Jwt, AbstractAuthenticationToken> {
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
-        val roller = buildSet {
-            if (testApplicationSubject.isNotBlank() && jwt.subject == testApplicationSubject) add(Rolle.APPLICATION)
-        }
+        val roller =
+            buildSet {
+                if (testApplicationSubject.isNotBlank() && jwt.subject == testApplicationSubject) add(Rolle.APPLICATION)
+            }
 
         val authorities = roller.map { SimpleGrantedAuthority(it.authority()) }
         return JwtAuthenticationToken(jwt, authorities)

@@ -15,12 +15,7 @@ object DatoUtils {
         return YearMonth.parse(stringDato, DateTimeFormatter.ofPattern("MMyyyy"))
     }
 
-    fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean {
-        return this.isAfter(toCompare) || this == toCompare
-    }
+    fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean = this.isAfter(toCompare) || this == toCompare
 
-    fun YearMonth.isSameOrBefore(toCompare: YearMonth): Boolean {
-        return this.isBefore(toCompare) || this == toCompare
-    }
-
+    fun YearMonth.isSameOrBefore(toCompare: YearMonth): Boolean = this.isBefore(toCompare) || this == toCompare
 }

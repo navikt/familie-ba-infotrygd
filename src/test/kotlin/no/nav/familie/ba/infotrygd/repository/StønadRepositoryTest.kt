@@ -15,9 +15,9 @@ import java.time.format.DateTimeFormatter
 @DataJpaTest
 @ActiveProfiles("test")
 class StønadRepositoryTest {
-
     @Autowired
     lateinit var stønadRepository: StønadRepository
+
     @Autowired
     lateinit var sakRepository: SakRepository
 
@@ -32,27 +32,31 @@ class StønadRepositoryTest {
     @BeforeEach
     fun setUp() {
         stønadRepository.deleteAll()
-        barnetrygdService = BarnetrygdService(
-            stønadRepository,
-            mockk(),
-            sakRepository,
-            mockk(),
-            utbetalingRepository,
-            mockk(),
-            mockk(),
-            mockk(),
-        )
+        barnetrygdService =
+            BarnetrygdService(
+                stønadRepository,
+                mockk(),
+                sakRepository,
+                mockk(),
+                utbetalingRepository,
+                mockk(),
+                mockk(),
+                mockk(),
+            )
     }
 
     @Test
     fun `sjekk at antall personer med barnetrygd til pensjon er riktig innenfor hvert av årene 2021, 2022 og 2023`() {
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(TestData.person(), opphørtFom = "122021", status = "01"), // ordinær barnetrygd opphørt 2021
-            TestData.stønad(TestData.person(), opphørtFom = "122022", status = "02"), // utvidet opphørt 2022
-            TestData.stønad(TestData.person(), status = "02") // løpende utvidet
-        )).also { stønader ->
-            utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
-        }
+        stønadRepository
+            .saveAll(
+                listOf(
+                    TestData.stønad(TestData.person(), opphørtFom = "122021", status = "01"), // ordinær barnetrygd opphørt 2021
+                    TestData.stønad(TestData.person(), opphørtFom = "122022", status = "02"), // utvidet opphørt 2022
+                    TestData.stønad(TestData.person(), status = "02"), // løpende utvidet
+                ),
+            ).also { stønader ->
+                utbetalingRepository.saveAll(stønader.map { TestData.utbetaling(it) })
+            }
         barnetrygdService.finnPersonerBarnetrygdPensjon("2021").also {
             assertThat(it).hasSize(3)
         }
@@ -67,10 +71,13 @@ class StønadRepositoryTest {
     @Test
     fun `sjekk at man filterer bort utvidede stønader hvor tomMåned er før fomMåned, for disse er feilregistrerte stønader som ikke skal med i uttrekket`() {
         val person = personRepository.saveAndFlush(TestData.person())
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(person, virkningFom = (999999-202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
-                .also { utbetalingRepository.saveAndFlush(TestData.utbetaling(it)) }
-        ))
+        stønadRepository.saveAll(
+            listOf(
+                TestData
+                    .stønad(person, virkningFom = (999999 - 202104).toString(), opphørtFom = "012021", status = "02") // utvidet barnetrygd kun 2020
+                    .also { utbetalingRepository.saveAndFlush(TestData.utbetaling(it)) },
+            ),
+        )
         barnetrygdService.finnUtvidetBarnetrygdBisys(person.fnr, YearMonth.of(2021, 3)).also {
             assertThat(it.perioder).hasSize(0)
         }
@@ -81,11 +88,13 @@ class StønadRepositoryTest {
         val tidligsteIverksattFom = 201701
         val senesteIverksattFom = 201905
         val person = TestData.person()
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(person, iverksattFom = (999999-tidligsteIverksattFom).toString()),
-            TestData.stønad(person, iverksattFom = (999999-201902).toString()),
-            TestData.stønad(person, iverksattFom = (999999-senesteIverksattFom).toString())
-        ))
+        stønadRepository.saveAll(
+            listOf(
+                TestData.stønad(person, iverksattFom = (999999 - tidligsteIverksattFom).toString()),
+                TestData.stønad(person, iverksattFom = (999999 - 201902).toString()),
+                TestData.stønad(person, iverksattFom = (999999 - senesteIverksattFom).toString()),
+            ),
+        )
         barnetrygdService.finnSisteVedtakPåPerson(person.personKey).also {
             assertThat(it)
                 .isEqualTo(YearMonth.parse("$senesteIverksattFom", DateTimeFormatter.ofPattern("yyyyMM")))
@@ -96,19 +105,21 @@ class StønadRepositoryTest {
     fun `skal hente utvidet barnetrygd stønader en person for et bestemt år`() {
         val person = personRepository.saveAndFlush(TestData.person())
         val person2 = personRepository.saveAndFlush(TestData.person())
-        stønadRepository.saveAll(listOf(
-            TestData.stønad(person, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
-            TestData.stønad(person, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
-            TestData.stønad(person2, virkningFom = (999999-201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
-            TestData.stønad(person2, virkningFom = (999999-202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
-        ))
-        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr, 2019,  "02").also {
+        stønadRepository.saveAll(
+            listOf(
+                TestData.stønad(person, virkningFom = (999999 - 201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
+                TestData.stønad(person, virkningFom = (999999 - 202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
+                TestData.stønad(person2, virkningFom = (999999 - 201901).toString(), opphørtFom = "112019", status = "02"), // utvidet barnetrygd 2019
+                TestData.stønad(person2, virkningFom = (999999 - 202001).toString(), status = "02"), // utvidet barnetrygd fra 2020
+            ),
+        )
+        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr, 2019, "02").also {
             assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
         }
-        stønadRepository.findStønadByÅrAndStatusKoderAndFnr( person.fnr, 2020, "02").also {
+        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr, 2020, "02").also {
             assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
         }
-        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr,2021, "02").also {
+        stønadRepository.findStønadByÅrAndStatusKoderAndFnr(person.fnr, 2021, "02").also {
             assertThat(it).hasSize(1).extracting("fnr").contains(person.fnr)
         }
     }

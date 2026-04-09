@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface PersonRepository : JpaRepository<Person, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT p.mottakerNummer FROM Person p
         WHERE p.personKey = :personKey
-    """)
+    """,
+    )
     fun findMottakerNummerByPersonkey(personKey: Long): Long?
-
 }

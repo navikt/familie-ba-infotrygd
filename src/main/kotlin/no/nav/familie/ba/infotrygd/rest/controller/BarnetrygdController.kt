@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 import no.nav.familie.kontrakter.ba.infotrygd.Sak as SakDto
 import no.nav.familie.kontrakter.ba.infotrygd.Stønad as StønadDto
 
-
 @RestController
 @PreAuthorize("hasRole('FORVALTER') or hasRole('APPLICATION') or hasRole('SAKSBEHANDLER') or hasRole('VEILEDER') or hasRole('BESLUTTER')")
 @Timed(value = "infotrygd_historikk_barnetrygd_controller", percentiles = [0.5, 0.95])
@@ -39,67 +38,79 @@ class BarnetrygdController(
     @Operation(summary = "Avgjør hvorvidt det finnes løpende barnetrygd på søker eller barn i Infotrygd.")
     @PostMapping(path = ["lopende-barnetrygd"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
-    @KonsumeresAv(apper = ["familie-ba-sak"] )
-    fun harLopendeBarnetrygd(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
-        val harLøpendeBarnetrygd = hentStønaderPåBrukereOgBarn(request.brukere, request.barn, false).let {
-            it.first.isNotEmpty() || it.second.isNotEmpty()
-        }
+    @KonsumeresAv(apper = ["familie-ba-sak"])
+    fun harLopendeBarnetrygd(
+        @RequestBody request: InfotrygdSøkRequest,
+    ): ResponseEntity<InfotrygdLøpendeBarnetrygdResponse> {
+        val harLøpendeBarnetrygd =
+            hentStønaderPåBrukereOgBarn(request.brukere, request.barn, false).let {
+                it.first.isNotEmpty() || it.second.isNotEmpty()
+            }
 
         return ResponseEntity.ok(InfotrygdLøpendeBarnetrygdResponse(harLøpendeBarnetrygd))
     }
+
     @Operation(summary = "Svarer hvorvidt det finnes en åpen sak til beslutning, på søker eller barn i Infotrygd.")
     @PostMapping(path = ["aapen-sak"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
-    @KonsumeresAv(apper = ["familie-ba-sak"] )
-    fun harÅpenSak(@RequestBody request: InfotrygdSøkRequest): ResponseEntity<InfotrygdÅpenSakResponse> {
-        return barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
+    @KonsumeresAv(apper = ["familie-ba-sak"])
+    fun harÅpenSak(
+        @RequestBody request: InfotrygdSøkRequest,
+    ): ResponseEntity<InfotrygdÅpenSakResponse> =
+        barnetrygdService.tellAntallÅpneSaker(request.brukere, request.barn).let {
             ResponseEntity.ok(InfotrygdÅpenSakResponse(it > 0))
         }
-    }
 
     @Operation(summary = "Uttrekk fra tabellen \"BA_STOENAD_20\".")
     @PostMapping(path = ["stonad"], consumes = ["application/json"], produces = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
-    @KonsumeresAv(apper = ["familie-baks-mottak"] )
+    @KonsumeresAv(apper = ["familie-baks-mottak"])
     fun stønad(
         @RequestBody request: InfotrygdSøkRequest,
-        @RequestParam(required = false) historikk: Boolean?
-    ): ResponseEntity<InfotrygdSøkResponse<StønadDto>> {
-        return hentStønaderPåBrukereOgBarn(request.brukere, request.barn, historikk).let {
+        @RequestParam(required = false) historikk: Boolean?,
+    ): ResponseEntity<InfotrygdSøkResponse<StønadDto>> =
+        hentStønaderPåBrukereOgBarn(request.brukere, request.barn, historikk).let {
             ResponseEntity.ok(InfotrygdSøkResponse(bruker = it.first, barn = it.second))
         }
-    }
 
     @Operation(summary = "Uttrekk fra tabellen \"SA_SAK_10\".")
     @PostMapping(path = ["saker"], consumes = ["application/json"], produces = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = INFOTRYGD_SØK_EKSEMPEL)])])
-    @KonsumeresAv(apper = ["familie-baks-mottak", "familie-ba-sak"] )
-    fun saker(@RequestBody request: no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
+    @KonsumeresAv(apper = ["familie-baks-mottak", "familie-ba-sak"])
+    fun saker(
+        @RequestBody request: no.nav.familie.kontrakter.ba.infotrygd.InfotrygdSøkRequest,
+    ): ResponseEntity<InfotrygdSøkResponse<SakDto>> {
         val brukere = request.brukere.map { FoedselsNr(it) }
         val barn = request.barn?.takeUnless { it.isEmpty() }?.map { FoedselsNr(it) }
 
-        return ResponseEntity.ok(InfotrygdSøkResponse(bruker = barnetrygdService.findSakerByBrukerFnr(brukere),
-                                           barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList())))
+        return ResponseEntity.ok(
+            InfotrygdSøkResponse(
+                bruker = barnetrygdService.findSakerByBrukerFnr(brukere),
+                barn = barnetrygdService.findSakerByBarnFnr(barn ?: emptyList()),
+            ),
+        )
     }
 
     @Operation(summary = "Finn stønad med id")
     @GetMapping(path = ["stonad/{id}"])
-    @Deprecated(message="Erstattes av findStønad som henter basert på B01_PERSONKEY, B20_IVERFOM_SEQ, B20_VIRKFOM_SEQ og REGION")
-    fun findStønadById(@PathVariable id: Long): ResponseEntity<StønadDto> {
+    @Deprecated(message = "Erstattes av findStønad som henter basert på B01_PERSONKEY, B20_IVERFOM_SEQ, B20_VIRKFOM_SEQ og REGION")
+    fun findStønadById(
+        @PathVariable id: Long,
+    ): ResponseEntity<StønadDto> {
         try {
             return ResponseEntity.ok(
-                barnetrygdService.findStønadById(id)
+                barnetrygdService.findStønadById(id),
             )
         } catch (nsee: NoSuchElementException) {
             return ResponseEntity.notFound().build()
         }
-
-
     }
 
     @Operation(summary = "Finn stønad basert på personKey, iverksattFom, virkningFom og region")
     @PostMapping(path = ["stonad/sok"])
-    fun findStønad(@RequestBody stønadRequest: StønadRequest): ResponseEntity<StønadDto> {
+    fun findStønad(
+        @RequestBody stønadRequest: StønadRequest,
+    ): ResponseEntity<StønadDto> {
         try {
             return ResponseEntity.ok(
                 barnetrygdService.findStønad(
@@ -107,27 +118,28 @@ class BarnetrygdController(
                     stønadRequest.tknr,
                     stønadRequest.iverksattFom,
                     stønadRequest.virkningFom,
-                    stønadRequest.region
-                )
+                    stønadRequest.region,
+                ),
             )
         } catch (nsee: NoSuchElementException) {
             return ResponseEntity.notFound().build()
         }
     }
 
-
     @Operation(summary = "Finn om brev med brevkode er sendt for en person i forrige måned")
     @PostMapping(path = ["/brev"])
-    @KonsumeresAv(apper = ["familie-ba-sak"] )
-    fun harSendtBrevForrigeMåned(@RequestBody sendtBrevRequest: SendtBrevRequest): ResponseEntity<SendtBrevResponse> {
-
-        val listeMedBrevhendelser = barnetrygdService.harSendtBrevForrigeMåned(
-            sendtBrevRequest.personidenter.map { FoedselsNr(it)},
-            sendtBrevRequest.brevkoder
-        )
+    @KonsumeresAv(apper = ["familie-ba-sak"])
+    fun harSendtBrevForrigeMåned(
+        @RequestBody sendtBrevRequest: SendtBrevRequest,
+    ): ResponseEntity<SendtBrevResponse> {
+        val listeMedBrevhendelser =
+            barnetrygdService.harSendtBrevForrigeMåned(
+                sendtBrevRequest.personidenter.map { FoedselsNr(it) },
+                sendtBrevRequest.brevkoder,
+            )
 
         return ResponseEntity.ok(
-            SendtBrevResponse(listeMedBrevhendelser.isNotEmpty(), listeMedBrevhendelser)
+            SendtBrevResponse(listeMedBrevhendelser.isNotEmpty(), listeMedBrevhendelser),
         )
     }
 
@@ -137,14 +149,18 @@ class BarnetrygdController(
         return ResponseEntity.ok("Test av alarm")
     }
 
-    private fun hentStønaderPåBrukereOgBarn(brukere: List<String>,
-                                            barn: List<String>?,
-                                            historikk: Boolean?): Pair<List<StønadDto>, List<StønadDto>> {
+    private fun hentStønaderPåBrukereOgBarn(
+        brukere: List<String>,
+        barn: List<String>?,
+        historikk: Boolean?,
+    ): Pair<List<StønadDto>, List<StønadDto>> {
         val brukere = brukere.map { FoedselsNr(it) }
         val barn = barn?.map { FoedselsNr(it) } ?: emptyList()
 
-        return Pair(barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
-                    barnetrygdService.findStønadByBarnFnr(barn, historikk))
+        return Pair(
+            barnetrygdService.findStønadByBrukerFnr(brukere, historikk),
+            barnetrygdService.findStønadByBarnFnr(barn, historikk),
+        )
     }
 
     class StønadRequest(
@@ -152,20 +168,21 @@ class BarnetrygdController(
         val tknr: String,
         val iverksattFom: String,
         val virkningFom: String,
-        val region: String
+        val region: String,
     )
 
     class SendtBrevRequest(
         val personidenter: List<String>,
-        val brevkoder: List<String>
+        val brevkoder: List<String>,
     )
 
     class SendtBrevResponse(
         val harSendtBrev: Boolean,
-        val listeBrevhendelser: List<Hendelse> = emptyList()
+        val listeBrevhendelser: List<Hendelse> = emptyList(),
     )
 
     companion object {
-        const val INFOTRYGD_SØK_EKSEMPEL = "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"
+        const val INFOTRYGD_SØK_EKSEMPEL =
+            "{\n  \"brukere\": [\"12345678910\"]," + "\n  \"barn\": [\n\"23456789101\",\n\"34567891012\"\n]\n}"
     }
 }

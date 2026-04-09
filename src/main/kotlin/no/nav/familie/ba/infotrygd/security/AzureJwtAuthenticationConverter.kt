@@ -17,18 +17,18 @@ class AzureJwtAuthenticationConverter(
     @param:Value("\${TEAMFAMILIE_VEILEDER_GROUP_ID}") protected val veilederGroupId: String,
     @param:Value("\${TEAMFAMILIE_BESLUTTER_GROUP_ID}") protected val beslutterGroupId: String,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
-
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
         val groups = jwt.getClaimAsStringList("groups") ?: emptyList()
         val roles = jwt.getClaimAsStringList("roles") ?: emptyList()
 
-        val roller = buildSet {
-            if (groups.contains(forvalterGroupId)) add(Rolle.FORVALTER)
-            if (groups.contains(saksbehandlerGroupId)) add(Rolle.SAKSBEHANDLER)
-            if (groups.contains(veilederGroupId)) add(Rolle.VEILEDER)
-            if (groups.contains(beslutterGroupId)) add(Rolle.BESLUTTER)
-            if (roles.contains(ACCESS_AS_APPLICATION_ROLE)) add(Rolle.APPLICATION)
-        }
+        val roller =
+            buildSet {
+                if (groups.contains(forvalterGroupId)) add(Rolle.FORVALTER)
+                if (groups.contains(saksbehandlerGroupId)) add(Rolle.SAKSBEHANDLER)
+                if (groups.contains(veilederGroupId)) add(Rolle.VEILEDER)
+                if (groups.contains(beslutterGroupId)) add(Rolle.BESLUTTER)
+                if (roles.contains(ACCESS_AS_APPLICATION_ROLE)) add(Rolle.APPLICATION)
+            }
 
         val authorities = roller.map { SimpleGrantedAuthority(it.authority()) }
         return JwtAuthenticationToken(jwt, authorities)
