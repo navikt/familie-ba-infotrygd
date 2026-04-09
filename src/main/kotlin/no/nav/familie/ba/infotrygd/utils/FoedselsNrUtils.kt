@@ -2,15 +2,12 @@ package no.nav.familie.ba.infotrygd.utils
 
 import no.nav.commons.foedselsnummer.FoedselsNr
 
-
 val FoedselsNr.reversert: String
     get() {
         return reverse(asString)
     }
 
-fun FoedselsNr.Companion.fraReversert(reversert: String): FoedselsNr {
-    return FoedselsNr(reverse(reversert))
-}
+fun FoedselsNr.Companion.fraReversert(reversert: String): FoedselsNr = FoedselsNr(reverse(reversert))
 
 private val regex = """(\d\d)(\d\d)(\d\d)(\d{5})""".toRegex()
 

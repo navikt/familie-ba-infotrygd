@@ -235,17 +235,17 @@ class BarnetrygdControllerTest {
         uri: String?,
         responseType: Class<T>,
         restTemplate: RestTemplate = this.restTemplate,
-    ): T   {
+    ): T {
         val headers = HttpHeaders().apply { set(HttpHeaders.CONTENT_TYPE, "application/json") }
         val entity = org.springframework.http.HttpEntity(jsonMapper.writeValueAsString(request), headers)
         val responseEntity: ResponseEntity<T> = restTemplate.postForEntity(uri!!, entity, responseType)
         return responseEntity.body!!
     }
 
-    private fun <T: Any> get(
+    private fun <T : Any> get(
         uri: String,
         responseType: Class<T>,
-    ):T {
+    ): T {
         val responseEntity: ResponseEntity<T> = restTemplate.getForEntity(uri, responseType)
         return responseEntity.body!!
     }

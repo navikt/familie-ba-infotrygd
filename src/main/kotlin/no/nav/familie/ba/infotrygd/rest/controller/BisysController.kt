@@ -35,7 +35,6 @@ class BisysController(
     fun utvidet(
         @RequestBody request: InfotrygdUtvidetBarnetrygdRequest,
     ): InfotrygdUtvidetBarnetrygdResponse {
-
         val bruker = FoedselsNr(request.personIdent)
 
         return barnetrygdService.finnUtvidetBarnetrygdBisys(bruker, request.fraDato)

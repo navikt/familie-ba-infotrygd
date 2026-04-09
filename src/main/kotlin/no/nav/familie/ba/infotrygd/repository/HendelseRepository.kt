@@ -8,14 +8,18 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface HendelseRepository : JpaRepository<Hendelse, Long> {
-
-    @Query("""
+    // f.eks alle brev etter 2021-12-01 gir (99999999 - 20211201) gir aksjonsdatoSeq 79788798
+    @Query(
+        """
         SELECT h FROM Hendelse h
         WHERE h.fnr in :fnr
         AND h.tekstKode1 in :tekstKoder
         AND h.aksjonsdatoSeq <= :aksjonsdatoSeq
-    """)
-    //f.eks alle brev etter 2021-12-01 gir (99999999 - 20211201) gir aksjonsdatoSeq 79788798
-    fun findHendelseByFnrInAndTekstKoderIn(fnr: List<FoedselsNr>, tekstKoder: List<String>, aksjonsdatoSeq: Long): List<Hendelse>
-
+    """,
+    )
+    fun findHendelseByFnrInAndTekstKoderIn(
+        fnr: List<FoedselsNr>,
+        tekstKoder: List<String>,
+        aksjonsdatoSeq: Long,
+    ): List<Hendelse>
 }

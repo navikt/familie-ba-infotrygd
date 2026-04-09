@@ -31,12 +31,13 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as ApiRequestBody
 class PensjonController(
     private val barnetrygdService: BarnetrygdService,
 ) {
-
     @Operation(summary = "Uttrekk barnetrygdperioder på en person fra en bestemet måned. Maks 3 år tilbake i tid")
     @PostMapping(path = ["pensjon"], consumes = ["application/json"])
     @ApiRequestBody(content = [Content(examples = [ExampleObject(value = """{"ident": "12345678910", "fraDato": "2022-12-01"}""")])])
-    @KonsumeresAv(apper = ["familie-ba-sak"] )
-    fun hentBarnetrygd(@RequestBody request: BarnetrygdTilPensjonRequest): BarnetrygdTilPensjonResponse {
+    @KonsumeresAv(apper = ["familie-ba-sak"])
+    fun hentBarnetrygd(
+        @RequestBody request: BarnetrygdTilPensjonRequest,
+    ): BarnetrygdTilPensjonResponse {
         val fraDato = YearMonth.of(request.fraDato.year, request.fraDato.month)
 
         if (fraDato.isBefore(YearMonth.now().minusYears(3))) {
@@ -46,17 +47,16 @@ class PensjonController(
         val bruker = FoedselsNr(request.ident)
 
         return BarnetrygdTilPensjonResponse(
-            saker = barnetrygdService.finnBarnetrygdForPensjon(bruker, fraDato)
+            saker = barnetrygdService.finnBarnetrygdForPensjon(bruker, fraDato),
         )
     }
 
     @Operation(summary = "Finner alle personer med barnetrygd innenfor et bestemt år på vegne av Psys")
     @GetMapping(path = ["pensjon"])
-    @KonsumeresAv(apper = ["familie-ba-sak"] )
-    fun personerMedBarnetrygd(@Parameter(name = "aar") @RequestParam("aar") år: String): List<FoedselsNr> {
-        return barnetrygdService.finnPersonerBarnetrygdPensjon(år)
-    }
-
+    @KonsumeresAv(apper = ["familie-ba-sak"])
+    fun personerMedBarnetrygd(
+        @Parameter(name = "aar") @RequestParam("aar") år: String,
+    ): List<FoedselsNr> = barnetrygdService.finnPersonerBarnetrygdPensjon(år)
 
     data class BarnetrygdTilPensjonRequest(
         val ident: String,
@@ -64,7 +64,7 @@ class PensjonController(
     )
 
     data class BarnetrygdTilPensjonResponse(
-        @JsonProperty("fagsaker") val saker: List<BarnetrygdTilPensjon>
+        @JsonProperty("fagsaker") val saker: List<BarnetrygdTilPensjon>,
     )
 
     data class BarnetrygdTilPensjon(
@@ -84,7 +84,7 @@ class PensjonController(
         val pensjonstrygdet: Boolean? = null,
         val norgeErSekundærland: Boolean? = null,
         @JsonIgnore
-        val iverksatt: YearMonth? = null // kun til bruk som filtreringskriterie i tilfeller hvor to perioder overlapper fra dag 1
+        val iverksatt: YearMonth? = null, // kun til bruk som filtreringskriterie i tilfeller hvor to perioder overlapper fra dag 1
     )
 
     enum class YtelseTypeEkstern {
@@ -95,12 +95,12 @@ class PensjonController(
 
     enum class SakstypeEkstern {
         NASJONAL,
-        EØS
+        EØS,
     }
 
     enum class YtelseProsent {
         FULL,
         DELT,
-        USIKKER
+        USIKKER,
     }
 }

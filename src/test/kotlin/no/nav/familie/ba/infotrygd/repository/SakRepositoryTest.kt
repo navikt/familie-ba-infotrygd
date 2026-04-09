@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @DataJpaTest
 @ActiveProfiles("test")
-class SakRepositoryTest() {
+class SakRepositoryTest {
     @Autowired
     lateinit var sakRepository: SakRepository
 

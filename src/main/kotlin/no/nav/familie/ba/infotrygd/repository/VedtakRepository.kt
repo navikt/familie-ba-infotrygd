@@ -7,18 +7,21 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface VedtakRepository : JpaRepository<Vedtak, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT v FROM Vedtak v
             INNER JOIN LøpeNrFnr l
             ON v.løpenummer = l.personLøpenummer
         WHERE l.personnummer = :fnr
         AND v.saksblokk = :saksblokk
         AND v.saksnummer = :saksnummer
-    """)
-    fun hentVedtak(fnr: String,
-                   saksnummer: Long,
-                   saksblokk: String): List<Vedtak>
+    """,
+    )
+    fun hentVedtak(
+        fnr: String,
+        saksnummer: Long,
+        saksblokk: String,
+    ): List<Vedtak>
 
     @Query(
         """
@@ -38,11 +41,12 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
                         AND b.godkjent2 = 'J')
         AND EXISTS (SELECT 1 FROM Delytelse d
                     WHERE d.id.vedtakId = v.vedtakId)
-    """
+    """,
     )
     fun tellAntallÅpneSakerPåPerson(fnr: String): Long
 
-    @Query("""
+    @Query(
+        """
         SELECT s.vedtak_id vedtakId, s.kode_nivaa kodeNivaa, s.kode_klasse kodeKlasse FROM {h-schema}T_STONADSKLASSE s
         WHERE s.VEDTAK_ID IN (
             SELECT v.vedtak_id FROM {h-schema}T_VEDTAK v
@@ -54,11 +58,14 @@ interface VedtakRepository : JpaRepository<Vedtak, Long> {
             AND v.SAKSBLOKK = :saksblokk
             AND v.SAKSNR = :saksnummer
         )""",
-        nativeQuery = true)
-    fun hentStønadsklassifisering(fnr: String,
-                                  tkNr: String,
-                                  saksblokk: String,
-                                  saksnummer: Long): List<Stønadsklasse>
+        nativeQuery = true,
+    )
+    fun hentStønadsklassifisering(
+        fnr: String,
+        tkNr: String,
+        saksblokk: String,
+        saksnummer: Long,
+    ): List<Stønadsklasse>
 }
 
 interface Stønadsklasse {

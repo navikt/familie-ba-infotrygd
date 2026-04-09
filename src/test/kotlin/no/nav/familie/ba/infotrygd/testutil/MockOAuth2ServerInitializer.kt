@@ -8,7 +8,6 @@ import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.Wait
 
 class MockOAuth2ServerInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
-
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
             applicationContext,
@@ -31,8 +30,7 @@ class MockOAuth2ServerInitializer : ApplicationContextInitializer<ConfigurableAp
                         "SERVER_PORT" to SERVER_PORT.toString(),
                         "TZ" to "Europe/Oslo",
                     ),
-                )
-                .waitingFor(Wait.forHttp("/default/.well-known/openid-configuration").forStatusCode(200))
+                ).waitingFor(Wait.forHttp("/default/.well-known/openid-configuration").forStatusCode(200))
                 .apply { start() }
         }
 
@@ -43,4 +41,3 @@ class MockOAuth2ServerInitializer : ApplicationContextInitializer<ConfigurableAp
             }
     }
 }
-
