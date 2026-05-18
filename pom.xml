@@ -33,7 +33,7 @@
         <coroutines.version>1.11.0</coroutines.version>
         <okhttp3.version>5.3.2</okhttp3.version>
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
-        <ojdbc.version>23.26.1.0.0</ojdbc.version>
+        <ojdbc.version>23.26.2.0.0</ojdbc.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <micrometer.version>1.14.2</micrometer.version>
     </properties>
