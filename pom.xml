@@ -28,7 +28,7 @@
         <mockk.version>1.14.9</mockk.version>
         <springdoc.version>3.0.3</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
-        <felles.version>4.20260520144147_4729200</felles.version>
+        <felles.version>4.20260529121328_2754f7c</felles.version>
         <kontrakter.version>4.0_20260525120347_db8fb90</kontrakter.version>
         <coroutines.version>1.11.0</coroutines.version>
         <okhttp3.version>5.3.2</okhttp3.version>
