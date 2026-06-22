@@ -31,7 +31,7 @@
         <felles.version>4.20260529121328_2754f7c</felles.version>
         <kontrakter.version>4.0_20260611084408_a47ed94</kontrakter.version>
         <coroutines.version>1.11.0</coroutines.version>
-        <okhttp3.version>5.3.2</okhttp3.version>
+        <okhttp3.version>5.4.0</okhttp3.version>
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
         <ojdbc.version>23.26.2.0.0</ojdbc.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
