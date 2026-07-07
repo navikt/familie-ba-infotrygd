@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -22,7 +22,7 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>2.3.21</kotlin.version>
-        <spring-boot.version>4.0.3</spring-boot.version>
+        <spring-boot.version>4.1.0</spring-boot.version>
 
         <!-- Dependency Versions -->
         <mockk.version>1.14.11</mockk.version>
@@ -35,7 +35,7 @@
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
         <ojdbc.version>23.26.2.0.0</ojdbc.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
-        <micrometer.version>1.14.2</micrometer.version>
+
     </properties>
 
     <dependencies>
