@@ -14,17 +14,28 @@ updates:
       default-days: 4
       exclude:
         - "no.nav.familie*"
+        - "nav-foedselsnummer"
     open-pull-requests-limit: 10
     registries:
       - github
+    groups:
+      nav-familie:
+        patterns:
+          - "no.nav.familie*"
+          - "nav-foedselsnummer"
+      production:
+        dependency-type: "production"
+      test:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: daily
     cooldown:
       default-days: 4
-      exclude:
-        - "no.nav.familie*"
     open-pull-requests-limit: 10
     groups:
       workflows:
