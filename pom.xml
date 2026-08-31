@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -26,10 +26,10 @@
 
         <!-- Dependency Versions -->
         <mockk.version>1.14.11</mockk.version>
-        <springdoc.version>3.0.3</springdoc.version>
+        <springdoc.version>3.1.0</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
-        <felles.version>4.20260714100416_2aeb670</felles.version>
-        <kontrakter.version>4.0_20260730124851_08988e0</kontrakter.version>
+        <felles.version>4.20260818093920_16ad74a</felles.version>
+        <kontrakter.version>4.0_20260821102510_33ea755</kontrakter.version>
         <coroutines.version>1.11.0</coroutines.version>
         <okhttp3.version>5.4.0</okhttp3.version>
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
