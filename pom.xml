@@ -31,7 +31,7 @@
         <felles.version>4.20260714100416_2aeb670</felles.version>
         <kontrakter.version>4.0_20260730124851_08988e0</kontrakter.version>
         <coroutines.version>1.11.0</coroutines.version>
-        <okhttp3.version>5.4.0</okhttp3.version>
+        <okhttp3.version>5.5.0</okhttp3.version>
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
         <ojdbc.version>23.26.3.0.0</ojdbc.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
@@ -312,7 +312,7 @@
                 <!-- For å få dependency graph i SLSA som pushes av docker-build-push parameter byosbom -->
                 <groupId>org.cyclonedx</groupId>
                 <artifactId>cyclonedx-maven-plugin</artifactId>
-                <version>2.9.2</version>
+                <version>2.9.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -325,7 +325,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.6</version>
+                <version>3.6.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
