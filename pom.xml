@@ -21,12 +21,12 @@
     <properties>
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>2.4.10</kotlin.version>
+        <kotlin.version>2.4.20</kotlin.version>
         <spring-boot.version>4.1.1</spring-boot.version>
 
         <!-- Dependency Versions -->
         <mockk.version>1.14.11</mockk.version>
-        <springdoc.version>3.1.0</springdoc.version>
+        <springdoc.version>3.1.1</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
         <felles.version>4.20260818093920_16ad74a</felles.version>
         <kontrakter.version>4.0_20260821102510_33ea755</kontrakter.version>
