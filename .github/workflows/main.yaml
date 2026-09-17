@@ -13,6 +13,9 @@ on:
       - 'CODEOWNERS'
       - 'LICENSE'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build
@@ -54,6 +57,7 @@ jobs:
   varsle-slack:
     name: Slack-melding ved feil
     if: failure()
+    permissions: {}
     needs: [ build, deploy-dev, deploy-prod ]
     uses: navikt/familie-baks-gha-workflows/.github/workflows/notify-slack.yaml@main # ratchet:exclude
     secrets: inherit
