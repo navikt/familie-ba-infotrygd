@@ -14,7 +14,6 @@ jobs:
     uses: navikt/familie-baks-gha-workflows/.github/workflows/ktlint.yaml@main # ratchet:exclude
     with:
       java-version: '25'
-    secrets: inherit
 
 
   pull-request:
