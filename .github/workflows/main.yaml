@@ -13,6 +13,9 @@ on:
       - 'CODEOWNERS'
       - 'LICENSE'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build
@@ -26,7 +29,6 @@ jobs:
       push-image: true
       byosbom: target/classes/META-INF/sbom/application.cdx.json
       java-version: 25
-    secrets: inherit
   deploy-dev:
     name: Deploy dev
     permissions:
@@ -38,7 +40,6 @@ jobs:
       image: ${{ needs.build.outputs.image }}
       cluster: dev-fss
       resource: .nais/app-dev.yaml
-    secrets: inherit
   deploy-prod:
     name: Deploy prod
     permissions:
@@ -50,10 +51,11 @@ jobs:
       image: ${{ needs.build.outputs.image }}
       cluster: prod-fss
       resource: .nais/app-prod.yaml
-    secrets: inherit
   varsle-slack:
     name: Slack-melding ved feil
     if: failure()
+    permissions: {}
     needs: [ build, deploy-dev, deploy-prod ]
     uses: navikt/familie-baks-gha-workflows/.github/workflows/notify-slack.yaml@main # ratchet:exclude
-    secrets: inherit
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
