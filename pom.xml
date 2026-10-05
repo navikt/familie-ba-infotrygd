@@ -29,7 +29,7 @@
         <springdoc.version>3.1.1</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
         <felles.version>4.20260818093920_16ad74a</felles.version>
-        <kontrakter.version>4.0_20260918153552_a46909e</kontrakter.version>
+        <kontrakter.version>4.0_20261002154824_b2c190a</kontrakter.version>
         <coroutines.version>1.11.0</coroutines.version>
         <okhttp3.version>5.5.0</okhttp3.version>
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
