@@ -23,7 +23,10 @@ class SecurityConfiguration(
             .authorizeHttpRequests {
                 it
                     .requestMatchers(
-                        "/internal/**",
+                        "/internal",
+                        "/internal/health/**",
+                        "/internal/metrics/**",
+                        "/internal/prometheus",
                         "/actuator/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
