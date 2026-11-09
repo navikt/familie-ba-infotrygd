@@ -32,12 +32,17 @@ spring:
 
 management:
   endpoint:
+    info:
+      access: none
     health:
       show-details: ALWAYS
+  info:
+    defaults:
+      enabled: false
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,prometheus
 
 #oidc...
 http.proxy.parametername: notused
