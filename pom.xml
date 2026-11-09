@@ -29,11 +29,11 @@
         <springdoc.version>3.2.0</springdoc.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
         <felles.version>4.20261026180911_c3ff6d9</felles.version>
-        <kontrakter.version>4.0_20261101220042_fc030be</kontrakter.version>
+        <kontrakter.version>4.0_20261108214032_20eed0c</kontrakter.version>
         <coroutines.version>1.11.0</coroutines.version>
         <okhttp3.version>5.5.1</okhttp3.version>
         <testcontainers-oracle.version>2.0.5</testcontainers-oracle.version>
-        <ojdbc.version>23.26.3.0.0</ojdbc.version>
+        <ojdbc.version>23.26.4.0.0</ojdbc.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
 
     </properties>
